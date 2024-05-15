@@ -83,13 +83,11 @@ git branch | head -1
 # *.TBL files also can be found in datain/fixed
 # x1.${RES}.grid.nc also can be found in datain/fixed
 
-# TODO: put the WPS_GEO directory in a public place available for everyone
-if [ ! -d "${DATAIN}/fixed" ]
-then
-   echo -e  "${GREEN}==>${NC} Copying and decompressing input data... \n"
-   time tar -xzvf ${DIRDADOS}/MONAN_datain.tgz -C ${DIRHOMED}
-fi
-
+echo -e  "${GREEN}==>${NC} copying and linking fixed input data... \n"
+mkdir -p ${DATAIN}
+rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
+rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
+ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
 
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
