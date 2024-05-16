@@ -114,6 +114,7 @@ do
 done
 
 cd ${SCRIPTS}
+. ${SCRIPTS}/setenv_python.bash
 
 cat > PostAtmos_exe.sh <<EOF0
 #!/bin/bash
@@ -127,7 +128,7 @@ cat > PostAtmos_exe.sh <<EOF0
 #SBATCH --exclusive
 
 . ${SCRIPTS}/setenv.bash
-. ${SCRIPTS}/setenv_python.bash
+. ${SCRIPTS}/../.venv/bin/activate
 
 datai=$YYYYMMDDHHi
 resolution=$RES
