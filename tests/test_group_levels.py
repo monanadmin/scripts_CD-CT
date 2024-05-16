@@ -58,16 +58,19 @@ class TestMainFunction(unittest.TestCase):
         shutil.rmtree(self.data_dir,ignore_errors=True)
 
     def test_variables(self):
-        main(self.data_dir, self.filename_in, self.filename_out)
+        levels_in = [30, 20, 15]
+        main(self.data_dir, self.filename_in, self.filename_out, levels=levels_in)
         nc_file_out = nc.Dataset(self.data_dir+self.filename_out, 'r')
         
         self.assertEqual(nc_file_out.dimensions['time'].size, 3)
         self.assertEqual(nc_file_out.dimensions['latitude'].size, 2)
         self.assertEqual(nc_file_out.dimensions['longitude'].size, 2)
         self.assertEqual(nc_file_out.dimensions['level'].size, 3)
+        
         self.assertTrue(all(nc_file_out['time'][...] == self.nc_file_in['time'][...]))
         self.assertTrue(all(nc_file_out['latitude'][...] == self.nc_file_in['latitude'][...]))
         self.assertTrue(all(nc_file_out['longitude'][...] == self.nc_file_in['longitude'][...]))
+        self.assertTrue(np.all(nc_file_out['level'][...].data == levels_in))
 
         self.assertTrue(np.all(nc_file_out['t2m'][:] == self.nc_file_in['t2m'][:]))
         self.assertTrue(nc_file_out['temp'].shape == (3, 3, 2, 2))

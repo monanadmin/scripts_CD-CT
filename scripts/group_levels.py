@@ -5,7 +5,7 @@ import re
 import sys
 
 
-def main(data_dir, file_in, file_out):
+def main(data_dir, file_in, file_out, levels=[15,20,30,50,70,100,150,200,250,300,400,500,600,700,825,850,875,900,925,950,975,1000]):
     """
     This function takes in the data directory, input file name, and output file name.
     It reads the input NetCDF file, groups variables based on their names,
@@ -56,7 +56,7 @@ def main(data_dir, file_in, file_out):
         if variable_type == 'level':
             new_variable = nc_file_out.createVariable(variable_type, variables[0].dtype, (variable_type) )
             new_variable.setncatts({k: variables[0].getncattr(k) for k in variables[0].ncattrs()})
-            new_variable[:] = range(level_dimension_size, 0, -1)
+            new_variable[:] = range(level_dimension_size, 0, -1) if levels is None else levels
         # if its variables with on isobaric level per variable
         elif len(variables) == level_dimension_size:
             new_variable = nc_file_out.createVariable(variable_type, variables[0].dtype, dimensions_4D)
