@@ -44,6 +44,12 @@ class TestMainFunction(unittest.TestCase):
         self.nc_file_in.createVariable('temp_15hPa', np.float32, ('time', 'level', 'latitude', 'longitude'))
         self.nc_file_in.createVariable('temp_20hPa', np.float32, ('time', 'level', 'latitude', 'longitude'))
         self.nc_file_in.createVariable('temp_30hPa', np.float32, ('time', 'level', 'latitude', 'longitude'))
+        self.nc_file_in.createVariable('rucuten_15hPa', np.float32, ('time', 'level', 'latitude', 'longitude'))
+        self.nc_file_in.createVariable('rucuten_20hPa', np.float32, ('time', 'level', 'latitude', 'longitude'))
+        self.nc_file_in.createVariable('rucuten_30hPa', np.float32, ('time', 'level', 'latitude', 'longitude'))
+        self.nc_file_in.createVariable('height_15hPa', np.float32, ('time', 'level', 'latitude', 'longitude'))
+        self.nc_file_in.createVariable('height_20hPa', np.float32, ('time', 'level', 'latitude', 'longitude'))
+        self.nc_file_in.createVariable('height_30hPa', np.float32, ('time', 'level', 'latitude', 'longitude'))
         self.nc_file_in.createVariable('t2m', np.float32, ('time', 'level', 'latitude', 'longitude'))
         
 
@@ -55,11 +61,23 @@ class TestMainFunction(unittest.TestCase):
         self.nc_file_in['temp_15hPa'][...] = np.random.rand(num_times_in, num_levels_in, num_lats_in, num_lons_in)
         self.nc_file_in['temp_20hPa'][...] = np.random.rand(num_times_in, num_levels_in, num_lats_in, num_lons_in)
         self.nc_file_in['temp_30hPa'][...] = np.random.rand(num_times_in, num_levels_in, num_lats_in, num_lons_in)
+        self.nc_file_in['rucuten_15hPa'][...] = np.random.rand(num_times_in, num_levels_in, num_lats_in, num_lons_in)
+        self.nc_file_in['rucuten_20hPa'][...] = np.random.rand(num_times_in, num_levels_in, num_lats_in, num_lons_in)
+        self.nc_file_in['rucuten_30hPa'][...] = np.random.rand(num_times_in, num_levels_in, num_lats_in, num_lons_in)
+        self.nc_file_in['height_15hPa'][...] = np.random.rand(num_times_in, num_levels_in, num_lats_in, num_lons_in)
+        self.nc_file_in['height_20hPa'][...] = np.random.rand(num_times_in, num_levels_in, num_lats_in, num_lons_in)
+        self.nc_file_in['height_30hPa'][...] = np.random.rand(num_times_in, num_levels_in, num_lats_in, num_lons_in)
         self.nc_file_in['t2m'][...] = np.random.rand(num_times_in, num_levels_in, num_lats_in, num_lons_in)
         
         self.nc_file_in['temp_15hPa'].setncattr('long_name', 'Temperature vertically interpolated to 15 hPa')
         self.nc_file_in['temp_20hPa'].setncattr('long_name', 'Temperature vertically interpolated to 20 hPa')
         self.nc_file_in['temp_30hPa'].setncattr('long_name', 'Temperature vertically interpolated to 30 hPa')
+        self.nc_file_in['rucuten_15hPa'].setncattr('long_name', 'Tendency of zonal wind due to cumulus convection 15 hPa')
+        self.nc_file_in['rucuten_20hPa'].setncattr('long_name', 'Tendency of zonal wind due to cumulus convection 20 hPa')
+        self.nc_file_in['rucuten_30hPa'].setncattr('long_name', 'Tendency of zonal wind due to cumulus convection 30 hPa')
+        self.nc_file_in['height_15hPa'].setncattr('long_name', 'Geometric height interpolated to 15 hPa')
+        self.nc_file_in['height_20hPa'].setncattr('long_name', 'Geometric height interpolated to 15 hPa')
+        self.nc_file_in['height_30hPa'].setncattr('long_name', 'Geometric height interpolated to 15 hPa')
         self.nc_file_in['t2m'].setncattr('long_name', '2-meter temperature')
         
         self.nc_file_in.sync()
@@ -98,7 +116,9 @@ class TestMainFunction(unittest.TestCase):
         self.assertTrue(np.all(nc_file_out['temp'][:,2,:,:].data == self.nc_file_in['temp_30hPa'][:,0,:,:].data))
         
         # checking the long_name removes the string 'vertically interpolated to xx hPa'
-        self.assertEqual(nc_file_out['temp'].getncattr('long_name'), 'Temperature')
+        self.assertEqual(nc_file_out['temp'].getncattr('long_name'), 'Temperature interpolated')
+        self.assertEqual(nc_file_out['rucuten'].getncattr('long_name'), 'Tendency of zonal wind due to cumulus convection interpolated')
+        self.assertEqual(nc_file_out['height'].getncattr('long_name'), 'Geometric height interpolated')
         self.assertEqual(nc_file_out['t2m'].getncattr('long_name'), '2-meter temperature')
 
         nc_file_out.close()
