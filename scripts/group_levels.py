@@ -5,7 +5,8 @@ import re
 import sys
 
 
-def main(data_dir, file_in, file_out):
+def main(data_dir, file_in, file_out, levels=[1000, 975, 950, 925, 900, 875, 850, 825, 700, 600, 500, 400, \
+    300, 250, 200, 150, 100, 70, 50, 30, 20, 15]):
     """
     This function takes in the data directory, input file name, and output file name.
     It reads the input NetCDF file, groups variables based on their names,
@@ -29,7 +30,7 @@ def main(data_dir, file_in, file_out):
     # Group variables based on their names
     variable_groups = {}
     first_hpa_variable = ''
-    for name, variable in nc_file_in.variables.items():
+    for name, variable in reversed(list(nc_file_in.variables.items())):  # reverse to be consistent to levels
         # if 'hPa' in name or name in dimensions_4D:
         if 'hPa' in name:
             variable_type = re.split('_.*hPa', name)[0]  # Extract the variable type (e.g., '15hPa', '20hPa')
@@ -56,12 +57,25 @@ def main(data_dir, file_in, file_out):
         if variable_type == 'level':
             new_variable = nc_file_out.createVariable(variable_type, variables[0].dtype, (variable_type) )
             new_variable.setncatts({k: variables[0].getncattr(k) for k in variables[0].ncattrs()})
-            new_variable[:] = range(level_dimension_size, 0, -1)
+            new_variable[:] = range(level_dimension_size, 0, -1) if levels is None else levels
+            new_variable.setncattr('positive', "down")
+            new_variable.setncattr('units', "hPa")
+        # if its variables with on isobaric level per variable
         elif len(variables) == level_dimension_size:
             new_variable = nc_file_out.createVariable(variable_type, variables[0].dtype, dimensions_4D)
             new_variable.setncatts({k: variables[0].getncattr(k) for k in variables[0].ncattrs()})
+            if 'vertically interpolated' in  new_variable.getncattr('long_name'):
+                new_long_name = new_variable.getncattr('long_name').split('vertically interpolated')[0].strip()
+            elif 'interpolated' in  new_variable.getncattr('long_name'):
+                new_long_name = new_variable.getncattr('long_name').split('interpolated')[0].strip()
+            elif '1000 hPa' in  new_variable.getncattr('long_name'):
+                new_long_name = new_variable.getncattr('long_name').split('1000 hPa')[0].strip()
+            else:
+                new_long_name = new_variable.getncattr('long_name')
+            new_long_name += ' interpolated'
+            new_variable.setncattr('long_name', new_long_name)
+            
             for i in range(level_dimension_size):
-                print(f'copying variable level {i}')
                 new_variable[:,i,:,:] = variables[i][:]
         else:
             # Create an empty list to store lowercase dimensions
