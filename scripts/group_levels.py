@@ -61,6 +61,7 @@ def main(data_dir, file_in, file_out, levels=[15,20,30,50,70,100,150,200,250,300
         elif len(variables) == level_dimension_size:
             new_variable = nc_file_out.createVariable(variable_type, variables[0].dtype, dimensions_4D)
             new_variable.setncatts({k: variables[0].getncattr(k) for k in variables[0].ncattrs()})
+            new_variable.setncattr('long_name', new_variable.getncattr('long_name').split('vertically interpolated')[0].strip())
             for i in range(level_dimension_size):
                 print(f'copying variable level {i}')
                 new_variable[:,i,:,:] = variables[i][:]
