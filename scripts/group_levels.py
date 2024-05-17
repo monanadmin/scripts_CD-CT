@@ -58,6 +58,8 @@ def main(data_dir, file_in, file_out, levels=[1000, 975, 950, 925, 900, 875, 850
             new_variable = nc_file_out.createVariable(variable_type, variables[0].dtype, (variable_type) )
             new_variable.setncatts({k: variables[0].getncattr(k) for k in variables[0].ncattrs()})
             new_variable[:] = range(level_dimension_size, 0, -1) if levels is None else levels
+            new_variable.setncattr('positive', "down")
+            new_variable.setncattr('units', "hPa")
         # if its variables with on isobaric level per variable
         elif len(variables) == level_dimension_size:
             new_variable = nc_file_out.createVariable(variable_type, variables[0].dtype, dimensions_4D)
