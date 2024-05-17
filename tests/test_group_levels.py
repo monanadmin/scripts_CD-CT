@@ -88,7 +88,7 @@ class TestMainFunction(unittest.TestCase):
 
     def test_variables(self):
         print("Running tests for joining levels of variables")
-        levels_in = [30, 20, 15]
+        levels_in = [15, 20, 30]
         main(self.data_dir, self.filename_in, self.filename_out, levels=levels_in)
         nc_file_out = nc.Dataset(self.data_dir+self.filename_out, 'r')
         

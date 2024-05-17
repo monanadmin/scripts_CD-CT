@@ -5,7 +5,8 @@ import re
 import sys
 
 
-def main(data_dir, file_in, file_out, levels=[15,20,30,50,70,100,150,200,250,300,400,500,600,700,825,850,875,900,925,950,975,1000]):
+def main(data_dir, file_in, file_out, levels=[1000, 975, 950, 925, 900, 875, 850, 825, 700, 600, 500, 400, \
+    300, 250, 200, 150, 100, 70, 50, 30, 20, 15]):
     """
     This function takes in the data directory, input file name, and output file name.
     It reads the input NetCDF file, groups variables based on their names,
