@@ -30,7 +30,7 @@ def main(data_dir, file_in, file_out, levels=[1000, 975, 950, 925, 900, 875, 850
     # Group variables based on their names
     variable_groups = {}
     first_hpa_variable = ''
-    for name, variable in nc_file_in.variables.items():
+    for name, variable in reversed(list(nc_file_in.variables.items())):  # reverse to be consistent to levels
         # if 'hPa' in name or name in dimensions_4D:
         if 'hPa' in name:
             variable_type = re.split('_.*hPa', name)[0]  # Extract the variable type (e.g., '15hPa', '20hPa')
@@ -66,8 +66,8 @@ def main(data_dir, file_in, file_out, levels=[1000, 975, 950, 925, 900, 875, 850
                 new_long_name = new_variable.getncattr('long_name').split('vertically interpolated')[0].strip()
             elif 'interpolated' in  new_variable.getncattr('long_name'):
                 new_long_name = new_variable.getncattr('long_name').split('interpolated')[0].strip()
-            elif '15 hPa' in  new_variable.getncattr('long_name'):
-                new_long_name = new_variable.getncattr('long_name').split('15 hPa')[0].strip()
+            elif '1000 hPa' in  new_variable.getncattr('long_name'):
+                new_long_name = new_variable.getncattr('long_name').split('1000 hPa')[0].strip()
             else:
                 new_long_name = new_variable.getncattr('long_name')
             new_long_name += ' interpolated'
