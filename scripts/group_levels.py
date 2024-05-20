@@ -33,7 +33,7 @@ def main(data_dir, file_in, file_out, levels=[1000, 975, 950, 925, 900, 875, 850
     for name, variable in reversed(list(nc_file_in.variables.items())):  # reverse to be consistent to levels
         # if 'hPa' in name or name in dimensions_4D:
         if 'hPa' in name:
-            variable_type = re.split('_.*hPa', name)[0]  # Extract the variable type (e.g., '15hPa', '20hPa')
+            variable_type = re.split('_.\d*hPa', name)[0]  # Extract the variable type (e.g., '15hPa', '20hPa')
             first_hpa_variable = variable_type if first_hpa_variable == '' else first_hpa_variable  
         else:
             variable_type = name.lower()
