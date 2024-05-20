@@ -11,7 +11,7 @@ source ${SCRIPTS}/../.venv/bin/activate
 
 echo "Installing python libraries"
 pip install --upgrade pip
-pip install netCDF4
+pip install -r ${SCRIPTS}/requirements.txt
 
 export PYTHONPATH=${PYTHONPATH}:${SCRIPTS}
 echo "exporting PYTHONPATH=${PYTHONPATH}"
