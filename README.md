@@ -10,8 +10,12 @@ This folder aims to create a version for testing MONAN with GFS at Egeon.
 - Used parameterization to select the date for execution.
 - Created cron script for daily executions.
 - Post-processing is with the new version of convert_mpas, enabling the use of grads.
+- Grouping all variables with one pressure level to only one variable with all levels.
 - Defined default version of MONAN-Model (0.5.0) and convert_mpas (0.1.0) in the installation step.
 
+0.1.1
+- Fixing bug on pressure levels description in post files
+- Fixing variables name in post files
 
 ### Implementation at Egeon:
 
