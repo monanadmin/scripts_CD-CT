@@ -211,6 +211,7 @@ do
 done
 
 rm -rf ${SCRIPTS}/dir.* ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon.nc
+cp ${EXECS}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
 
 exit 0
 EOF0

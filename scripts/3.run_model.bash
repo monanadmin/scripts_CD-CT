@@ -167,6 +167,7 @@ date
 
 mv MONAN_DIAG_* ${DATAOUT}/${YYYYMMDDHHi}/Model
 mv MONAN_HIST_* ${DATAOUT}/${YYYYMMDDHHi}/Model
+cp ${EXECS}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model
 
 mv log.atmosphere.*.out ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 mv log.atmosphere.*.err ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
