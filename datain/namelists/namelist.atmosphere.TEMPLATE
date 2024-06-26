@@ -55,11 +55,12 @@
     config_sst_update = false
     config_sstdiurn_update = false
     config_deepsoiltemp_update = false
-    config_radtlw_interval = '01:00:00'
-    config_radtsw_interval = '01:00:00'
+    config_radtlw_interval = '00:30:00'
+    config_radtsw_interval = '00:30:00'
+    config_conv_interval = '00:15:00'
     config_bucket_update = '01:00:00'
-    config_physics_suite = 'mesoscale_reference'
-    config_convection_scheme = 'cu_grell_freitas'
+    config_physics_suite = 'mesoscale_reference_monan'
+    config_convection_scheme = 'cu_gf_monan'
 /
 &soundings
     config_sounding_interval = 'none'
