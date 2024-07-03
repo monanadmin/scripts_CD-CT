@@ -18,8 +18,8 @@ This folder aims to create a version for testing MONAN with GFS at Egeon.
 - Fixing variables name in post files
 
 0.2.0
-- Includig copy of the GF_ConvPar_nml from model source to scripts folder.
-- Changing physics suite to mesoscale_reference_monan;
+- Including copy of the GF_ConvPar_nml from model source to scripts folder.
+- Changing physics suite to mesoscale_reference_monan.
 - Changing the output model interval to 3h adjusting the post processing.
 - Changing the radtlw and radtsw interval to 30m, and conv interval to 15m.
 
