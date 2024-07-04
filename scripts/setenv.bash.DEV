@@ -30,11 +30,11 @@ module list
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
+export MONANDIR=$MONANDIR
 
-# For cron bash
-export MONANDIR=/mnt/beegfs/monan/scripts_CD-CT_dev/scripts_CD-CT/sources/MONAN-Model_release/1.0.0
+# For CRON-DEV
 export MONAN_GIT="https://github.com/monanadmin/MONAN-Model.git"
-export MONAN_VERSION="release/1.0.0"
+export MONAN_VERSION="develop"
 export SCRIPTCDCT_VERSION="develop"
 export CONVERT_VERSION="develop"
 
@@ -66,7 +66,7 @@ export INITATMOS_walltime="01:00:00"
 
 
 # Model phase:
-export MODEL_QUEUE=batch
+export MODEL_QUEUE="batch"
 export MODEL_ncores=1024
 export MODEL_nnodes=16
 export MODEL_ncpn=64
@@ -78,7 +78,7 @@ export MODEL_walltime="8:00:00"
 export POST_QUEUE="batch"
 export POST_ncores=1
 export POST_nnodes=1
-export POST_ncpn=1
+export POST_ncpn=32
 export POST_jobname="DEV-Post.MONAN"
 export POST_walltime="8:00:00"
 
