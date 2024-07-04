@@ -163,6 +163,8 @@ make -j 8 gfortran CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2
 #CR: TODO: put verify here if executable was created ok
 mv ${MONANDIR}/atmosphere_model ${EXECS}
 mv ${MONANDIR}/build_tables ${EXECS}
+cp ${MONANDIR}/VERSION.txt ${EXECS}
+cp ${MONANDIR}/GF_ConvPar_nml ${SCRIPTS}
 make clean CORE=atmosphere
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.init_atmosphere"

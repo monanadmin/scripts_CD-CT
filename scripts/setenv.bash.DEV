@@ -32,6 +32,12 @@ export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
 export MONANDIR=$MONANDIR
 
+# For CRON-DEV
+export MONAN_GIT="https://github.com/monanadmin/MONAN-Model.git"
+export MONAN_VERSION="develop"
+export SCRIPTCDCT_VERSION="develop"
+export CONVERT_VERSION="develop"
+
 # Submiting variables:
 
 # PRE-Static phase:
@@ -39,7 +45,7 @@ export STATIC_QUEUE="batch"
 export STATIC_ncores=32
 export STATIC_nnodes=1
 export STATIC_ncpn=32
-export STATIC_jobname="Pre.static"
+export STATIC_jobname="DEV-Pre.static"
 export STATIC_walltime="02:00:00"
 
 # PRE-Degrib phase:
@@ -47,7 +53,7 @@ export DEGRIB_QUEUE="batch"
 export DEGRIB_ncores=1
 export DEGRIB_nnodes=1
 export DEGRIB_ncpn=1
-export DEGRIB_jobname="Pre.degrib"
+export DEGRIB_jobname="DEV-Pre.degrib"
 export DEGRIB_walltime="00:30:00"
 
 # PRE-Init Atmosphere phase:
@@ -55,7 +61,7 @@ export INITATMOS_QUEUE="batch"
 export INITATMOS_ncores=64
 export INITATMOS_nnodes=1
 export INITATMOS_ncpn=1
-export INITATMOS_jobname="Pre.InitAtmos"
+export INITATMOS_jobname="DEV-Pre.InitAtmos"
 export INITATMOS_walltime="01:00:00"
 
 
@@ -64,7 +70,7 @@ export MODEL_QUEUE="batch"
 export MODEL_ncores=1024
 export MODEL_nnodes=16
 export MODEL_ncpn=64
-export MODEL_jobname="Model.MONAN"
+export MODEL_jobname="DEV-Model.MONAN"
 export MODEL_walltime="8:00:00"
 
 
@@ -73,7 +79,7 @@ export POST_QUEUE="batch"
 export POST_ncores=1
 export POST_nnodes=1
 export POST_ncpn=32
-export POST_jobname="Post.MONAN"
+export POST_jobname="DEV-Post.MONAN"
 export POST_walltime="8:00:00"
 
 
@@ -82,7 +88,7 @@ export PRODS_QUEUE="batch"
 export PRODS_ncores=1
 export PRODS_nnodes=1
 export PRODS_ncpn=1
-export PRODS_jobname="Prods.MONAN"
+export PRODS_jobname="DEV-Prods.MONAN"
 export PRODS_walltime="8:00:00"
 
 
