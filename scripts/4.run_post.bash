@@ -65,11 +65,28 @@ FCST=${4};        #FCST=6
 START_DATE_YYYYMMDD="${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}"
 START_HH="${YYYYMMDDHHi:8:2}"
 maxpost=30
+
+# Calculating default parameters for different resolutions
+if [ $RES -eq 1024002 ]; then  #24Km
+   NLAT=361
+   NLON=721
+   STARTLAT=-90.5
+   STARTLON=-0.5
+   ENDLAT=90.5
+   ENDLON=360.5
+elif [ $RES -eq 40962 ]; then  #120Km
+   NLAT=181
+   NLON=361
+   STARTLAT=-90.5
+   STARTLON=-0.5
+   ENDLAT=90.5
+   ENDLON=360.5
+fi
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
 
-files_needed=("${DATAIN}/namelists/include_fields.diag" "${DATAIN}/namelists/convert_mpas.nml" "${DATAIN}/namelists/target_domain" "${EXECS}/convert_mpas" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc")
+files_needed=("${DATAIN}/namelists/include_fields.diag" "${DATAIN}/namelists/convert_mpas.nml" "${DATAIN}/namelists/target_domain.TEMPLATE" "${EXECS}/convert_mpas" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -110,7 +127,9 @@ do
 
   ln -sf ${DATAIN}/namelists/include_fields.diag  ${SCRIPTS}/dir.${i}/include_fields.diag
   ln -sf ${DATAIN}/namelists/convert_mpas.nml ${SCRIPTS}/dir.${i}/convert_mpas.nml
-  ln -sf ${DATAIN}/namelists/target_domain ${SCRIPTS}/dir.${i}/target_domain
+  #ln -sf ${DATAIN}/namelists/target_domain ${SCRIPTS}/dir.${i}/target_domain   TODO REMOVE
+  sed -e "s,#NLAT#,${NLAT},g;s,#NLON#,${NLON},g;s,#STARTLAT#,${STARTLAT},g;s,#ENDLAT#,${ENDLAT},g;s,#STARTLON#,${STARTLON},g;s,#ENDLON#,${ENDLON},g;" \
+      ${DATAIN}/namelists/target_domain.TEMPLATE > ${SCRIPTS}/dir.${i}/target_domain
 
   rm -rf ${SCRIPTS}/dir.${i}/convert_mpas
   ln -sf ${EXECS}/convert_mpas ${SCRIPTS}/dir.${i}

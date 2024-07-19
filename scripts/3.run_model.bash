@@ -28,8 +28,9 @@ then
    echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
    echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
    echo ""
-   echo "24 hour forcast example:"
+   echo "24 hour forecast example for 24km:"
    echo "${0} GFS 1024002 2024010100 24"
+   echo "48 hour forecast example for 120km:"
    echo "${0} GFS   40962 2024010100 48"
    echo ""
 
@@ -67,6 +68,17 @@ start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHH
 cores=${MODEL_ncores}
 hhi=${YYYYMMDDHHi:8:2}
 NLEV=55
+
+# Calculating default parameters for different resolutions
+if [ $RES -eq 1024002 ]; then  #24Km
+   CONFIG_DT=180.0
+   CONFIG_LEN_DISP=24000.0
+   CONFIG_CONV_INTERVAL="00:15:00"
+elif [ $RES -eq 40962 ]; then  #120Km
+   CONFIG_DT=600.0
+   CONFIG_LEN_DISP=120000.0
+   CONFIG_CONV_INTERVAL="00:10:00"
+fi
 #-------------------------------------------------------
 
 
@@ -119,8 +131,9 @@ ln -sf ${DATAIN}/fixed/Vtable.GFS ${SCRIPTS}
 
 if [ ${EXP} = "GFS" ]
 then
-   sed -e "s,#LABELI#,${start_date},g;s,#FCSTS#,${DD_HHMMSS_forecast},g;s,#RES#,${RES},g" \
-         ${DATAIN}/namelists/namelist.atmosphere.TEMPLATE > ${SCRIPTS}/namelist.atmosphere
+   sed -e "s,#LABELI#,${start_date},g;s,#FCSTS#,${DD_HHMMSS_forecast},g;s,#RES#,${RES},g;
+s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_CONV_INTERVAL#,${CONFIG_CONV_INTERVAL},g" \
+   ${DATAIN}/namelists/namelist.atmosphere.TEMPLATE > ${SCRIPTS}/namelist.atmosphere
    
    sed -e "s,#RES#,${RES},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
    ${DATAIN}/namelists/streams.atmosphere.TEMPLATE > ${SCRIPTS}/streams.atmosphere
