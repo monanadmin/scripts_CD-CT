@@ -55,16 +55,19 @@ echo "" >> ${logfile}
 # Don't used for CRON
 
 # STEP 2: Executing the pre-processing fase. Preparing all CI/CC files needed:
-time ./2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} >> ${logfile} 2>&1
-wait
+# JMAS-PAIVA (12jun24): Turned off, this script is running called by ecflow suite at /mnt/beegfs/monan/MONAN-WorkFlow
+#time ./2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} >> ${logfile} 2>&1
+#wait
 
 # STEP 3: Executing the Model run:
-time ./3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} >> ${logfile} 2>&1
-wait
+# CR (25jun24): Model step turned off in this cron, this script is running called by ecflow suite at /mnt/beegfs/monan/MONAN-WorkFlow
+#time ./3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} >> ${logfile} 2>&1
+#wait
 
 # STEP 4: Executing the Post of Model run:
-time ./4.run_post.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} >> ${logfile} 2>&1
-wait
+# CR (18jun24): Model step turned off in this cron, this script is running called by ecflow suite at /mnt/beegfs/monan/MONAN-WorkFlow
+#time ./4.run_post.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} >> ${logfile} 2>&1
+#wait
 
 # Cron finished
 echo "========== Finished Cron -" $(date "+%d%m%Y-%H%M%S") "==========" >> ${logfile}
