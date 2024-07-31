@@ -3,3 +3,5 @@ datain
 dataout
 execs
 .venv
+scripts/GF_ConvPar_nml
+sources
