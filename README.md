@@ -23,6 +23,11 @@ This folder aims to create a version for testing MONAN with GFS at Egeon.
 - Changing the output model interval to 3h adjusting the post processing.
 - Changing the radtlw and radtsw interval to 30m, and conv interval to 15m.
 
+0.2.1
+- Switch of configs (CONFIG_DT, CONFIG_LEN_DISP, target_domain, etc.) 120 and 24 km.
+- Clean temporary outputs files option add in the 3.run_model.bash script.
+- Verification if all the output files were created ok from model phase.
+
 ### Implementation at Egeon:
 
 **Getting the scritps:**
