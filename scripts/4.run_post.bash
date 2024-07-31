@@ -70,10 +70,10 @@ maxpost=30
 if [ $RES -eq 1024002 ]; then  #24Km
    NLAT=361
    NLON=721
-   STARTLAT=-90.5
-   STARTLON=-0.5
-   ENDLAT=90.5
-   ENDLON=360.5
+   STARTLAT=-90.25
+   STARTLON=-0.25
+   ENDLAT=90.25
+   ENDLON=360.25
 elif [ $RES -eq 40962 ]; then  #120Km
    NLAT=181
    NLON=361
@@ -107,15 +107,10 @@ echo "output_interval=$output_interval"
 # laco para checar nome dos arquivos de saida
 for i in $(seq 0 $output_interval $FCST)
 do
-   echo "i=$i"
-   # add i to datai
    hh=${YYYYMMDDHHi:8:2}
    currentdate=`date -d "${YYYYMMDDHHi:0:8} ${hh}:00 ${i} hours" +"%Y%m%d%H"`
-   echo "${currentdate}"
-#   diag_name=diag.${currentdate:0:4}-${currentdate:4:2}-${currentdate:6:2}_${currentdate:8:2}.00.00.nc
    diag_name=MONAN_DIAG_G_MOD_GFS_${YYYYMMDDHHi}_${currentdate}.00.00.x${RES}L55.nc
    echo "diag_name=${diag_name}"
-#  post_name=$(echo "${outputfile}" | sed -e "s,_MOD_,_POS_,g")
 done
 
 # cria diretorios e arquivos/links para cada saida do convert_mpas
