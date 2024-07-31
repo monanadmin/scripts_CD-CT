@@ -1,6 +1,6 @@
 &nhyd_model
     config_time_integration_order = 2
-    config_dt = 180.0
+    config_dt = #CONFIG_DT#
     config_start_time = '#LABELI#'
     config_run_duration = '#FCSTS#'
     config_split_dynamics_transport = true
@@ -13,7 +13,7 @@
     config_h_theta_eddy_visc4 = 0.0
     config_v_theta_eddy_visc2 = 0.0
     config_horiz_mixing = '2d_smagorinsky'
-    config_len_disp = 24000.0
+    config_len_disp = #CONFIG_LEN_DISP#
     config_visc4_2dsmag = 0.05
     config_w_adv_order = 3
     config_theta_adv_order = 3
@@ -57,7 +57,7 @@
     config_deepsoiltemp_update = false
     config_radtlw_interval = '00:30:00'
     config_radtsw_interval = '00:30:00'
-    config_conv_interval = '00:15:00'
+    config_conv_interval = '#CONFIG_CONV_INTERVAL#'
     config_bucket_update = '01:00:00'
     config_physics_suite = 'mesoscale_reference_monan'
     config_convection_scheme = 'cu_gf_monan'

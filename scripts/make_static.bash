@@ -161,6 +161,9 @@ mv ${SCRIPTS}/static.bash ${DATAOUT}/logs/
 if [ -s ${SCRIPTS}/x1.${RES}.static.nc ]
 then
    mv ${SCRIPTS}/x1.${RES}.static.nc ${DATAIN}/fixed
+else
+   echo -e  "${RED}==>${NC} File ${SCRIPTS}/x1.${RES}.static.nc was not created. \n"
+   exit -1
 fi
 
 find ${SCRIPTS} -maxdepth 1 -type l -exec rm -f {} \;
