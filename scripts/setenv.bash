@@ -111,8 +111,9 @@ export NC='\033[0m'        # No Color
 export BLUE='\033[01;34m'  # Blue
 
 
-# Functions:
-how_many_nodes () {
+# Functions: ======================================================================================================
+
+how_many_nodes () { 
    nume=${1}   
    deno=${2}
    num=$(echo "${nume}/${deno}" | bc -l)  
@@ -126,4 +127,30 @@ how_many_nodes () {
    echo "number of nodes left:       \${how_many_nodes_left} = ${how_many_nodes_left}"
    echo ""
 }
+#----------------------------------------------------------------------------------------------
+
+
+
+clean_model_tmp_files () {
+
+   echo "Removing all temporary files from last MODEL run trash."
+
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/atmosphere_model
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/*TBL
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/*DBL
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/*DATA
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.nc
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.graph.info.part.*
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/Vtable.GFS
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/streams.atmosphere
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stream_list.atmosphere.surface
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stream_list.atmosphere.output
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stream_list.atmosphere.diagnostics
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/namelist.atmosphere
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/MONAN_DIAG_*
+   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/log.atmosphere.*
+   echo ""
+   
+}
+#----------------------------------------------------------------------------------------------
 

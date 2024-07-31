@@ -15,15 +15,15 @@
 #
 #-----------------------------------------------------------------------------#
 
-if [ $# -ne 4 ]
+if [ $# -ne 4 -a $# -ne 1 ]
 then
    echo ""
    echo "Instructions: execute the command below"
    echo ""
-   echo "${0} EXP_NAME RESOLUTION LABELI FCST"
+   echo "${0} [EXP_NAME/OP] RESOLUTION LABELI FCST"
    echo ""
    echo "EXP_NAME    :: Forcing: GFS"
-   echo "            :: Others options to be added later..."
+   echo "OP          :: clean: remove all temporary files createed in the last run."
    echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
    echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
    echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
@@ -32,6 +32,8 @@ then
    echo "${0} GFS 1024002 2024010100 24"
    echo "48 hour forecast example for 120km:"
    echo "${0} GFS   40962 2024010100 48"
+   echo "Cleannig temp files example:"
+   echo "${0} clean"
    echo ""
 
    exit
@@ -41,6 +43,21 @@ fi
 echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
+
+if [ $# -eq 1 ]
+then
+   op=$(echo "${1}" | tr '[A-Z]' '[a-z]')
+   if [ ${op} = "clean" ]
+   then
+      clean_model_tmp_files
+      exit
+   else
+      echo "Should type just \"clean\" for cleanning."
+      echo "${0} clean"
+      echo ""
+      exit
+   fi   
+fi
 
 
 # Standart directories variables:---------------------------------------
@@ -106,14 +123,14 @@ then
    rm -fr x1.${RES}.tar.gz x1.${RES}_static.tar.gz
 fi
 
-rm -f ${SCRIPTS}/atmosphere_model ${SCRIPTS}/*TBL ${SCRIPTS}/*DBL ${SCRIPTS}/*DATA ${SCRIPTS}/x1.${RES}.static.nc ${SCRIPTS}/x1.${RES}.graph.info.part.${cores} ${SCRIPTS}/x1.${RES}.init.nc 
+clean_model_tmp_files
 
 files_needed=("${DATAIN}/namelists/stream_list.atmosphere.output" ""${DATAIN}/namelists/stream_list.atmosphere.diagnostics "${DATAIN}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.GFS")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
   then
-    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
+    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"   
     echo -e  "${RED}==>${NC} [${0}] At least the file ${file} was not generated. \n"
     exit -1
   fi
@@ -208,3 +225,21 @@ echo -e  "sbatch ${SCRIPTS}/model.bash"
 sbatch --wait ${SCRIPTS}/model.bash
 mv ${SCRIPTS}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 
+
+output_interval=3
+for i in $(seq 0 ${output_interval} ${FCST})
+do
+   hh=${YYYYMMDDHHi:8:2}
+   currentdate=$(date -u +"%Y%m%d%H" -d "${YYYYMMDDHHi:0:8} ${hh}:00 ${i} hours")
+   file=MONAN_DIAG_G_MOD_GFS_${YYYYMMDDHHi}_${currentdate}.00.00.x${RES}L55.nc
+   
+   if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Model/${file} ]
+   then
+    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
+    echo -e  "${RED}==>${NC} [${0}] At least the file ${DATAOUT}/${YYYYMMDDHHi}/Model/${file} was not generated. \n"
+    exit -1
+  fi
+      
+done
+
+   
