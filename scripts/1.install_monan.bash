@@ -57,7 +57,7 @@ then
    echo ""
    echo "${0} [G] [M] [C]"
    echo ""
-   echo "G   :: MONAN GitHub link of your personal fork, eg: https://github.com/MYUSER/MONAN-Model.git"
+   echo "G   :: MONAN GitHub link of your personal fork, eg: https://github.com/MYUSER/MONAN-Model.git https://github.com/monanadmin/MONAN-Model.git"
    echo "M   :: MONAN tag or branch name of your personal fork. (will be used 'develop' if not informed)" 
    echo "C   :: Convert_MPAS tag from ${github_link_CONVERT_MPAS} (will be used 'develop' if not informed)"
    echo ""
@@ -158,7 +158,7 @@ export PIO=
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.atmosphere"
 make clean CORE=atmosphere
-make -j 8 gfortran CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+make -j 4 gfortran CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
 
 #CR: TODO: put verify here if executable was created ok
 mv ${MONANDIR}/atmosphere_model ${EXECS}
@@ -169,7 +169,7 @@ make clean CORE=atmosphere
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.init_atmosphere"
 make clean CORE=init_atmosphere
-make -j 8 gfortran CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+make -j 4 gfortran CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
 
 mv ${MONANDIR}/init_atmosphere_model ${EXECS}
 make clean CORE=init_atmosphere
@@ -232,7 +232,7 @@ export PIO=
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.atmosphere"
 make clean CORE=atmosphere
-make -j 8 gfortran CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+make -j 4 gfortran CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
 
 #CR: TODO: put verify here if executable was created ok
 mv ${MONANDIR}/atmosphere_model ${EXECS}
@@ -263,31 +263,31 @@ echo ""
 
 
 # install convert_mpas
-echo ""
-echo -e  "${GREEN}==>${NC} Moduling environment for convert_mpas...\n"
-module purge
-module load gnu9/9.4.0
-module load ohpc
-module load phdf5
-module load netcdf
-module load netcdf-fortran
-module list
+#echo ""
+#echo -e  "${GREEN}==>${NC} Moduling environment for convert_mpas...\n"
+#module purge
+#module load gnu9/9.4.0
+#module load ohpc
+#module load phdf5
+#module load netcdf
+#module load netcdf-fortran
+#module list
 
-cd ${CONVERT_MPAS_DIR}
-echo ""
-echo -e  "${GREEN}==>${NC} Installing convert_mpas...\n"
-make clean
-make  2>&1 | tee make.convert.output
+#cd ${CONVERT_MPAS_DIR}
+#echo ""
+#echo -e  "${GREEN}==>${NC} Installing convert_mpas...\n"
+#make clean
+#make  2>&1 | tee make.convert.output
 
 #CR: TODO: put verify here if executable was created ok
-mv ${CONVERT_MPAS_DIR}/convert_mpas ${EXECS}/
+#mv ${CONVERT_MPAS_DIR}/convert_mpas ${EXECS}/
 
-if [ -s "${EXECS}/convert_mpas" ] ; then
-    echo ""
-    echo -e "${GREEN}==>${NC} File convert_mpas generated Sucessfully in ${CONVERT_MPAS_DIR} and copied to ${EXECS} !"
-    echo
-else
-    echo -e "${RED}==>${NC} !!! An error occurred during convert_mpas build. Check output"
-    exit -1
-fi
+#if [ -s "${EXECS}/convert_mpas" ] ; then
+#    echo ""
+#    echo -e "${GREEN}==>${NC} File convert_mpas generated Sucessfully in ${CONVERT_MPAS_DIR} and copied to ${EXECS} !"
+#    echo
+#else
+#    echo -e "${RED}==>${NC} !!! An error occurred during convert_mpas build. Check output"
+#    exit -1
+#fi
 
