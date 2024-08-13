@@ -35,7 +35,13 @@ then
    echo "${0} GFS 1024002 2024010100 24"
    echo "48 hour forecast example for 120km:"
    echo "${0} GFS   40962 2024010100 48"
-   echo ""
+   echo " Laptop:"
+   echo "24 hour forecast example for 480km:"
+   echo "${0} GFS    2562 2024080800 24"
+   echo "24 hour forecast example for 384km:"
+   echo "${0} GFS    4002 2024080800 24"
+   echo "24 hour forecast example for 240km:"
+   echo "${0} GFS   10242 2024080800 24"
 
    exit
 fi
@@ -79,16 +85,26 @@ git log -1 --name-only
 git branch | head -1
 
 
-# Untar the fixed files:
-# x1.${RES}.graph.info.part.<Ncores> files can be found in datain/fixed
-# *.TBL files also can be found in datain/fixed
-# x1.${RES}.grid.nc also can be found in datain/fixed
+if [ ! -d ${DATAIN}/fixed ]
+then
+   echo "Please download the tgz data, untar it into the datain directory:"
+   echo "datain/fixed"
+   echo "datain/WPS_GEOG"
+   echo ""
+   echo "wget https://ftp.cptec.inpe.br/pesquisa/dmdcc/volatil/Renato/scripts_CD-CT_datain.tgz"
+   exit
+fi
 
-echo -e  "${GREEN}==>${NC} copying and linking fixed input data... \n"
-mkdir -p ${DATAIN}
-rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
-rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
-ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+if [ ! -d ${DATAIN}/WPS_GEOG ]
+then
+   echo "Please download the tgz data, untar it into the datain directory:"
+   echo "datain/fixed"
+   echo "datain/WPS_GEOG"
+   echo ""
+   echo "wget https://ftp.cptec.inpe.br/pesquisa/dmdcc/volatil/Renato/scripts_CD-CT_datain.tgz"
+   exit
+fi
+
 
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
@@ -100,7 +116,7 @@ else
 fi
 #----------------------------------------------------------------------------------
 
-
+exit
 
 # Degrib phase:---------------------------------------------------------------------
 echo -e  "${GREEN}==>${NC} Submiting Degrib...\n"

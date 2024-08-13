@@ -4,7 +4,15 @@
 
 source /home/renato/temp/spack_mpas/env.sh
 spack load --only dependencies mpas-model%gcc@11.4.0
+spack load wps
+spack load metis
 spack load --list
+
+
+# Baixar pelo menos 1 vez o pacote de dados abaixo em scripts_CD-CT/datain:
+# wget https://ftp.cptec.inpe.br/pesquisa/dmdcc/volatil/Renato/scripts_CD-CT_datain.tgz
+# Baixar a CI do GFS em scripts_CD-CT/datain:
+# wget https://ftp.cptec.inpe.br/pesquisa/dmdcc/volatil/Renato/GFS:2024-08-07_00
 
 
 # Set environment variables and importants directories-------------------------------------------------- 
@@ -17,6 +25,20 @@ export DIR_DADOS=$(dirname $(dirname $(pwd)))
 export MONANDIR=/home/renato/temp/scripts_CD-CT/sources/MONAN-Model_1.0.0
 
 # Submiting variables:
+# PRE-Static phase:
+export STATIC_ncores=4
+
+# PRE-Degrib phase:
+export DEGRIB_ncores=1
+
+# PRE-Init Atmosphere phase:
+export INITATMOS_ncores=64
+
+# Model phase:
+export MODEL_ncores=1024
+
+# Post phase:
+export POST_ncores=1 
 
 
 

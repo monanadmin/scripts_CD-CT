@@ -17,6 +17,13 @@ then
    echo "24 hour forcast example:"
    echo "${0} GFS 1024002 2024010100 24"
    echo "${0} GFS   40962 2024010100 48"
+   echo " Laptop:"
+   echo "24 hour forecast example for 480km:"
+   echo "${0} GFS    2562 2024080800 24"
+   echo "24 hour forecast example for 384km:"
+   echo "${0} GFS    4002 2024080800 24"
+   echo "24 hour forecast example for 240km:"
+   echo "${0} GFS   10242 2024080800 24"
    echo ""
 
    exit
@@ -50,24 +57,23 @@ FCST=${4};        #FCST=24
 # Local variables--------------------------------------
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
 OPERDIREXP=${OPERDIR}/${EXP}
-BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
 #-------------------------------------------------------
 mkdir -p ${DATAIN}/${YYYYMMDDHHi}
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
-mkdir -p ${HOME}/local/lib64
-cp -f /usr/lib64/libjasper.so* ${HOME}/local/lib64
-cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
+#mkdir -p ${HOME}/local/lib64
+#cp -f /usr/lib64/libjasper.so* ${HOME}/local/lib64
+#cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
 
 
-if [ ! -d ${BNDDIR} ]
+if [ ! ${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
 then
    echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
-   echo -e "${RED}==>${NC}Check ${BNDDIR} ." 
+   echo -e "${RED}==>${NC}Check ${DATAIN}/${YYYYMMDDHHi} ." 
    exit 1                     
 fi
 
-files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${BNDDIR}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")
+files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -80,50 +86,22 @@ done
 
 ln -sf ${DATAIN}/fixed/x1.${RES}.static.nc ${SCRIPTS}
 ln -sf ${DATAIN}/fixed/Vtable.${EXP} ${SCRIPTS}/Vtable
-ln -sf ${EXECS}/ungrib.exe ${SCRIPTS}
-cp -rf ${BNDDIR}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
 
 
-
-
-rm -f ${SCRIPTS}/degrib.bash 
-cat << EOF0 > ${SCRIPTS}/degrib.bash 
-#!/bin/bash
-#SBATCH --job-name=${DEGRIB_jobname}
-#SBATCH --nodes=${DEGRIB_nnodes}
-#SBATCH --partition=${DEGRIB_QUEUE}
-#SBATCH --ntasks=${DEGRIB_ncores}             
-#SBATCH --tasks-per-node=${DEGRIB_ncpn}                     # ic for benchmark
-#SBATCH --time=${STATIC_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/debrib.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/debrib.e%j     # File name for standard error output
-#
-
-ulimit -s unlimited
-ulimit -c unlimited
-ulimit -v unlimited
-
-export PMIX_MCA_gds=hash
-
-
-export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${HOME}/local/lib64
-ldd ungrib.exe
+#export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${HOME}/local/lib64
+#ldd ungrib.exe
 
 cd ${SCRIPTS}
-. setenv.bash
-
-
 rm -f GRIBFILE.* namelist.wps
-
 
 sed -e "s,#LABELI#,${start_date},g;s,#PREFIX#,GFS,g" \
 	${DATAIN}/namelists/namelist.wps.TEMPLATE > ./namelist.wps
 
 ./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
 
-
+echo -e  "${GREEN}==>${NC} Executing sbatch degrib.bash...\n"
 date
-time mpirun -np 1 ./ungrib.exe
+time mpirun -np 1 ungrib.exe
 date
 
 
@@ -154,11 +132,6 @@ echo "End of degrib Job"
 
 EOF0
 chmod a+x ${SCRIPTS}/degrib.bash
-
-echo -e  "${GREEN}==>${NC} Executing sbatch degrib.bash...\n"
-cd ${SCRIPTS}
-sbatch --wait ${SCRIPTS}/degrib.bash
-mv ${SCRIPTS}/degrib.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
 
 

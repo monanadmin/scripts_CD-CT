@@ -16,6 +16,13 @@ then
    echo ""
    echo "24 hour forcast example:"
    echo "${0} GFS 1024002 2024010100 24"
+   echo " Laptop:"
+   echo "24 hour forecast example for 480km:"
+   echo "${0} GFS    2562 2024080800 24"
+   echo "24 hour forecast example for 384km:"
+   echo "${0} GFS    4002 2024080800 24"
+   echo "24 hour forecast example for 240km:"
+   echo "${0} GFS   10242 2024080800 24"
    echo ""
 
    exit
@@ -99,33 +106,15 @@ sed -e "s,#RES#,${RES},g" \
 
 
 mkdir -p ${DATAOUT}/logs
-rm -f ${SCRIPTS}/static.bash 
-cat << EOF0 > ${SCRIPTS}/static.bash 
-#!/bin/bash
-#SBATCH --job-name=${STATIC_jobname}
-#SBATCH --nodes=${STATIC_nnodes} 
-#SBATCH --ntasks=${STATIC_ncores}             
-#SBATCH --tasks-per-node=${STATIC_ncpn}  
-#SBATCH --partition=${STATIC_QUEUE}
-#SBATCH --time=${STATIC_walltime}        
-#SBATCH --output=${DATAOUT}/logs/static.bash.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/logs/static.bash.e%j     # File name for standard error output
-#SBATCH --exclusive
-##SBATCH --mem=500000
-
 
 executable=init_atmosphere_model
 
-ulimit -s unlimited
-ulimit -c unlimited
-ulimit -v unlimited
-
-. $(pwd)/setenv.bash
 
 cd ${SCRIPTS}
 
+echo -e "${GREEN}==>${NC} Running static program ... \n"
 date
-time mpirun -np \${SLURM_NTASKS} -env UCX_NET_DEVICES=mlx5_0:1 -genvall ./\${executable}
+time mpirun -np ${STATIC_ncores}  ./${executable}
 date
 
 grep "Finished running" log.init_atmosphere.0000.out >& /dev/null
@@ -149,14 +138,6 @@ echo " "
 mv log.init_atmosphere.0000.out ${DATAOUT}/logs/log.init_atmosphere.0000.x1.${RES}.static.nc.out
 
 
-EOF0
-chmod a+x ${SCRIPTS}/static.bash
-
-
-echo -e  "${GREEN}==>${NC} Executing sbatch static.bash...\n"
-cd ${SCRIPTS}
-sbatch --wait ${SCRIPTS}/static.bash
-mv ${SCRIPTS}/static.bash ${DATAOUT}/logs/
 
 if [ -s ${SCRIPTS}/x1.${RES}.static.nc ]
 then
