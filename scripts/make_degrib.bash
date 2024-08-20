@@ -19,11 +19,11 @@ then
    echo "${0} GFS   40962 2024010100 48"
    echo " Laptop:"
    echo "24 hour forecast example for 480km:"
-   echo "${0} GFS    2562 2024080800 24"
+   echo "${0} GFS    2562 2024080800 6"
    echo "24 hour forecast example for 384km:"
-   echo "${0} GFS    4002 2024080800 24"
+   echo "${0} GFS    4002 2024080800 6"
    echo "24 hour forecast example for 240km:"
-   echo "${0} GFS   10242 2024080800 24"
+   echo "${0} GFS   10242 2024080800 6"
    echo ""
 
    exit
@@ -83,6 +83,9 @@ do
     exit -1
   fi
 done
+
+exit
+
 
 ln -sf ${DATAIN}/fixed/x1.${RES}.static.nc ${SCRIPTS}
 ln -sf ${DATAIN}/fixed/Vtable.${EXP} ${SCRIPTS}/Vtable

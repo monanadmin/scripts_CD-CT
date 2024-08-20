@@ -9,7 +9,8 @@ Inside spack run:
   - source <your_spack_dir>/env.sh
   - spack compiler find
   - spack install mpas-model%gcc%11.4.0 ^parallelio+pnetcdf
-  - spack install wps
+  - spack install wps@4.3.1%gcc@11.4.0
+    (important check if the degrib.exe was installed in wps directory.)
   - spack install metis
 
 3. Clone this scripts pack, and use the laptop branch :
@@ -26,6 +27,7 @@ Inside spack run:
 
 5. Fill the PNETCDF and NETCDF vars with their correspondent path in scripts_CD-CT/scripts/setenv.bash script:
   use "spack find -p netcdf-c parallel-netcdf" to find the correct path and put them into the setenv.bash script
+  or automatically: $(spack location -i pacote)
   # Libraries paths:
   export NETCDF=
   export PNETCDF=

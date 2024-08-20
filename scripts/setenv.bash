@@ -26,16 +26,16 @@ export MONANDIR=/home/renato/temp/scripts_CD-CT/sources/MONAN-Model_1.0.0
 
 # Submiting variables:
 # PRE-Static phase:
-export STATIC_ncores=4
+export STATIC_ncores=8
 
 # PRE-Degrib phase:
 export DEGRIB_ncores=1
 
 # PRE-Init Atmosphere phase:
-export INITATMOS_ncores=64
+export INITATMOS_ncores=8
 
 # Model phase:
-export MODEL_ncores=1024
+export MODEL_ncores=8
 
 # Post phase:
 export POST_ncores=1 
@@ -53,11 +53,17 @@ export PMIX_MCA_gds=hash
 export MPI_PARAMS="-iface ib0 -bind-to core -map-by core"
 
 # Libraries paths:
+# $(spack location -i pacote)
 export NETCDF=/home/renato/temp/spack_mpas/opt/spack/linux-ubuntu22.04-skylake/gcc-11.4.0/netcdf-c-4.8.1-doqucv55nktwcutp3cjn37eb5glt2knx
+export NETCDFF=/home/renato/temp/spack_mpas/opt/spack/linux-ubuntu22.04-skylake/gcc-11.4.0/netcdf-fortran-4.5.4-zoobt2tdjre6jjc2ybjcm5jhf3zxtded
 export PNETCDF=/home/renato/temp/spack_mpas/opt/spack/linux-ubuntu22.04-skylake/gcc-11.4.0/parallel-netcdf-1.12.2-utm4qd3d6yqrqkqctq43finslpsjgzol
 export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
-#export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v0.5.0
+export NETCDF_FORTRAN_DIR=${NETCDFF}
+export NETCDF_FORTRAN_BIN=${NETCDFF}/bin
+export NETCDF_FORTRAN_LIB=${NETCDFF}/lib
+export NETCDF_FORTRAN_INC=${NETCDFF}/include
+
 export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v0.5.0
 export OPERDIR=/oper/dados/ioper/tempo
 
