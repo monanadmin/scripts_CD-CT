@@ -13,10 +13,17 @@ You can use the install_spack.bash script in scripts_CD-CT/scripts:
 Inside spack run:
   - source <your_spack_dir>/env.sh
   - spack compiler find
+    # (important check which version of gcc compiler you have available, and use it stead of gcc@11.4.0 bellow!)
   - spack install mpas-model%gcc@11.4.0 ^parallelio+pnetcdf
+  - spack load --only dependencies mpas-model%gcc@11.4.0
+  - spack load --list
   - spack install wps@4.3.1%gcc@11.4.0
-    (important check if the ungrib.exe was installed in wps directory.)
+  - spack load --only dependencies mpas-model%gcc@11.4.0 wps@4.3.1%gcc@11.4.0 
+  - spack load --list
+    # (important check if the ungrib.exe was installed in wps directory.)
   - spack install metis
+  - spack load --only dependencies mpas-model%gcc@11.4.0 wps@4.3.1%gcc@11.4.0 metis
+  - spack load --list
 
 3. Clone this scripts pack, and use the laptop branch :
   - git clone https://github.com/monanadmin/scripts_CD-CT.git
@@ -25,6 +32,10 @@ Inside spack run:
 4. Download the data pack into scripts_CD-CT/datain directory:
   wget https://ftp.cptec.inpe.br/pesquisa/dmdcc/volatil/Renato/scripts_CD-CT_datain.tgz
   wget https://ftp.cptec.inpe.br/pesquisa/dmdcc/volatil/Renato/gfs.t00z.pgrb2.0p25.f000.2024080800.grib2
+  # for other CI dates: (maybe put that in script 2)
+  # wget https://ftp.ncep.noaa.gov/data/nccf/com/gfs/prod/gfs.20240819/00/atmos/gfs.t00z.pgrb2.0p25.f000
+  # rename it into a gfs-ci name that the script is waiting for: gfs.t00z.pgrb2.0p25.f000.2024081900.grib2
+
   untar it and copy the direcotries to be like this:
   scripts_CD-CT/datain/fixed
   scripts_CD-CT/datain/WPS_GEOG
