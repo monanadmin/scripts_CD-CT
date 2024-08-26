@@ -1,5 +1,10 @@
 Follow these steps:
 
+0. First of all, clone the suite scripts that you will use:
+  - git clone https://github.com/monanadmin/scripts_CD-CT.git
+Switch to temporary correct branch "mylocal_version_0.2.1"
+  - git checkout mylocal_version_0.2.1
+
 1. Install spack:
 You can use the install_spack.bash script in scripts_CD-CT/scripts:
   - run install_spack.bash <your_spack_dir>
@@ -8,9 +13,9 @@ You can use the install_spack.bash script in scripts_CD-CT/scripts:
 Inside spack run:
   - source <your_spack_dir>/env.sh
   - spack compiler find
-  - spack install mpas-model%gcc%11.4.0 ^parallelio+pnetcdf
+  - spack install mpas-model%gcc@11.4.0 ^parallelio+pnetcdf
   - spack install wps@4.3.1%gcc@11.4.0
-    (important check if the degrib.exe was installed in wps directory.)
+    (important check if the ungrib.exe was installed in wps directory.)
   - spack install metis
 
 3. Clone this scripts pack, and use the laptop branch :
@@ -33,10 +38,10 @@ Inside spack run:
   export PNETCDF=
 
 
-6. Install the MONAN MODEL:
+6. Install the MONAN MODEL: ok!
   - run scripts_CDCT/scripts/1.install_monan.bash https://github.com/monanadmin/MONAN-Model.git 1.0.0
 
-7. Cerate your meshes and CIs files:
+7. Cerate your meshes and CIs files: ok!
   - run 2.pre_processing.bash
 
 8. Run the model:
@@ -45,4 +50,4 @@ Inside spack run:
 9. Post-processing the MODEL output:
   - run 4.run_post.bash
 
-10. Now you can see the fields using GrADS, NCView or similar...
+10. Now you can see the fields using GrADS, NCView, NCL, or similar...
