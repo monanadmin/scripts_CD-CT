@@ -2,10 +2,10 @@
 
 # Load modules:
 
-source /home/renato/temp/spack_mpas/env.sh
-spack load --only dependencies mpas-model%gcc@11.4.0
+source spack/env.sh
+spack load mpas-model%gcc@11.4.0
 spack load wps
-spack load metis
+# spack load metis
 spack load --list
 
 
@@ -22,7 +22,7 @@ spack load --list
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/home/renato/temp/scripts_CD-CT/sources/MONAN-Model_1.0.0
+export MONANDIR=/home/usuario/repo/scripts_CD-CT/sources/MONAN-Model_1.0.0
 
 # Submiting variables:
 # PRE-Static phase:
@@ -54,18 +54,17 @@ export MPI_PARAMS="-iface ib0 -bind-to core -map-by core"
 
 # Libraries paths:
 # $(spack location -i pacote)
-export NETCDF=/home/renato/temp/spack_mpas/opt/spack/linux-ubuntu22.04-skylake/gcc-11.4.0/netcdf-c-4.8.1-doqucv55nktwcutp3cjn37eb5glt2knx
-export NETCDFF=/home/renato/temp/spack_mpas/opt/spack/linux-ubuntu22.04-skylake/gcc-11.4.0/netcdf-fortran-4.5.4-zoobt2tdjre6jjc2ybjcm5jhf3zxtded
-export PNETCDF=/home/renato/temp/spack_mpas/opt/spack/linux-ubuntu22.04-skylake/gcc-11.4.0/parallel-netcdf-1.12.2-utm4qd3d6yqrqkqctq43finslpsjgzol
+export NETCDF=/home/usuario/repo/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/netcdf-c-4.9.2-mrzvvju2bmuw76i6r6byrx2kn6ygyhqg
+export PNETCDF=/home/usuario/repo/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/parallel-netcdf-1.12.3-dgphmay73qspxoi3pkqkpzocf4gb2oq3
+export NETCDFF=/home/usuario/repo/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/netcdf-fortran-4.6.1-d7raeuf3klp5kvkmulvp2f6rj2bckeej
+
+
 export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
 export NETCDF_FORTRAN_DIR=${NETCDFF}
 export NETCDF_FORTRAN_BIN=${NETCDFF}/bin
 export NETCDF_FORTRAN_LIB=${NETCDFF}/lib
 export NETCDF_FORTRAN_INC=${NETCDFF}/include
-
-export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v0.5.0
-export OPERDIR=/oper/dados/ioper/tempo
 
 echo "NETCDFDIR=${NETCDFDIR}"
 echo "PNETCDFDIR=${PNETCDFDIR}"

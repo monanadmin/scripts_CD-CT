@@ -71,11 +71,12 @@ spack install metis
 
 **4. Download the data pack into scripts_CD-CT/datain directory:**
 
-First check if you have available space: 
-
 This are fixed data and must be downloaded only once.
 
-Getting data:
+First check if you have available space: 
+This step takes about 20 minutes to finish.
+
+Run below to get data:
 ~~~  
   wget https://ftp.cptec.inpe.br/pesquisa/dmdcc/volatil/Renato/scripts_CD-CT_datain.tgz
   wget https://ftp.cptec.inpe.br/pesquisa/dmdcc/volatil/Renato/gfs.t00z.pgrb2.0p25.f000.2024080800.grib2
@@ -117,15 +118,15 @@ mv gfs.t00z.pgrb2.0p25.f000.2024081900.grib2 2024081900
 
 execute below to find the correct path ...
 ~~~
-spack find -p netcdf-c parallel-netcdf
+spack find -p netcdf-c netcdf-fortran parallel-netcdf
 ~~~ 
 
-... and modify the lines below in setenv.bash script:
+... and modify the lines below in setenv.bash script, using the first line with the netcdf-c path and the unique line with pnetcdf path. I.e:
 
 Libraries paths:
 ~~~
-  export NETCDF=
-  export PNETCDF=
+  export NETCDF=home/user/repo/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/netcdf-c-4.9.2-mrzvvju2bmuw76i6r6byrx2kn6ygyhqg
+  export PNETCDF=/home/user/repo/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/parallel-netcdf-1.12.3-dgphmay73qspxoi3pkqkpzocf4gb2oq3
 ~~~
 
 Run the MONAN Model
