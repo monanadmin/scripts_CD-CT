@@ -59,21 +59,36 @@ spack compiler find
 
 Then use the right version in here:
 ~~~
-spack install mpas-model%gcc@11.4.0 ^parallelio+pnetcdf
-spack install wps@4.3.1%gcc@11.4.0
+spack env create myenv
+spack env activate myenv
+spack add mpas-model%gcc@11.4.0 ^parallelio+pnetcdf
+spack add wps@4.3.1%gcc@11.4.0
+spack add metis
+spack concretize
+spack install
 ~~~
 *IMPORTANT: check if the ungrib.exe was installed in wps directory. If not, you can't continue*
 
-The run:
+**4. Configure the PNETCDF and NETCDF environment vars**
+
+execute below to find the correct path ...
 ~~~
-spack install metis
+spack find -p netcdf-c netcdf-fortran parallel-netcdf
+~~~ 
+
+... and modify the lines below in scripts_CD-CT/scripts/setenv.bash script, by updating the paths shown in the command above. I.e:
+
+Libraries paths:
+~~~
+  export NETCDF=home/user/repo/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/netcdf-c-4.9.2-mrzvvju2bmuw76i6r6byrx2kn6ygyhqg
+  export PNETCDF=/home/user/repo/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/parallel-netcdf-1.12.3-dgphmay73qspxoi3pkqkpzocf4gb2oq3
 ~~~
 
-**4. Download the data pack into scripts_CD-CT/datain directory:**
 
-This are fixed data and must be downloaded only once.
+**5. Download the data pack into scripts_CD-CT/datain directory:**
 
-First check if you have available space: 
+This are fixed data and must be downloaded only once. First check if you have available space (at least ... GB)
+
 This step takes about 20 minutes to finish.
 
 Run below to get data:
@@ -114,21 +129,6 @@ mv gfs.t00z.pgrb2.0p25.f000.2024081900.grib2 2024081900
 ~~~
 
 
-**5. Fill the PNETCDF and NETCDF vars with their correspondent path in scripts_CD-CT/scripts/setenv.bash script:**
-
-execute below to find the correct path ...
-~~~
-spack find -p netcdf-c netcdf-fortran parallel-netcdf
-~~~ 
-
-... and modify the lines below in setenv.bash script, using the first line with the netcdf-c path and the unique line with pnetcdf path. I.e:
-
-Libraries paths:
-~~~
-  export NETCDF=home/user/repo/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/netcdf-c-4.9.2-mrzvvju2bmuw76i6r6byrx2kn6ygyhqg
-  export PNETCDF=/home/user/repo/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/parallel-netcdf-1.12.3-dgphmay73qspxoi3pkqkpzocf4gb2oq3
-~~~
-
 Run the MONAN Model
 ===================
 
@@ -147,11 +147,11 @@ You will need to execute only 6 steps scripts, so you can run the Atmospheric MO
 
 Default values:
 ~~~
-<OPTIONAL_tag_or_branch_name_MONAN-Model> = "0.5.0"
+<OPTIONAL_tag_or_branch_name_MONAN-Model> = "1.0.0"
 <OPTIONAL_tag_or_branch_name_Convert-MPAS> = "1.0.0"
 ~~~
 
-- This first step will create a standart diretories structures for work:
+- This will create a standard diretories structure:
 ~~~
 scripts_CD-CT/
        scripts
@@ -224,4 +224,4 @@ FCST        :: Forecast hours, e.g.: 24 or 36, etc.
 
 24 hour forcast example:
 ./4.run_post.bash GFS 1024002 2024010100 24
-~~~
+~~~wps@4.3.1%gcc@11.4.0

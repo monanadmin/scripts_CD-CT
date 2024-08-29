@@ -10,8 +10,8 @@ cd $(pwd)
 echo -e  "${GREEN}==>${NC} git clone  https://github.com/spack/spack.git $SPACK_NAME\n"
 git clone https://github.com/spack/spack.git $SPACK_NAME
 cd $SPACK_NAME
-echo -e "${GREEN}==>${NC} git checkout tags/v0.18.1 -b branch_v0.18.1"
-git checkout tags/v0.18.1 -b branch_v0.18.1
+echo -e "${GREEN}==>${NC} git checkout tags/v0.22.1 -b branch_v0.22.1"
+git checkout tags/v0.22.1 -b branch_v0.22.1
 
 echo -e "${GREEN}==>${NC} creating env.sh"
 mkdir -p $SPACK_ENV/tmp

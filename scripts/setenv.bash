@@ -5,7 +5,7 @@
 source spack/env.sh
 spack load mpas-model%gcc@11.4.0
 spack load wps
-# spack load metis
+spack load metis
 spack load --list
 
 
