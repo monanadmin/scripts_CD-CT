@@ -43,9 +43,9 @@ Install spack, that is a dependency manager for installing libraries. It install
 ./install_spack.bash
 ~~~
 
-**3. Install the MPAS dependencies and other packs by spack:**
+**3. Install the MPAS dependencies and other packages using spack:**
 
-*IMPORTANT: Execute the command below again in case you stoped the sequence of commands below. Then continue executing the commands, starting from the last command (inclusive) you ran )*
+*IMPORTANT: Execute the command below again in case you stoped the sequence of commands from here, then continue executing the commands, starting from the last command (inclusive) you ran )*
 ~~~
 source spack/env.sh
 ~~~
@@ -57,13 +57,14 @@ The command below will show the gcc compiler you have. Check its version in the 
 spack compiler find
 ~~~
 
-Then use the right version in here:
+Then use the right version of the compiler in mpas-model and wps instalation below. Example, if the command above returns `gcc@9.4.0  gcc@8.4.0  gcc@7.5.0`, use the most recent version `gcc@9.4.0`, i.e. below:
+:
 ~~~
-spack env create myenv
+  spack env create myenv
 spack env activate myenv
-spack add mpas-model%gcc@11.4.0 ^parallelio+pnetcdf
-spack add wps@4.3.1%gcc@11.4.0
-spack add metis
+spack add mpas-model%gcc@9.4.0 ^parallelio+pnetcdf
+spack add wps%gcc@9.4.0
+spack add metis%gcc@9.4.0
 spack concretize
 spack install
 ~~~
@@ -224,4 +225,4 @@ FCST        :: Forecast hours, e.g.: 24 or 36, etc.
 
 24 hour forcast example:
 ./4.run_post.bash GFS 1024002 2024010100 24
-~~~wps@4.3.1%gcc@11.4.0
+~~~
