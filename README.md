@@ -88,17 +88,22 @@ Libraries paths:
 
 **5. Download the data pack into scripts_CD-CT/datain directory:**
 
-This are fixed data and must be downloaded only once. First check if you have available space (at least ... GB)
+This are fixed data and must be downloaded only once. First check if you have available space (at least 120 GB)
 
-This step takes about 20 minutes to finish.
 
-Run below to get data:
+Enter the datain directory:
+
+~~~
+cd scripts_CD-CT/datain
+~~~
+
+Run the lines below to get data. This step takes about 20 minutes to finish.
 ~~~  
   wget https://ftp.cptec.inpe.br/pesquisa/dmdcc/volatil/Renato/scripts_CD-CT_datain.tgz
   wget https://ftp.cptec.inpe.br/pesquisa/dmdcc/volatil/Renato/gfs.t00z.pgrb2.0p25.f000.2024080800.grib2
 ~~~
 
-Run below to Untar fixed data:
+Run below to Untar fixed data. This step takes about 15 minutes to finish.
 ~~~
 tar -xzvf scripts_CD-CT_datain.tgz
 ~~~
