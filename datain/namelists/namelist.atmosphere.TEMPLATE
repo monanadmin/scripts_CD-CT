@@ -58,7 +58,7 @@
     config_radtlw_interval = '00:30:00'
     config_radtsw_interval = '00:30:00'
     config_conv_interval = '#CONFIG_CONV_INTERVAL#'
-    config_bucket_update = '01:00:00'
+    config_bucket_update = '15_00:00:00'
     config_physics_suite = 'mesoscale_reference_monan'
     config_convection_scheme = 'cu_gf_monan'
 /
