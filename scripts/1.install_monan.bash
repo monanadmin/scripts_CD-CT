@@ -259,35 +259,27 @@ echo ""
 #CR: TODO: maybe at this point we should put our registry-file et all.
 #CR: make-all.sh compile all for the first time
 #CR: make.sh just compile  the A-model
+
 . ${MONANDIR}/make-all.sh
 
 
 # install convert_mpas
-#echo ""
-#echo -e  "${GREEN}==>${NC} Moduling environment for convert_mpas...\n"
-#module purge
-#module load gnu9/9.4.0
-#module load ohpc
-#module load phdf5
-#module load netcdf
-#module load netcdf-fortran
-#module list
 
-#cd ${CONVERT_MPAS_DIR}
-#echo ""
-#echo -e  "${GREEN}==>${NC} Installing convert_mpas...\n"
-#make clean
-#make  2>&1 | tee make.convert.output
+cd ${CONVERT_MPAS_DIR}
+echo ""
+echo -e  "${GREEN}==>${NC} Installing convert_mpas...\n"
+make clean
+make  2>&1 | tee make.convert.output
 
 #CR: TODO: put verify here if executable was created ok
-#mv ${CONVERT_MPAS_DIR}/convert_mpas ${EXECS}/
+mv ${CONVERT_MPAS_DIR}/convert_mpas ${EXECS}/
 
-#if [ -s "${EXECS}/convert_mpas" ] ; then
-#    echo ""
-#    echo -e "${GREEN}==>${NC} File convert_mpas generated Sucessfully in ${CONVERT_MPAS_DIR} and copied to ${EXECS} !"
-#    echo
-#else
-#    echo -e "${RED}==>${NC} !!! An error occurred during convert_mpas build. Check output"
-#    exit -1
-#fi
+if [ -s "${EXECS}/convert_mpas" ] ; then
+   echo ""
+   echo -e "${GREEN}==>${NC} File convert_mpas generated Sucessfully in ${CONVERT_MPAS_DIR} and copied to ${EXECS} !"
+   echo
+else
+   echo -e "${RED}==>${NC} !!! An error occurred during convert_mpas build. Check output"
+   exit -1
+fi
 

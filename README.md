@@ -60,7 +60,7 @@ spack compiler find
 Then use the right version of the compiler in mpas-model and wps instalation below. Example, if the command above returns `gcc@9.4.0  gcc@8.4.0  gcc@7.5.0`, use the most recent version `gcc@9.4.0`, i.e. below:
 :
 ~~~
-  spack env create myenv
+spack env create myenv
 spack env activate myenv
 spack add mpas-model%gcc@9.4.0 ^parallelio+pnetcdf
 spack add wps%gcc@9.4.0
@@ -139,8 +139,14 @@ You will need to execute only 6 steps scripts, so you can run the Atmospheric MO
 
 **1. Install the model:**
 
-- First you need to get a **fork repository** in your github account of a MONAN oficial repo: `https://github.com/monanadmin/MONAN-Model`. Attention! Uncheck "Copy the main branch only" in the fork creation step to copy all branches. 
-- The you can install the model in your work directory by running:
+If your intent is just test the model with original code, execute:
+~~~
+./1.install_monan.bash https://github.com/monanadmin/MONAN-Model
+~~~
+
+If you intend to develop, first you need to get a **fork repository** in your github account of a MONAN oficial repo: `https://github.com/monanadmin/MONAN-Model`. Attention! Uncheck "Copy the main branch only" in the fork creation step to copy all branches. 
+
+The you can install the model in your work directory by running:
 
 ~~~
 ./1.install_monan.bash <https://github.com/MYUSER/MONAN-Model-My-Fork.git> <OPTIONAL_tag_or_branch_name_MONAN-Model-My-Fork> <OPTIONAL_tag_or_branch_namer_Convert-MPAS>
@@ -152,7 +158,7 @@ Default values:
 <OPTIONAL_tag_or_branch_name_Convert-MPAS> = "1.0.0"
 ~~~
 
-- This will create a standard diretories structure:
+The command 1.install_monan.bash will create the diretories structure:
 ~~~
 scripts_CD-CT/
        scripts
@@ -178,7 +184,7 @@ After running the first step, it will clone the MONAN model from your fork repo 
 
 **2. Prepare the Initial Conditions for the model:**
 
-- Just run the second script as follows:
+Just run the second script as follows:
 
 ~~~
 2.pre_processing.bash EXP_NAME RESOLUTION LABELI FCST
@@ -189,13 +195,14 @@ RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)
 LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100
 FCST        :: Forecast hours, e.g.: 24 or 36, etc.
 
-24 hour forcast example:
-./2.pre_processing.bash GFS 1024002 2024010100 24
+480Km resolution 24 hour forcast example:
+
+./2.pre_processing.bash GFS 2562 2024080800 24
 ~~~
 
 **3. Run the model:**
 
-- Execute the 3rd step script:
+Execute the 3rd step script:
 
 ~~~
 3.run_model.bash EXP_NAME RESOLUTION LABELI FCST
@@ -212,7 +219,7 @@ FCST        :: Forecast hours, e.g.: 24 or 36, etc.
 
 **4. Run the post-processing model:**
 
-- Execute the 4th step script:
+Execute the 4th step script:
 
 ~~~
 4.run_post.bash EXP_NAME RESOLUTION LABELI FCST

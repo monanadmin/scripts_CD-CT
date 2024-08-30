@@ -3,7 +3,8 @@
 # Load modules:
 
 source spack/env.sh
-spack load mpas-model%gcc@11.4.0
+spack env activate myenv
+spack load mpas-model
 spack load wps
 spack load metis
 spack load --list
@@ -22,7 +23,7 @@ spack load --list
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/home/usuario/repo/scripts_CD-CT/sources/MONAN-Model_1.0.0
+export MONANDIR=/dados/repo/scripts_CD-CT/sources/MONAN-Model_1.0.0
 
 # Submiting variables:
 # PRE-Static phase:

@@ -31,17 +31,15 @@ then
    echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
    echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
    echo ""
-   echo "24 hour forecast example for 24km:"
-   echo "${0} GFS 1024002 2024010100 24"
-   echo "48 hour forecast example for 120km:"
-   echo "${0} GFS   40962 2024010100 48"
-   echo " Laptop:"
    echo "24 hour forecast example for 480km:"
    echo "${0} GFS    2562 2024080800 24"
    echo "24 hour forecast example for 384km:"
    echo "${0} GFS    4002 2024080800 24"
    echo "24 hour forecast example for 240km:"
    echo "${0} GFS   10242 2024080800 24"
+   echo "48 hour forecast example for 120km:"
+   echo "${0} GFS   40962 2024010100 48"
+
 
    exit
 fi
