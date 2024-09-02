@@ -12,7 +12,7 @@ module load mpich-4.0.2-gcc-9.4.0-gpof2pv
 module load hwloc
 module load phdf5
 module load cdo-2.0.4-gcc-9.4.0-bjulvnd
-module load opengrads-2.2.1
+module load opengrads/2.2.1
 module load nco-5.0.1-gcc-11.2.0-u37c3hb
 module load metis
 module list

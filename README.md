@@ -28,6 +28,10 @@ This folder aims to create a version for testing MONAN with GFS at Egeon.
 - Clean temporary outputs files option add in the 3.run_model.bash script.
 - Verification if all the output files were created ok from model phase.
 
+0.2.2
+- Fixed the value of config_bucket_update in namelist.atmosphere.
+- Fixed module load in opengrads in setenv.
+
 ### Implementation at Egeon:
 
 **Getting the scritps:**
@@ -57,7 +61,7 @@ You will need to execute only 6 steps scripts, so you can run the Atmospheric MO
 
 Default values:
 ~~~
-<OPTIONAL_tag_or_branch_name_MONAN-Model> = "0.5.0"
+<OPTIONAL_tag_or_branch_name_MONAN-Model> = "1.0.0"
 <OPTIONAL_tag_or_branch_name_Convert-MPAS> = "1.0.0"
 ~~~
 
