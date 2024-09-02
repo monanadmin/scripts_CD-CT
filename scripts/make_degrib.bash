@@ -1,39 +1,6 @@
 #!/bin/bash 
 
-
-if [ $# -ne 4 ]
-then
-   echo ""
-   echo "Instructions: execute the command below"
-   echo ""
-   echo "${0} EXP_NAME RESOLUTION LABELI FCST"
-   echo ""
-   echo "EXP_NAME    :: Forcing: GFS"
-   echo "            :: Others options to be added later..."
-   echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
-   echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
-   echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
-   echo ""
-   echo "24 hour forcast example:"
-   echo "${0} GFS 1024002 2024010100 24"
-   echo "${0} GFS   40962 2024010100 48"
-   echo " Laptop:"
-   echo "24 hour forecast example for 480km:"
-   echo "${0} GFS    2562 2024080800 6"
-   echo "24 hour forecast example for 384km:"
-   echo "${0} GFS    4002 2024080800 6"
-   echo "24 hour forecast example for 240km:"
-   echo "${0} GFS   10242 2024080800 6"
-   echo ""
-
-   exit
-fi
-
-# Set environment variables exports:
-echo ""
-echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
-
 
 # Standart directories variables:---------------------------------------
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  

@@ -21,11 +21,7 @@ then
    exit
 fi
 
-# Set environment variables exports:
-echo ""
-echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
-
 
 # Standart directories variables:---------------------------------------
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
