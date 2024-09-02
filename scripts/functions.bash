@@ -62,14 +62,15 @@ print_instructions() {
     echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
     echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
     echo ""
-    echo "24 hour forecast example for 480km:"
-    echo "${script_name} GFS    2562 2024080800 24"
-    echo "24 hour forecast example for 384km:"
-    echo "${script_name} GFS    4002 2024080800 24"
-    echo "24 hour forecast example for 240km:"
-    echo "${script_name} GFS   10242 2024080800 24"
-    echo "24 hour forecast example for 120km:"
-    echo "${script_name} GFS   40962 2024010100 24"
+    echo "24 hour forecasts examples:"
+    echo "${script_name} GFS    2562 2024080800 24  # example for 480Km"
+    echo "${script_name} GFS    4002 2024080800 24  # example for 384Km"
+    echo "${script_name} GFS   10242 2024080800 24  # example for 240Km"
+    echo "${script_name} GFS   40962 2024010100 24  # example for 120Km"
+    echo ""
+    echo "Clean temporary files example:"
+    echo "${script_name} clean"
+    echo ""
 }
 
 
