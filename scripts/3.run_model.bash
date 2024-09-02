@@ -15,50 +15,20 @@
 #
 #-----------------------------------------------------------------------------#
 
+. functions.bash
+
 if [ $# -ne 4 -a $# -ne 1 ]
 then
-   echo ""
-   echo "Instructions: execute the command below"
-   echo ""
-   echo "${0} [EXP_NAME/OP] RESOLUTION LABELI FCST"
-   echo ""
-   echo "EXP_NAME    :: Forcing: GFS"
-   echo "OP          :: clean: remove all temporary files createed in the last run."
-   echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
-   echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
-   echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
-   echo ""
-   echo "24 hour forecast example for 24km:"
-   echo "${0} GFS 1024002 2024010100 24"
-   echo "48 hour forecast example for 120km:"
-   echo "${0} GFS   40962 2024010100 48"
-   echo "Cleannig temp files example:"
-   echo "${0} clean"
-   echo ""
-
+   print_instructions $0
    exit
 fi
 
-# Set environment variables exports:
-echo ""
-echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
-. setenv.bash
-
-if [ $# -eq 1 ]
-then
-   op=$(echo "${1}" | tr '[A-Z]' '[a-z]')
-   if [ ${op} = "clean" ]
-   then
-      clean_model_tmp_files
-      exit
-   else
-      echo "Should type just \"clean\" for cleanning."
-      echo "${0} clean"
-      echo ""
-      exit
-   fi   
+if [ $# -eq 1 ]; then
+   clean_if_requested "$0" "$1"
+   exit $?
 fi
 
+. setenv.bash
 
 # Standart directories variables:---------------------------------------
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
@@ -87,14 +57,26 @@ hhi=${YYYYMMDDHHi:8:2}
 NLEV=55
 
 # Calculating default parameters for different resolutions
-if [ $RES -eq 1024002 ]; then  #24Km
-   CONFIG_DT=180.0
-   CONFIG_LEN_DISP=24000.0
-   CONFIG_CONV_INTERVAL="00:15:00"
+if [ $RES -eq 2562 ]; then  #480Km
+   CONFIG_DT=600.0
+   CONFIG_LEN_DISP=480000.0
+   CONFIG_CONV_INTERVAL="00:10:00"
+elif [ $RES -eq 4002 ]; then  #384Km
+   CONFIG_DT=600.0
+   CONFIG_LEN_DISP=384000.0
+   CONFIG_CONV_INTERVAL="00:10:00"
+elif [ $RES -eq 10242 ]; then  #240Km
+   CONFIG_DT=600.0
+   CONFIG_LEN_DISP=240000.0
+   CONFIG_CONV_INTERVAL="00:10:00"
 elif [ $RES -eq 40962 ]; then  #120Km
    CONFIG_DT=600.0
    CONFIG_LEN_DISP=120000.0
    CONFIG_CONV_INTERVAL="00:10:00"
+elif [ $RES -eq 1024002 ]; then  #24Km
+   CONFIG_DT=180.0
+   CONFIG_LEN_DISP=24000.0
+   CONFIG_CONV_INTERVAL="00:15:00"
 fi
 #-------------------------------------------------------
 
@@ -164,31 +146,16 @@ cp -f ${DATAIN}/namelists/stream_list.atmosphere.surface ${SCRIPTS}
 rm -f ${SCRIPTS}/model.bash 
 cat << EOF0 > ${SCRIPTS}/model.bash 
 #!/bin/bash
-#SBATCH --job-name=${MODEL_jobname}
-#SBATCH --nodes=${MODEL_nnodes}
-#SBATCH --ntasks=${MODEL_ncores}
-#SBATCH --tasks-per-node=${MODEL_ncpn}
-#SBATCH --partition=${MODEL_QUEUE}
-#SBATCH --time=${MODEL_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e%j     # File name for standard error output
-#SBATCH --exclusive
-##SBATCH --mem=500000
-
-
-export executable=atmosphere_model
 
 ulimit -c unlimited
 ulimit -v unlimited
 ulimit -s unlimited
 
 . $(pwd)/setenv.bash
-
 cd ${SCRIPTS}
 
-
 date
-time mpirun -np \${SLURM_NTASKS} -env UCX_NET_DEVICES=mlx5_0:1 -genvall ./\${executable}
+time mpirun -np ${MODEL_ncores} ./atmosphere_model
 date
 
 #
@@ -213,16 +180,15 @@ rm -f ${SCRIPTS}/x1.${RES}.graph.info.part.${cores}
 rm -f ${SCRIPTS}/Vtable.GFS
 rm -f ${SCRIPTS}/x1.${RES}.init.nc
 
-
-
 EOF0
 chmod a+x ${SCRIPTS}/model.bash
 
 
 echo -e  "${GREEN}==>${NC} Submitting MONAN atmosphere model and waiting for finish before exit... \n"
 echo -e  "${GREEN}==>${NC} Logs being generated at ${DATAOUT}/logs... \n"
-echo -e  "sbatch ${SCRIPTS}/model.bash"
-sbatch --wait ${SCRIPTS}/model.bash
+echo -e  "${SCRIPTS}/model.bash"
+
+${SCRIPTS}/model.bash
 mv ${SCRIPTS}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 
 
