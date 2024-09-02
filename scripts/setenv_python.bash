@@ -1,5 +1,5 @@
 echo "loading module python ..."
-module load python-3.9.13-gcc-9.4.0-moxjnc6 
+# module load python-3.9.13-gcc-9.4.0-moxjnc6 
 
 echo "scripts folder setted=${SCRIPTS}"
 
