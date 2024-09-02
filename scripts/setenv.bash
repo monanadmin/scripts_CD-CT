@@ -27,16 +27,16 @@ export MONANDIR=/dados/repo/scripts_CD-CT/sources/MONAN-Model_1.0.0
 
 # Submiting variables:
 # PRE-Static phase:
-export STATIC_ncores=8
+export STATIC_ncores=2
 
 # PRE-Degrib phase:
 export DEGRIB_ncores=1
 
 # PRE-Init Atmosphere phase:
-export INITATMOS_ncores=8
+export INITATMOS_ncores=2
 
 # Model phase:
-export MODEL_ncores=8
+export MODEL_ncores=2
 
 # Post phase:
 export POST_ncores=1 

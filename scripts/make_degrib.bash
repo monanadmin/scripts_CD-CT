@@ -64,7 +64,7 @@ mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 #mkdir -p ${HOME}/local/lib64
 #cp -f /usr/lib64/libjasper.so* ${HOME}/local/lib64
 #cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
-
+which ungrib.exe | xargs -I {} cp {} ${EXECS}
 
 if [ ! ${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
 then
@@ -84,9 +84,6 @@ do
   fi
 done
 
-exit
-
-
 ln -sf ${DATAIN}/fixed/x1.${RES}.static.nc ${SCRIPTS}
 ln -sf ${DATAIN}/fixed/Vtable.${EXP} ${SCRIPTS}/Vtable
 
@@ -102,39 +99,38 @@ sed -e "s,#LABELI#,${start_date},g;s,#PREFIX#,GFS,g" \
 
 ./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
 
-echo -e  "${GREEN}==>${NC} Executing sbatch degrib.bash...\n"
+echo -e  "${GREEN}==>${NC} Executing ungrib ...\n"
 date
 time mpirun -np 1 ungrib.exe
-date
-
 
 grep "Successful completion of program ungrib.exe" ${SCRIPTS}/ungrib.log >& /dev/null
 
-if [ \$? -ne 0 ]; then
+if [ $? -ne 0 ]; then
    echo "  BUMMER: Ungrib generation failed for some yet unknown reason."
    echo " "
    tail -10 ${SCRIPTS}/ungrib.log
    echo " "
    exit 21
 fi
+date
 
 #
 # clean up and remove links
 #
-   mv ungrib.log ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/ungrib.${start_date}.log
-   mv namelist.wps ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.${start_date}.wps
-   mv GFS\:${start_date:0:13} ${DATAOUT}/${YYYYMMDDHHi}/Pre
+mv ungrib.log ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/ungrib.${start_date}.log
+mv namelist.wps ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.${start_date}.wps
+mv GFS\:${start_date:0:13} ${DATAOUT}/${YYYYMMDDHHi}/Pre
 
-   rm -f ${SCRIPTS}/ungrib.exe 
-   rm -f ${SCRIPTS}/Vtable 
-   rm -f ${SCRIPTS}/x1.${RES}.static.nc
-   rm -f ${SCRIPTS}/GRIBFILE.AAA
+rm -f ${SCRIPTS}/ungrib.exe 
+rm -f ${SCRIPTS}/Vtable 
+rm -f ${SCRIPTS}/x1.${RES}.static.nc
+rm -f ${SCRIPTS}/GRIBFILE.AAA
 
 echo "End of degrib Job"
 
 
-EOF0
-chmod a+x ${SCRIPTS}/degrib.bash
+# EOF0
+# chmod a+x ${SCRIPTS}/degrib.bash
 
 
 

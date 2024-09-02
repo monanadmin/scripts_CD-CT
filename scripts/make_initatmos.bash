@@ -100,41 +100,21 @@ ln -sf ${EXECS}/init_atmosphere_model ${SCRIPTS}
 
 rm -f ${SCRIPTS}/initatmos.bash 
 cat << EOF0 > ${SCRIPTS}/initatmos.bash 
-#!/bin/bash
-#SBATCH --job-name=${INITATMOS_jobname}
-#SBATCH --nodes=${INITATMOS_nnodes}                         # depends on how many boundary files are available
-#SBATCH --partition=${INITATMOS_QUEUE} 
-#SBATCH --tasks-per-node=${INITATMOS_ncores}               # only for benchmark
-#SBATCH --time=${STATIC_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e%j     # File name for standard error output
-#SBATCH --exclusive
-##SBATCH --mem=500000
-
-export executable=init_atmosphere_model
-
 ulimit -c unlimited
 ulimit -v unlimited
 ulimit -s unlimited
-
-
 . $(pwd)/setenv.bash
-
 cd ${SCRIPTS}
-
-
-
 date
-time mpirun -np \${SLURM_NTASKS} -env UCX_NET_DEVICES=mlx5_0:1 -genvall ./\${executable}
+time mpirun -np ${INITATMOS_ncores} ./init_atmosphere_model
 date
-
 
 mv ${SCRIPTS}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log.init_atmosphere.0000.x1.${RES}.init.nc.${YYYYMMDDHHi}.out
 mv namelist.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 mv streams.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 mv ${SCRIPTS}/x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
 
-chmod a+x ${DATAIN}/fixed//x1.${RES}.init.nc 
+# chmod a+x ${DATAIN}/fixed//x1.${RES}.init.nc  ??? file moded to ${DATAOUT}/${YYYYMMDDHHi}/Pre
 rm -f ${SCRIPTS}/${EXP}\:${start_date:0:13}
 rm -f ${SCRIPTS}/init_atmosphere_model
 rm -f ${SCRIPTS}/x1.${RES}.graph.info.part.${cores}
@@ -144,9 +124,9 @@ rm -f ${SCRIPTS}/log.init_atmosphere.*.err
 EOF0
 chmod a+x ${SCRIPTS}/initatmos.bash
 
-echo -e  "${GREEN}==>${NC} Executing sbatch initatmos.bash...\n"
+echo -e  "${GREEN}==>${NC} Executing initatmos.bash...\n"
 cd ${SCRIPTS}
-sbatch --wait ${SCRIPTS}/initatmos.bash
+${SCRIPTS}/initatmos.bash
 mv ${SCRIPTS}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
 if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ]

@@ -92,7 +92,7 @@ then
    echo "wget https://ftp.cptec.inpe.br/pesquisa/dmdcc/volatil/Renato/scripts_CD-CT_datain.tgz"
    exit
 fi
-
+chmod 775 -R ${DATAIN}
 if [ ! -d ${DATAIN}/WPS_GEOG ]
 then
    echo "Please download the tgz data, untar it into the datain directory:"
@@ -109,25 +109,41 @@ if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
 then
    echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
    time ./make_static.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+   EXIT_CODE=$?
+   if [ $EXIT_CODE -ne 0 ]; then
+       echo -e "${RED}Error:${NC} make_static.bash failed with exit code $EXIT_CODE."
+       exit $EXIT_CODE
+   fi
+   echo -e  "${GREEN}==>${NC} make_static.bash executed sucessfully!\n"
 else
    echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
 fi
 #----------------------------------------------------------------------------------
 
 
-
 # Degrib phase:---------------------------------------------------------------------
-echo -e  "${GREEN}==>${NC} Submiting Degrib...\n"
+echo -e  "${GREEN}==>${NC} make_degrib...\n"
 time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
 
-exit
+EXIT_CODE=$?
+if [ $EXIT_CODE -ne 0 ]; then
+      echo -e "${RED}Error:${NC} make_degrib.bash failed with exit code $EXIT_CODE."
+      exit $EXIT_CODE
+fi
+echo -e  "${GREEN}==>${NC} make_degrib.bash executed sucessfully!\n"
+
 
 # Init Atmosphere phase:------------------------------------------------------------
 echo -e  "${GREEN}==>${NC} Submiting Init Atmosphere...\n"
 time ./make_initatmos.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
 
-
+EXIT_CODE=$?
+if [ $EXIT_CODE -ne 0 ]; then
+      echo -e "${RED}Error:${NC} make_initatmos.bash failed with exit code $EXIT_CODE."
+      exit $EXIT_CODE
+fi
+echo -e  "${GREEN}==>${NC} Initatmos.bash executed sucessfully!\n"
 
 
