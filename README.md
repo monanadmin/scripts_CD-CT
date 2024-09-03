@@ -67,9 +67,12 @@ spack add mpas-model%gcc@9.4.0 ^parallelio+pnetcdf
 spack add wps%gcc@9.4.0
 spack add metis%gcc@9.4.0
 spack add python@3.9.13%gcc@9.4.0
+# spack add cdo%gcc@9.4.0 - error - needed fixes
 spack concretize
 spack install
-spack install --add cdo
+
+# needed until fix for installation using spack
+sudo apt install cdo  
 ~~~
 
 **4. Configure the PNETCDF and NETCDF environment vars**
