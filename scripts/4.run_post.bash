@@ -154,7 +154,7 @@ done
 for i in \$(seq 0 $output_interval $FCST)
 do
    cd ${SCRIPTS}/dir.\${i}
-   python ${SCRIPTS}/group_levels.py ${SCRIPTS}/dir.\${i} latlon.nc latlon_\${i}.nc > saida_python_$i.txt &
+   python ${SCRIPTS}/group_levels.py ${SCRIPTS}/dir.\${i} latlon.nc latlon_\${i}.nc > saida_python_$i.txt
 done
 
 # unload the python's environment
