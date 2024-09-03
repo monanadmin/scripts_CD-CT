@@ -60,15 +60,17 @@ spack compiler find
 Then use the right version of the compiler in mpas-model and wps instalation below. Example, if the command above returns `gcc@9.4.0  gcc@8.4.0  gcc@7.5.0`, use the most recent version `gcc@9.4.0`, i.e. below:
 :
 ~~~
+spack clean --all
 spack env create myenv
 spack env activate myenv
 spack add mpas-model%gcc@9.4.0 ^parallelio+pnetcdf
 spack add wps%gcc@9.4.0
 spack add metis%gcc@9.4.0
+spack add python@3.9.13%gcc@9.4.0
 spack concretize
 spack install
+spack install --add cdo
 ~~~
-*IMPORTANT: check if the ungrib.exe was installed in wps directory. If not, you can't continue*
 
 **4. Configure the PNETCDF and NETCDF environment vars**
 

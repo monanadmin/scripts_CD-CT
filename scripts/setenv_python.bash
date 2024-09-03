@@ -1,10 +1,7 @@
-echo "loading module python ..."
-# module load python-3.9.13-gcc-9.4.0-moxjnc6 
-
 echo "scripts folder setted=${SCRIPTS}"
 
 echo "creating python environment at ${SCRIPTS}/../.venv"
-python3 -m venv ${SCRIPTS}/../.venv
+python3.9.13 -m venv ${SCRIPTS}/../.venv
 
 echo "activating python environment"
 source ${SCRIPTS}/../.venv/bin/activate
