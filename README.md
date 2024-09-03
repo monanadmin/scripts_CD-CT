@@ -50,7 +50,7 @@ Install spack, that is a dependency manager for installing libraries. It install
 source spack/env.sh
 ~~~
 
-The command below will show the gcc compiler you have. Check its version in the results of this command and use it instead of the version 11.4.0, just in case there are diferences. For example, use the command returned  gcc@9.4.0. So use this version in all the commands below.
+The command below will show the gcc compiler you have. Check its version in the results of this command and use it instead of the version 9.4.0, just in case there are diferences. For example, use the command returned  gcc@9.4.0. So use this version in all the commands below.
 
 
 ~~~
