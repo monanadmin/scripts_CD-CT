@@ -1,7 +1,7 @@
 echo "scripts folder setted=${SCRIPTS}"
 
 echo "creating python environment at ${SCRIPTS}/../.venv"
-python3.9.13 -m venv ${SCRIPTS}/../.venv
+python3.9 -m venv ${SCRIPTS}/../.venv
 
 echo "activating python environment"
 source ${SCRIPTS}/../.venv/bin/activate
