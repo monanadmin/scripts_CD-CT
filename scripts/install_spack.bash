@@ -1,15 +1,15 @@
 #!/bin/bash
 
 export SPACK_GIT=$(pwd)/spack
-export SPACK_ENV=${HOME}/.spack/${SPACK_NAME}
+export SPACK_ENV=${HOME}/.spack/spack
 
 GREEN='\033[1;32m'       # Green
 NC='\033[0m' # No Color
 
 cd $(pwd)
-echo -e  "${GREEN}==>${NC} git clone  https://github.com/spack/spack.git $SPACK_NAME\n"
-git clone https://github.com/spack/spack.git $SPACK_NAME
-cd $SPACK_NAME
+echo -e  "${GREEN}==>${NC} git clone  https://github.com/spack/spack.git $SPACK_GIT\n"
+git clone https://github.com/spack/spack.git $SPACK_GIT
+cd $SPACK_GIT
 echo -e "${GREEN}==>${NC} git checkout tags/v0.22.1 -b branch_v0.22.1"
 git checkout tags/v0.22.1 -b branch_v0.22.1
 
