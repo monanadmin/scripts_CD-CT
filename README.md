@@ -57,15 +57,15 @@ The command below will show the gcc compiler you have. Check its version in the 
 spack compiler find
 ~~~
 
-Then use the right version of the compiler in mpas-model and wps instalation below. Example, if the command above returns `gcc@9.4.0  gcc@8.4.0  gcc@7.5.0`, use the most recent version `gcc@9.4.0`, i.e. below:
-:
+Then use the right version of the compiler in mpas-model and wps instalation below. Example, if the command above returns `gcc@9.4.0  gcc@8.4.0  gcc@7.5.0`, use the most recent version `gcc@9.4.0`, i.e. below.
+
 ~~~
 spack clean --all
 spack env create myenv
 spack env activate myenv
-spack add mpas-model%gcc@9.4.0 ^parallelio+pnetcdf
-spack add wps%gcc@9.4.0
-spack add metis%gcc@9.4.0
+spack add mpas-model@7.3%gcc@9.4.0 ^parallelio+pnetcdf
+spack add wps@4.5%gcc@9.4.0
+spack add metis@5.1.0%gcc@9.4.0
 spack add python@3.9.13%gcc@9.4.0
 # spack add cdo%gcc@9.4.0 - error - needed fixes
 spack concretize
@@ -74,6 +74,8 @@ spack install
 # needed until fix for installation using spack
 sudo apt install cdo  
 ~~~
+
+Some versions of packages could be different using different versions of the compiler. The versions above, i.e. metis version 5.1.0, are compliant with the gcc@9.4.0. If you have problems when installing, for example "package not found", suggesting another version, you can use the version suggested or simply do not use the version, i.e. "metis%gcc@9.4.0"
 
 **4. Configure the PNETCDF and NETCDF environment vars**
 
