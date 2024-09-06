@@ -143,7 +143,8 @@ cat << EOF > make-all.sh
 #    SHAREDLIB=true - generate position-independent code suitable for use in a shared library. Default is false.
 
 
-. ${SCRIPTS}/setenv.bash
+cd ${SCRIPTS} && . ${SCRIPTS}/setenv.bash
+cd ${MONANDIR}
 rm -fr ${MONANDIR}/stream* ${MONANDIR}/namelist.* ${MONANDIR}/make_*output.atmosphere ${MONANDIR}/default_inputs
 DATE_TIME_NOW=\$(date +"%Y%m%d%H%M%S")
 
@@ -216,7 +217,8 @@ cat << EOF > make.sh
 #    PRECISION=single - builds with default single-precision real kind. Default is to use double-precision.
 #    SHAREDLIB=true - generate position-independent code suitable for use in a shared library. Default is false.
 
-. ${SCRIPTS}/setenv.bash
+cd ${SCRIPTS} && . ${SCRIPTS}/setenv.bash
+cd ${MONANDIR}
 rm -fr ${MONANDIR}/stream* ${MONANDIR}/namelist.* ${MONANDIR}/make_*output.atmosphere ${MONANDIR}/default_inputs
 DATE_TIME_NOW=\$(date +"%Y%m%d%H%M%S")
 

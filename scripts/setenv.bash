@@ -3,7 +3,7 @@
 # Load modules:
 
 echo -e "\033[1;32m==>\033[0m Executing setenv.bash: loading environment...\n"
-source spack/env.sh
+. ./spack/env.sh
 spack env activate myenv
 spack load mpas-model
 spack load wps
@@ -19,12 +19,11 @@ spack load --list
 
 # Set environment variables and importants directories-------------------------------------------------- 
 
-
 # MONAN-suite install root directories:
-# Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/dados/repo/scripts_CD-CT/sources/MONAN-Model_1.0.0
+# MONAN DIR IS MODIFIED BY script 1.install.bash
+export MONANDIR=WILLBEFILLEDBYSCRIPT1
 
 # Submiting variables:
 # PRE-Static phase:
@@ -56,9 +55,9 @@ export MPI_PARAMS="-iface ib0 -bind-to core -map-by core"
 
 # Libraries paths:
 # $(spack location -i pacote)
-export NETCDF=/home/usuario/repo/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/netcdf-c-4.9.2-mrzvvju2bmuw76i6r6byrx2kn6ygyhqg
-export PNETCDF=/home/usuario/repo/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/parallel-netcdf-1.12.3-dgphmay73qspxoi3pkqkpzocf4gb2oq3
-export NETCDFF=/home/usuario/repo/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu22.04-haswell/gcc-11.4.0/netcdf-fortran-4.6.1-d7raeuf3klp5kvkmulvp2f6rj2bckeej
+export NETCDF=/home/user/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu18.04-skylake/gcc-9.4.0/netcdf-c-4.9.2-wtzgun3w5as3xah4cdiaphd7geurfqqn
+export PNETCDF=/home/user/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu18.04-skylake/gcc-9.4.0/parallel-netcdf-1.12.3-ctuelfvjop3kyhy74z5ggtf644glvo7f
+export NETCDFF=/home/user/scripts_CD-CT/scripts/spack/opt/spack/linux-ubuntu18.04-skylake/gcc-9.4.0/netcdf-fortran-4.6.1-vvb6bm27p6jd7hhv3jvkwilq2c2nefbo
 
 
 export NETCDFDIR=${NETCDF}

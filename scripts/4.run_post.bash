@@ -125,6 +125,7 @@ cd ${SCRIPTS}
 
 
 cat > PostAtmos_exe.sh <<EOSH
+cd ${SCRIPTS}
 . ${SCRIPTS}/setenv.bash
 . ${SCRIPTS}/../.venv/bin/activate
 
