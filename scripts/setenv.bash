@@ -30,7 +30,7 @@ module list
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=$MONANDIR
+export MONANDIR=/mnt/beegfs/monan/i596-scripts_CD-CT/scripts_CD-CT/sources/MONAN-Model_release/1.1.0
 
 # Submiting variables:
 
@@ -61,8 +61,8 @@ export INITATMOS_jobname="Pre.InitAtmos"
 
 # Model phase:
 export MODEL_QUEUE="batch"
-export MODEL_ncores=1024
-export MODEL_nnodes=16
+export MODEL_ncores=256
+export MODEL_nnodes=4
 export MODEL_ncpn=64
 export MODEL_jobname="Model.MONAN"
 export MODEL_walltime="8:00:00"
@@ -153,4 +153,22 @@ clean_model_tmp_files () {
    
 }
 #----------------------------------------------------------------------------------------------
+
+
+clean_post_tmp_files () {
+
+   echo "Removing all temporary files from last POST run trash."
+
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/dir.*
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/PostAtmos_exe.sh
+   
+   echo ""
+   
+}
+#----------------------------------------------------------------------------------------------
+
+
+
+
+
 
