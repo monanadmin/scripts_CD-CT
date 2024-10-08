@@ -230,6 +230,7 @@ do
    cp -f ${SCRIPTS}/dir.\${i}/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
    cp -f ${SCRIPTS}/dir.\${i}/saida.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
    cp -f ${SCRIPTS}/dir.\${i}/saida_python.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+   cp -f ${SCRIPTS}/dir.\${i}/PostAtmos_exe.sh 
    cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/streams.atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
    cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/stream_list.atmosphere.* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
    cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/namelist.atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
