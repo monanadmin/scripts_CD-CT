@@ -7,10 +7,9 @@ This folder aims to create a version for testing MONAN with GFS at Egeon.
 ## History: ##
 
 **1.0.0**
-- Added copying of config files from convert_mpas to dataout/YYYYMMDDHH/Post/logs
-- Included the MODEL config file
-- Included the VERSION.txt file
-- Modifications in namelist.atmosphere
+- Add copy configs files from convert_mpas to dataout/YYYYMMDDHH/Post/logs (MODEL config files and VERSION.txt also).
+- fix in config_len_disp in script 3.run_model.bash .
+- modifications in datain/namelists/namelist.atmosphere.TEMPLATE and 3.run_model.bash from Saulo's PR 8 .
  
 **0.2.2**
 - Fixed the value of config_bucket_update in namelist.atmosphere.
