@@ -88,13 +88,15 @@ maxpost=30
 
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
-   NLAT=361
-   NLON=721
-   STARTLAT=-90.25
-   STARTLON=-0.25
-   ENDLAT=90.25
-   ENDLON=360.25
+   #CR: i610: modificando de acordo com as sugestoes Kubota:
+   NLAT=720
+   NLON=1440
+   STARTLAT=-90.0
+   STARTLON=0.0
+   ENDLAT=90.0
+   ENDLON=360.0
 elif [ $RES -eq 40962 ]; then  #120Km
+   #CR: verificar se precisa corrigir para esta resolucao tambem:
    NLAT=181
    NLON=361
    STARTLAT=-90.5

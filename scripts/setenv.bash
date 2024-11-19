@@ -30,7 +30,7 @@ module list
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/mnt/beegfs/monan/i596-scripts_CD-CT/scripts_CD-CT/sources/MONAN-Model_release/1.1.0
+export MONANDIR=/mnt/beegfs/monan/i610-MONAN-interpolacao_corrigida/scripts_CD-CT/sources/MONAN-Model_release/1.1.0
 
 # Submiting variables:
 
@@ -61,8 +61,8 @@ export INITATMOS_jobname="Pre.InitAtmos"
 
 # Model phase:
 export MODEL_QUEUE="batch"
-export MODEL_ncores=256
-export MODEL_nnodes=4
+export MODEL_ncores=512
+export MODEL_nnodes=8
 export MODEL_ncpn=64
 export MODEL_jobname="Model.MONAN"
 export MODEL_walltime="8:00:00"
