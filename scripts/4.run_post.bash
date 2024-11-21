@@ -36,7 +36,7 @@ then
    echo "${0} clean"
    echo ""
 
-   exit
+#   exit
 fi
 
 # Set environment variables exports:
@@ -73,10 +73,10 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 
 
 # Input variables:--------------------------------------
-EXP=${1};         #EXP=GFS
-RES=${2};         #RES=1024002
-YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
-FCST=${4};        #FCST=6
+EXP=${1};         EXP=GFS
+RES=${2};         RES=1024002
+YYYYMMDDHHi=${3}; YYYYMMDDHHi=2024042000
+FCST=${4};        FCST=40
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
@@ -84,7 +84,8 @@ mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 # Local variables--------------------------------------
 START_DATE_YYYYMMDD="${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}"
 START_HH="${YYYYMMDDHHi:8:2}"
-maxpost=30
+maxpostpernode=20    # <------ qtde max de convert_mpas por no!
+#-------------------------------------------------------
 
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
@@ -119,87 +120,82 @@ do
   fi
 done
 
+#CR: captura quantos arquivos do modelo tiverem para serem pos-processados e
+#CR: quando nos serao necessarios para executar ${maxpostpernode} convert_mpas por no:
+nfiles=$(ls -l ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN*nc | wc -l)
+echo "${nfiles} post to submit."
+echo "Max ${maxpostpernode} submits per nodes."
+how_many_nodes ${nfiles} ${maxpostpernode}
 
-# EGK: implementacao do paralelismo de MONAN-scripts/egeon_oper para a tarefa 488 pensando em 241 saidas.
-
-# output model interval is 3 hours
-export output_interval=3
-echo "output_interval=$output_interval"
-
-# laco para checar nome dos arquivos de saida
-for i in $(seq 0 $output_interval $FCST)
+# cria os diretorios e arquivos/links para cada saida do convert_mpas:
+cd ${SCRIPTS}
+for ii in $(seq 1 ${nfiles})
 do
-   hh=${YYYYMMDDHHi:8:2}
-   currentdate=`date -d "${YYYYMMDDHHi:0:8} ${hh}:00 ${i} hours" +"%Y%m%d%H"`
-   diag_name=MONAN_DIAG_G_MOD_GFS_${YYYYMMDDHHi}_${currentdate}.00.00.x${RES}L55.nc
-   echo "diag_name=${diag_name}"
-done
+   i=$(printf "%03d" ${ii})
+   mkdir -p ${SCRIPTS}/dir.${i}
 
-# cria diretorios e arquivos/links para cada saida do convert_mpas
-for i in $(seq 0 $output_interval $FCST)
-do
-  cd ${SCRIPTS}
-  mkdir -p ${SCRIPTS}/dir.${i}
-  cd ${SCRIPTS}/dir.${i}
-
-  ln -sf ${DATAIN}/namelists/include_fields.diag  ${SCRIPTS}/dir.${i}/include_fields.diag
-  ln -sf ${DATAIN}/namelists/convert_mpas.nml ${SCRIPTS}/dir.${i}/convert_mpas.nml
-  #ln -sf ${DATAIN}/namelists/target_domain ${SCRIPTS}/dir.${i}/target_domain   TODO REMOVE
-  sed -e "s,#NLAT#,${NLAT},g;s,#NLON#,${NLON},g;s,#STARTLAT#,${STARTLAT},g;s,#ENDLAT#,${ENDLAT},g;s,#STARTLON#,${STARTLON},g;s,#ENDLON#,${ENDLON},g;" \
+   ln -sf ${DATAIN}/namelists/include_fields.diag  ${SCRIPTS}/dir.${i}/include_fields.diag
+   ln -sf ${DATAIN}/namelists/convert_mpas.nml ${SCRIPTS}/dir.${i}/convert_mpas.nml
+   sed -e "s,#NLAT#,${NLAT},g;s,#NLON#,${NLON},g;s,#STARTLAT#,${STARTLAT},g;s,#ENDLAT#,${ENDLAT},g;s,#STARTLON#,${STARTLON},g;s,#ENDLON#,${ENDLON},g;" \
       ${DATAIN}/namelists/target_domain.TEMPLATE > ${SCRIPTS}/dir.${i}/target_domain
 
-  rm -rf ${SCRIPTS}/dir.${i}/convert_mpas
-  ln -sf ${EXECS}/convert_mpas ${SCRIPTS}/dir.${i}
-  ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${SCRIPTS}/dir.${i}
+   rm -rf ${SCRIPTS}/dir.${i}/convert_mpas
+   ln -sf ${EXECS}/convert_mpas ${SCRIPTS}/dir.${i}
+   ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${SCRIPTS}/dir.${i}
+   
+   hh=${YYYYMMDDHHi:8:2}
+   currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00 $(echo "(${i}-1)*3" | bc) hours" +"%Y%m%d%H")
+   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.00.00.x${RES}L55.nc
+   ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Model/${diag_name} ${SCRIPTS}/dir.${i}
 done
 
-cd ${SCRIPTS}
-. ${SCRIPTS}/setenv_python.bash
-
-
-cat > PostAtmos_exe.sh <<EOSH
+#CR: Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
+node=1
+inicio=1   
+fim=${maxpostpernode}
+while [ ${inicio} -le ${nfiles} ]
+do
+cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
 #!/bin/bash
-#SBATCH --job-name=${POST_jobname}
-#SBATCH --nodes=${POST_nnodes}
-###SBATCH --ntasks=${POST_ncores}
-#SBATCH --tasks-per-node=${POST_ncpn}
+#SBATCH --job-name=MO.Pos${node}
+#SBATCH --nodes=1
 #SBATCH --partition=${POST_QUEUE}
 #SBATCH --time=${POST_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/my_post.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/my_post.e%j     # File name for standard error output
+#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o%j    # File name for standard output
+#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j     # File name for standard error output
 #SBATCH --exclusive
 
 . ${SCRIPTS}/setenv.bash
 . ${SCRIPTS}/../.venv/bin/activate
 
-datai=$YYYYMMDDHHi
-resolution=$RES
+echo "Submiting posts ${inicio} to ${fim} in node Node ${node}."
 
-#aux=$(echo "$FCST/3" | bc)
-aux=$output_interval
-echo "aux=$aux"
-
-for i in \$(seq 0 $output_interval $FCST)
+for ii in \$(seq  ${inicio} ${fim})
 do
-   hh=\${datai:8:2}
-   currentdate=\`date -d "\${datai:0:8} \${hh}:00 \${i} hours" +"%Y%m%d%H"\`
-   diag_name=MONAN_DIAG_G_MOD_GFS_\${datai}_\${currentdate}.00.00.x\${resolution}L55.nc
-
+   i=\$(printf "%03d" \${ii})
+   echo "Executing post \${i}"
    cd ${SCRIPTS}/dir.\${i}
+   
+   hh=${YYYYMMDDHHi:8:2}
+   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
+   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L55.nc
+   
+   
    rm -f include_fields
    cp include_fields.diag include_fields
    rm -f latlon.nc
-
-   time ./convert_mpas x1.\${resolution}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\$diag_name  > saida.txt & 
-   echo "./convert_mpas x1.\${resolution}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\$diag_name"
-
+   
+   time ./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
+   echo "./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name} > convert_mpas.output"
+   
 done
 
 # necessario aguardar as rodadas em background
 wait
 
-for i in \$(seq 0 $output_interval $FCST)
+for ii in \$(seq  ${inicio} ${fim})
 do
+   i=\$(printf "%03d" \${ii})
    cd ${SCRIPTS}/dir.\${i}
    python ${SCRIPTS}/group_levels.py ${SCRIPTS}/dir.\${i} latlon.nc latlon_\${i}.nc > saida_python.txt &
 done
@@ -209,201 +205,83 @@ wait
 # unload the python's environment
 deactivate
 
-cd ${DATAOUT}/${YYYYMMDDHHi}/Post/
-rm -f diag* latlon*
-
-for i in \$(seq 0 $output_interval $FCST)
+for ii in \$(seq  ${inicio} ${fim})
 do
-   mv ${SCRIPTS}/dir.\$i/latlon_\${i}.nc ./latlon_\$i.nc 
+   i=\$(printf "%03d" \${ii})
+   cd ${SCRIPTS}/dir.\${i}
+   rm -f ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon_\${i}.nc
+   cp -f latlon_\${i}.nc ${DATAOUT}/${YYYYMMDDHHi}/Post/ &
 done
+wait 
 
-#find . -maxdepth 1 -name "latlon_*" | sort -n -t _ -k 2 | cut -c3- | sed ':a;$!N;s/\n//;ta;' | sed 's/nc/nc /g' | xargs ncrcat -o latlon.nc
-find . -maxdepth 1 -name "latlon_*" | sort -n -t _ -k 2 | cut -c3- | sed ':a;$!N;s/\n//;ta;' | sed 's/nc/nc /g' | xargs -I "{}"  cdo mergetime {} latlon.nc
-
-#cdo settunits,hours -settaxis,${START_DATE_YYYYMMDD},${START_HH}:00,1hour latlon.nc diagnostics_${START_DATE_YYYYMMDD}.nc
-cdo settunits,hours -settaxis,${START_DATE_YYYYMMDD},${START_HH}:00,3hour latlon.nc MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}.00.00.x${RES}L55.nc
-
-# remove temporary latlon_i.nc files generated by group_levels.py
-for i in \$(seq 0 $output_interval $FCST)
-do
-   cp -f ${SCRIPTS}/dir.\${i}/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   cp -f ${SCRIPTS}/dir.\${i}/include_fields.diag ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   cp -f ${SCRIPTS}/dir.\${i}/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   cp -f ${SCRIPTS}/dir.\${i}/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   cp -f ${SCRIPTS}/dir.\${i}/saida.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   cp -f ${SCRIPTS}/dir.\${i}/saida_python.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   cp -f ${SCRIPTS}/dir.\${i}/PostAtmos_exe.sh 
-   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/streams.atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/stream_list.atmosphere.* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/namelist.atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/log.atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   
-   rm -rf ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon_\${i}.nc
-done
-cp ${EXECS}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
-
-rm -rf ${SCRIPTS}/dir.* ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon.nc
-cp ${EXECS}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
-
-exit 0
 EOSH
+   chmod a+x ${SCRIPTS}/PostAtmos_node.${node}.sh
+   jobid[${node}]=$(sbatch --parsable ${SCRIPTS}/PostAtmos_node.${node}.sh)
+   echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
+  
+   inicio=$((fim + 1))
+   temp=$((fim + maxpostpernode))
+   fim=$(( temp < nfiles ? temp : nfiles ))
+   node=$((node+1))
+done
 
 
-chmod +x PostAtmos_exe.sh
-
-sbatch --wait ${SCRIPTS}/PostAtmos_exe.sh
-
-rm -f ${SCRIPTS}/PostAtmos_exe.sh
-
-
-# EGK: fim da implementacao do paralelismo de MONAN-scripts/egeon_oper para a tarefa 488.
+dependency="afterok"
+for job_id in "${jobid[@]}"
+do
+   dependency="${dependency}:${job_id}"
+done
 
 
 
 
-## TODO: CR: finalizar implementacao
 
-##how_many_nodes ${FCST} ${maxpost}
-##
-##cd  ${SCRIPTS}
-##comando=$(ls -1 MONAN_*MOD*nc)
-##nfiles=(${comando})
-##
-##if [ ${how_many_nodes_int} -eq 1 -a ${how_many_nodes_left} -eq 0 ]
-##then  
-##  maxpost=${FCST}
-##fi
-##
-##ifi=0
-##for nsubs in  $(seq 1 ${how_many_nodes_int})
-##do
-##  cd ${SCRIPTS}
-##  iin=$(echo "${ifi}+1" | bc)
-##  ifi=$(echo "${nsubs}*${maxpost}" | bc)
-##  echo "nsubi = ${nsubs}, ${iin} - ${ifi}"
-##
-##
-##rm -f ${SCRIPTS}/post_${nsubs}.bash 
-##cat << EOF0 > ${SCRIPTS}/post_${nsubs}.bash 
-###!/bin/bash
-###SBATCH --job-name=${POST_jobname}
-###SBATCH --nodes=${POST_nnodes}
-###SBATCH --ntasks=${POST_ncores}
-###SBATCH --tasks-per-node=${POST_ncpn}
-###SBATCH --partition=${POST_QUEUE}
-###SBATCH --time=${POST_walltime}
-###SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/post_${nsubs}.bash.o%j    # File name for standard output
-###SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/post_${nsubs}.bash.e%j     # File name for standard error output
-##
-##cd  ${SCRIPTS}
-##comando=\$(ls -1 MONAN_*MOD*nc)
-##nfiles=(\${comando})
-##
-##
-##  for outputfile in \$(seq ${iin} ${ifi})
-##  do
-##    echo "     \${outputfile} :: \${nfiles[\${outputfile}]}"
-##  done
-##
-##
-##
-##
-##
-##EOF0
-##chmod a+x ${SCRIPTS}/post_${nsubs}.bash 
-##sbatch ${SCRIPTS}/post_${nsubs}.bash 
-##
-##
-##
-##
-##done
-##
-##maxpost=30
-##for nsubs in  $(seq 1 ${how_many_nodes_left})
-##do
-##  iin=$(echo "${ifi}+1" | bc)
-##  ifi=$(echo "${ifi}+${rest}" | bc)
-##  echo "nsubl = ${nsubs}, ${iin} - ${ifi}"
-##
-##  for outputfile in $(seq ${iin} ${ifi})
-##  do
-##    echo "     ${outputfile} :: ${nfiles[${outputfile}]}"
-##  done
-##done
-##
-##
-##
-##exit
-##
-##
-##
-###for nsubs in  $(seq 1 ${how_many_nodes})
-###do 
-##
-##  cd  ${DATAOUT}/${YYYYMMDDHHi}/Model
-##for outputfile in MONAN_*MOD*nc
-###for outputfile in MONAN_DIAG_G_MOD_GFS_2024010100_2024010100.00.00.x1024002L55.nc
-##do
-##  echo ${outputfile}
-##  cd ${SCRIPTS}
-##  mkdir -p ${SCRIPTS}/dir.${outputfile}.dir
-##  cd ${SCRIPTS}/dir.${outputfile}.dir
-##
-##  ln -sf ${DATAIN}/namelists/include_fields.diag  ${SCRIPTS}/dir.${outputfile}.dir/include_fields
-##  ln -sf ${DATAIN}/namelists/convert_mpas.nml ${SCRIPTS}/dir.${outputfile}.dir/convert_mpas.nml
-##  ln -sf ${DATAIN}/namelists/target_domain ${SCRIPTS}/dir.${outputfile}.dir/target_domain
-##
-##  ln -sf ${EXECS}/convert_mpas ${SCRIPTS}/dir.${outputfile}.dir
-##  ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${SCRIPTS}/dir.${outputfile}.dir
-##  post_name=$(echo "${outputfile}" | sed -e "s,_MOD_,_POS_,g")
-##  
-##  rm -f ${SCRIPTS}/dir.${outputfile}.dir/post.bash 
-##cat << EOF0 > ${SCRIPTS}/dir.${outputfile}.dir/post.bash 
-###!/bin/bash
-###SBATCH --job-name=${POST_jobname}
-###SBATCH --nodes=${POST_nnodes}
-###SBATCH --ntasks=${POST_ncores}
-###SBATCH --tasks-per-node=${POST_ncpn}
-###SBATCH --partition=${POST_QUEUE}
-###SBATCH --time=${POST_walltime}
-###SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/post.bash.o%j    # File name for standard output
-###SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/post.bash.e%j     # File name for standard error output
-####SBATCH --exclusive
-###SBATCH --mem=32000
-##
-##
-##export executable=convert_mpas
-##
-##ulimit -c unlimited
-##ulimit -v unlimited
-##ulimit -s unlimited
-##
-##. ${SCRIPTS}/setenv.bash
-##
-##cd ${SCRIPTS}/dir.${outputfile}.dir
-##
-##rm -f latlon.nc
-##date
-##time ./\${executable} x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/${outputfile}
-##date
-##mv latlon.nc ${DATAOUT}/${YYYYMMDDHHi}/Post/${post_name}
-##
-### DE: TODO DO NOT NEED WITH NEW CONVERT_MPAS - REMOVE COMMENT
-### cdo settunits,hours -settaxis,${YYYYMMDDHHi:0:8},${YYYYMMDDHHi:9:2}:00,1hour latlon.nc ${DATAOUT}/${YYYYMMDDHHi}/Post/${post_name}
-##
-##rm -fr ${SCRIPTS}/dir.${outputfile}.dir
-##
-##EOF0
-##  chmod a+x ${SCRIPTS}/dir.${outputfile}.dir/post.bash
-##
-##  #echo -e  "${GREEN}==>${NC} Submitting MONAN atmosphere model Post-processing and waiting for finish before exit... \n"
-##  #echo -e  "${GREEN}==>${NC} Logs being generated at ${DATAOUT}/logs... \n"
-##  echo -e  "sbatch ${SCRIPTS}/dir.${outputfile}.dir/post.bash"
-##  echo ""
-##  sbatch ${SCRIPTS}/dir.${outputfile}.dir/post.bash
-##  sleep 1
-##  echo ""
-##done
-##
-### DE: TODO - CONCATENATE FILES
-### cdo settunits,hours -settaxis,${YYYYMMDDHHi:0:8},${YYYYMMDDHHi:9:2}:00,1hour latlon.nc diagnostics_${YYYYMMDDHHi:0:8}.nc
+#CR: Cria um script principal submetido para juntar os arquivos fianis em um unico:
+node=0
+cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
+#!/bin/bash
+#SBATCH --job-name=MO.Pos${node}
+#SBATCH --nodes=1
+#SBATCH --partition=${POST_QUEUE}
+#SBATCH --time=${POST_walltime}
+#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o%j    # File name for standard output
+#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j     # File name for standard error output
+#SBATCH --exclusive
+
+. ${SCRIPTS}/setenv.bash
+. ${SCRIPTS}/../.venv/bin/activate
+
+
+cd ${DATAOUT}/${YYYYMMDDHHi}/Post
+
+cdo mergetime latlon_*.nc latlon.nc
+sleep 5
+cdo settunits,hours -settaxis,${START_DATE_YYYYMMDD},${START_HH}:00,3hour latlon.nc MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}.00.00.x${RES}L55.nc
+sleep 5
+
+# Saving important files to the logs directory:
+cp -f ${EXECS}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
+cp -f ${EXECS}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.001/include_fields.diag ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.001/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.001/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.001/saida_python.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.001/PostAtmos_*.sh  ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+
+
+# Removing all files created to run:
+rm -rf ${SCRIPTS}/dir.* 
+rm -rf ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon*.nc
+rm -rf ${SCRIPTS}/PostAtmos_*.sh
+
+
+
+EOSH
+chmod a+x ${SCRIPTS}/PostAtmos_node.${node}.sh
+sbatch --dependency=${dependency} ${SCRIPTS}/PostAtmos_node.${node}.sh 
+
+
+
+

@@ -42,8 +42,8 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 github_link=https://github.com/monanadmin/MONAN-Model.git
 EXP=GFS
 RES=1024002
-YYYYMMDDHHi=2024012000
-FCST=02
+YYYYMMDDHHi=2024042000
+FCST=240
 #----------------------------------------------------------------------
 
 
@@ -60,7 +60,3 @@ time 3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 time 4.run_post.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
 
 exit
-
-# STEP 5: Executing the Products
-
-#time 5.run_products.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 

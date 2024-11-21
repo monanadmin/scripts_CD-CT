@@ -122,9 +122,10 @@ how_many_nodes () {
    rest=$(echo "scale=0; (((${num}-${how_many_nodes_int})*${deno})+0.5)/1" | bc -l)
    if [ ${dif} -eq 0 ]; then how_many_nodes_left=0; else how_many_nodes_left=1; fi
    if [ ${how_many_nodes_int} -eq 0 ]; then how_many_nodes_int=1; how_many_nodes_left=0; rest=0; fi
-   
-   echo "INT number of nodes needed: \${how_many_nodes_int}  = ${how_many_nodes_int}"
-   echo "number of nodes left:       \${how_many_nodes_left} = ${how_many_nodes_left}"
+   how_many_nodes=$(echo "${how_many_nodes_int}+${how_many_nodes_left}" | bc )
+   #echo "INT number of nodes needed: \${how_many_nodes_int}  = ${how_many_nodes_int}"
+   #echo "number of nodes left:       \${how_many_nodes_left} = ${how_many_nodes_left}"
+   echo "The number of nodes needed: \${how_many_nodes}  = ${how_many_nodes}"
    echo ""
 }
 #----------------------------------------------------------------------------------------------
@@ -160,7 +161,7 @@ clean_post_tmp_files () {
    echo "Removing all temporary files from last POST run trash."
 
    rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/dir.*
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/PostAtmos_exe.sh
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/PostAtmos_*.sh
    
    echo ""
    
