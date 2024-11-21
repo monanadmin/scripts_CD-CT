@@ -36,7 +36,7 @@ then
    echo "${0} clean"
    echo ""
 
-#   exit
+   exit
 fi
 
 # Set environment variables exports:
@@ -73,10 +73,10 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 
 
 # Input variables:--------------------------------------
-EXP=${1};         EXP=GFS
-RES=${2};         RES=1024002
-YYYYMMDDHHi=${3}; YYYYMMDDHHi=2024042000
-FCST=${4};        FCST=40
+EXP=${1};         #EXP=GFS
+RES=${2};         #RES=1024002
+YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024042000
+FCST=${4};        #FCST=40
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
@@ -275,6 +275,9 @@ cp -f ${SCRIPTS}/dir.001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 rm -rf ${SCRIPTS}/dir.* 
 rm -rf ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon*.nc
 rm -rf ${SCRIPTS}/PostAtmos_*.sh
+
+
+
 
 
 
