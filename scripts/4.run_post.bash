@@ -89,7 +89,6 @@ maxpostpernode=20    # <------ qtde max de convert_mpas por no!
 
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
-   #CR: i610: modificando de acordo com as sugestoes Kubota:
    NLAT=720
    NLON=1440
    STARTLAT=-90.0
@@ -97,7 +96,7 @@ if [ $RES -eq 1024002 ]; then  #24Km
    ENDLAT=90.0
    ENDLON=360.0
 elif [ $RES -eq 40962 ]; then  #120Km
-   #CR: verificar se precisa corrigir para esta resolucao tambem:
+   #CR-TODO: verificar se precisa corrigir para esta resolucao tambem:
    NLAT=181
    NLON=361
    STARTLAT=-90.5
@@ -120,14 +119,14 @@ do
   fi
 done
 
-#CR: captura quantos arquivos do modelo tiverem para serem pos-processados e
-#CR: quando nos serao necessarios para executar ${maxpostpernode} convert_mpas por no:
+# Captura quantos arquivos do modelo tiverem para serem pos-processados e
+# quando nos serao necessarios para executar ${maxpostpernode} convert_mpas por no:
 nfiles=$(ls -l ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN*nc | wc -l)
 echo "${nfiles} post to submit."
 echo "Max ${maxpostpernode} submits per nodes."
 how_many_nodes ${nfiles} ${maxpostpernode}
 
-# cria os diretorios e arquivos/links para cada saida do convert_mpas:
+# Cria os diretorios e arquivos/links para cada saida do convert_mpas:
 cd ${SCRIPTS}
 for ii in $(seq 1 ${nfiles})
 do
@@ -146,10 +145,13 @@ do
    hh=${YYYYMMDDHHi:8:2}
    currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00 $(echo "(${i}-1)*3" | bc) hours" +"%Y%m%d%H")
    diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.00.00.x${RES}L55.nc
+   #CR-TODO: verificar se o arq existe antes de fazer o link:
    ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Model/${diag_name} ${SCRIPTS}/dir.${i}
 done
+cd ${SCRIPTS}
+. ${SCRIPTS}/setenv_python.bash
 
-#CR: Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
+# Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
 node=1
 inicio=1   
 fim=${maxpostpernode}
@@ -225,7 +227,7 @@ EOSH
    node=$((node+1))
 done
 
-
+# Dependencias JobId:
 dependency="afterok"
 for job_id in "${jobid[@]}"
 do
@@ -236,7 +238,7 @@ done
 
 
 
-#CR: Cria um script principal submetido para juntar os arquivos fianis em um unico:
+# Script principal para juntar os arquivos finais em um unico:
 node=0
 cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
 #!/bin/bash
@@ -269,6 +271,7 @@ cp -f ${SCRIPTS}/dir.001/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.001/saida_python.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.001/PostAtmos_*.sh  ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
 
 # Removing all files created to run:
