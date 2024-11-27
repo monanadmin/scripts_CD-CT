@@ -39,7 +39,7 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 
 
 # Input variables:-----------------------------------------------------
-github_link=https://github.com/monanadmin/MONAN-Model.git
+github_link="https://github.com/monanadmin/MONAN-Model.git"
 monan_branch=release/1.1.0
 convertmpas_branch=
 EXP=GFS

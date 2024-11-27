@@ -51,6 +51,7 @@ FCST=${4};        #FCST=24
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
 OPERDIREXP=${OPERDIR}/${EXP}
 BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
+GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
 #-------------------------------------------------------
 mkdir -p ${DATAIN}/${YYYYMMDDHHi}
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
@@ -60,11 +61,19 @@ cp -f /usr/lib64/libjasper.so* ${HOME}/local/lib64
 cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
 
 
-if [ ! -d ${BNDDIR} ]
+# Se nao existir CI no diretorio do IO, 
+# busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
+if [ ! -s ${BNDDIR}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
 then
-   echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
-   echo -e "${RED}==>${NC}Check ${BNDDIR} ." 
-   exit 1                     
+   if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+   then
+      echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
+      echo -e "${RED}==>${NC}Check ${BNDDIR} or." 
+      echo -e "${RED}==>${NC}Check ${GCCCIS}"
+      exit 1            
+   else
+      BNDDIR=${GCCCIS}/${YYYYMMDDHHi:0:4}
+   fi    
 fi
 
 files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${BNDDIR}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")
@@ -148,6 +157,8 @@ fi
    rm -f ${SCRIPTS}/Vtable 
    rm -f ${SCRIPTS}/x1.${RES}.static.nc
    rm -f ${SCRIPTS}/GRIBFILE.AAA
+   rm -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
+
 
 echo "End of degrib Job"
 

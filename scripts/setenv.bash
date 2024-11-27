@@ -170,6 +170,28 @@ clean_post_tmp_files () {
 
 
 
+clean_pre_tmp_files () {
+
+   echo "Removing all temporary files from last PRE run trash."
+
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/log.*.0000.out
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.init.nc
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/GFS*
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/init_atmosphere_model
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/namelist*
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/streams.init_atmosphere
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.graph.info.part.*
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.static.nc
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/ungrib.exe
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/Vtable
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/*.log
+   
+   
+   echo ""
+   
+}
+#----------------------------------------------------------------------------------------------
+
 
 
 
