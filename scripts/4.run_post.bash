@@ -121,7 +121,11 @@ done
 
 # Captura quantos arquivos do modelo tiverem para serem pos-processados e
 # quando nos serao necessarios para executar ${maxpostpernode} convert_mpas por no:
-nfiles=$(ls -l ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN*nc | wc -l)
+#nfiles=$(ls -l ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN*nc | wc -l)
+# from streams.atmosphere.TEMPLATE in diagnostics the output_interval is 3 hours
+output_interval=3
+#nfiles=FCST/output_interval + 1(time zero file)
+nfiles=$(echo "$FCST/$output_interval + 1" | bc)
 echo "${nfiles} post to submit."
 echo "Max ${maxpostpernode} submits per nodes."
 how_many_nodes ${nfiles} ${maxpostpernode}
