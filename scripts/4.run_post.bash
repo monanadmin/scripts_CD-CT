@@ -148,13 +148,14 @@ do
    #CR-TODO: verificar se o arq existe antes de fazer o link:
    ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Model/${diag_name} ${SCRIPTS}/dir.${i}
 done
+
 cd ${SCRIPTS}
 . ${SCRIPTS}/setenv_python.bash
 
 # Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
 node=1
 inicio=1   
-fim=${maxpostpernode}
+fim=$((maxpostpernode <= nfiles ? maxpostpernode : nfiles))
 while [ ${inicio} -le ${nfiles} ]
 do
 cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
@@ -217,6 +218,7 @@ done
 wait 
 
 EOSH
+
    chmod a+x ${SCRIPTS}/PostAtmos_node.${node}.sh
    jobid[${node}]=$(sbatch --parsable ${SCRIPTS}/PostAtmos_node.${node}.sh)
    echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
