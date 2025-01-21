@@ -95,6 +95,13 @@ if [ $RES -eq 1024002 ]; then  #24Km
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
+elif [ $RES -eq 2621442 ]; then  #15Km
+   NLAT=720
+   NLON=1440
+   STARTLAT=-90.0
+   STARTLON=0.0
+   ENDLAT=90.0
+   ENDLON=360.0
 elif [ $RES -eq 40962 ]; then  #120Km
    #CR-TODO: verificar se precisa corrigir para esta resolucao tambem:
    NLAT=181
