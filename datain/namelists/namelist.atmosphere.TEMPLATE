@@ -1,5 +1,5 @@
 &nhyd_model
-    config_time_integration_order = 2
+    config_time_integration_order = 3
     config_dt = #CONFIG_DT#
     config_start_time = '#LABELI#'
     config_run_duration = '#FCSTS#'

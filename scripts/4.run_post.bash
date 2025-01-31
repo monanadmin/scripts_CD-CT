@@ -89,15 +89,15 @@ maxpostpernode=20    # <------ qtde max de convert_mpas por no!
 
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
-   NLAT=720
-   NLON=1440
+   NLAT=720  #180/0.25
+   NLON=1440 #360/0.25
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
 elif [ $RES -eq 2621442 ]; then  #15Km
-   NLAT=720
-   NLON=1440
+   NLAT=1200 #180/0.15
+   NLON=2400 #360/0.15
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0

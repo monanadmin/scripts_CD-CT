@@ -65,14 +65,14 @@ cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
 # busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
 if [ ! -s ${BNDDIR}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
 then
-   if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+   if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
    then
       echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
       echo -e "${RED}==>${NC}Check ${BNDDIR} or." 
       echo -e "${RED}==>${NC}Check ${GCCCIS}"
       exit 1            
    else
-      BNDDIR=${GCCCIS}/${YYYYMMDDHHi:0:4}
+      BNDDIR=${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
    fi    
 fi
 

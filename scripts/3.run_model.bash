@@ -89,7 +89,7 @@ CONFIG_CONV_INTERVAL="00:30:00"
 
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
-   CONFIG_DT=180.0
+   CONFIG_DT=150.0
    CONFIG_LEN_DISP=24000.0
    CONFIG_CONV_INTERVAL="00:15:00"
 elif [ $RES -eq 2621442 ]; then  #15Km
