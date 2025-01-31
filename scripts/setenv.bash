@@ -61,8 +61,8 @@ export INITATMOS_jobname="Pre.InitAtmos"
 
 # Model phase:
 export MODEL_QUEUE="batch"
-export MODEL_ncores=1024
-export MODEL_nnodes=16
+export MODEL_ncores=512
+export MODEL_nnodes=8
 export MODEL_ncpn=64
 export MODEL_jobname="Model.MONAN"
 export MODEL_walltime="8:00:00"
@@ -122,9 +122,10 @@ how_many_nodes () {
    rest=$(echo "scale=0; (((${num}-${how_many_nodes_int})*${deno})+0.5)/1" | bc -l)
    if [ ${dif} -eq 0 ]; then how_many_nodes_left=0; else how_many_nodes_left=1; fi
    if [ ${how_many_nodes_int} -eq 0 ]; then how_many_nodes_int=1; how_many_nodes_left=0; rest=0; fi
-   
-   echo "INT number of nodes needed: \${how_many_nodes_int}  = ${how_many_nodes_int}"
-   echo "number of nodes left:       \${how_many_nodes_left} = ${how_many_nodes_left}"
+   how_many_nodes=$(echo "${how_many_nodes_int}+${how_many_nodes_left}" | bc )
+   #echo "INT number of nodes needed: \${how_many_nodes_int}  = ${how_many_nodes_int}"
+   #echo "number of nodes left:       \${how_many_nodes_left} = ${how_many_nodes_left}"
+   echo "The number of nodes needed: \${how_many_nodes}  = ${how_many_nodes}"
    echo ""
 }
 #----------------------------------------------------------------------------------------------
@@ -153,4 +154,44 @@ clean_model_tmp_files () {
    
 }
 #----------------------------------------------------------------------------------------------
+
+
+clean_post_tmp_files () {
+
+   echo "Removing all temporary files from last POST run trash."
+
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/dir.*
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/PostAtmos_*.sh
+   
+   echo ""
+   
+}
+#----------------------------------------------------------------------------------------------
+
+
+
+clean_pre_tmp_files () {
+
+   echo "Removing all temporary files from last PRE run trash."
+
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/log.*.0000.out
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.init.nc
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/GFS*
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/init_atmosphere_model
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/namelist*
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/streams.init_atmosphere
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.graph.info.part.*
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.static.nc
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/ungrib.exe
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/Vtable
+   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/*.log
+   
+   
+   echo ""
+   
+}
+#----------------------------------------------------------------------------------------------
+
+
+
 

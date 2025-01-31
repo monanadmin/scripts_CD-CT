@@ -85,16 +85,20 @@ start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHH
 cores=${MODEL_ncores}
 hhi=${YYYYMMDDHHi:8:2}
 NLEV=55
+CONFIG_CONV_INTERVAL="00:30:00"
 
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
-   CONFIG_DT=180.0
+   CONFIG_DT=150.0
+   CONFIG_LEN_DISP=24000.0
+   CONFIG_CONV_INTERVAL="00:15:00"
+elif [ $RES -eq 2621442 ]; then  #15Km
+   CONFIG_DT=90.0
    CONFIG_LEN_DISP=24000.0
    CONFIG_CONV_INTERVAL="00:15:00"
 elif [ $RES -eq 40962 ]; then  #120Km
    CONFIG_DT=600.0
    CONFIG_LEN_DISP=120000.0
-   CONFIG_CONV_INTERVAL="00:10:00"
 fi
 #-------------------------------------------------------
 

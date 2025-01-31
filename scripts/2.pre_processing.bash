@@ -17,14 +17,15 @@
 #
 #-----------------------------------------------------------------------------#
 
-if [ $# -ne 4 ]
+if [ $# -ne 4 -a $# -ne 1 ]
 then
    echo ""
    echo "Instructions: execute the command below"
    echo ""
-   echo "${0} EXP_NAME RESOLUTION LABELI FCST"
+   echo "${0} EXP_NAME/OP RESOLUTION LABELI FCST"
    echo ""
    echo "EXP_NAME    :: Forcing: GFS"
+   echo "OP          :: clean: remove all temporary files createed in the last run."
    echo "            :: Others options to be added later..."
    echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
    echo "                                                                 40962  (120 km)"
@@ -35,6 +36,8 @@ then
    echo "${0} GFS 1024002 2024010100 24"
    echo "48 hour forecast example for 120km:"
    echo "${0} GFS   40962 2024010100 48"
+   echo "Cleannig temp files example:"
+   echo "${0} clean"
    echo ""
 
    exit
@@ -44,6 +47,21 @@ fi
 echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
+
+if [ $# -eq 1 ]
+then
+   op=$(echo "${1}" | tr '[A-Z]' '[a-z]')
+   if [ ${op} = "clean" ]
+   then
+      clean_pre_tmp_files
+      exit
+   else
+      echo "Should type just \"clean\" for cleanning."
+      echo "${0} clean"
+      echo ""
+      exit
+   fi   
+fi
 
 
 # Standart directories variables:---------------------------------------

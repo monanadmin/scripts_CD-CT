@@ -4,33 +4,43 @@
 
 This folder aims to create a version for testing MONAN with GFS at Egeon.
 
-## History:
+## History: ##
 
-0.1.0
-- Used parameterization to select the date for execution.
-- Created cron script for daily executions.
-- Post-processing is with the new version of convert_mpas, enabling the use of grads.
-- Grouping all variables with one pressure level to only one variable with all levels.
-- Defined default version of MONAN-Model (0.5.0) and convert_mpas (0.1.0) in the installation step.
+**1.0.0**
+- Changing integration method (3rd Rung-Kutta), time step (150s), nlat and nlon for post processing at 15km and minor adjustments.
+- adding configurations for 15km.
+- correction on logic of how many submiting will be computed if nfiles were little then maxpostpernodes.
+- new parallel post.
+- Target_domain values have been fixed.
+- Add copy configs files from convert_mpas to dataout/YYYYMMDDHH/Post/logs (MODEL config files and VERSION.txt also).
+- fix in config_len_disp in script 3.run_model.bash .
+- modifications in datain/namelists/namelist.atmosphere.TEMPLATE and 3.run_model.bash from Saulo's PR 8 .
+ 
+**0.2.2**
+- Fixed the value of config_bucket_update in namelist.atmosphere.
+- Fixed module load in opengrads in setenv.
 
-0.1.1
-- Fixing bug on pressure levels description in post files
-- Fixing variables name in post files
+**0.2.1**
+- Switch of configs (CONFIG_DT, CONFIG_LEN_DISP, target_domain, etc.) 120 and 24 km.
+- Clean temporary outputs files option add in the 3.run_model.bash script.
+- Verification if all the output files were created ok from model phase.
 
-0.2.0
+**0.2.0**
 - Including copy of the GF_ConvPar_nml from model source to scripts folder.
 - Changing physics suite to mesoscale_reference_monan.
 - Changing the output model interval to 3h adjusting the post processing.
 - Changing the radtlw and radtsw interval to 30m, and conv interval to 15m.
 
-0.2.1
-- Switch of configs (CONFIG_DT, CONFIG_LEN_DISP, target_domain, etc.) 120 and 24 km.
-- Clean temporary outputs files option add in the 3.run_model.bash script.
-- Verification if all the output files were created ok from model phase.
+**0.1.1**
+- Fixing bug on pressure levels description in post files
+- Fixing variables name in post files
 
-0.2.2
-- Fixed the value of config_bucket_update in namelist.atmosphere.
-- Fixed module load in opengrads in setenv.
+**0.1.0**
+- Used parameterization to select the date for execution.
+- Created cron script for daily executions.
+- Post-processing is with the new version of convert_mpas, enabling the use of grads.
+- Grouping all variables with one pressure level to only one variable with all levels.
+- Defined default version of MONAN-Model (0.5.0) and convert_mpas (0.1.0) in the installation step.
 
 ### Implementation at Egeon:
 
