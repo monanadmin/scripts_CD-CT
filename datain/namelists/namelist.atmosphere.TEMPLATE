@@ -1,5 +1,5 @@
 &nhyd_model
-    config_time_integration_order = 2
+    config_time_integration_order = 3
     config_dt = #CONFIG_DT#
     config_start_time = '#LABELI#'
     config_run_duration = '#FCSTS#'
@@ -13,7 +13,7 @@
     config_h_theta_eddy_visc4 = 0.0
     config_v_theta_eddy_visc2 = 0.0
     config_horiz_mixing = '2d_smagorinsky'
-    config_len_disp = 0.0
+    config_len_disp = #CONFIG_LEN_DISP#
     config_visc4_2dsmag = 0.05
     config_w_adv_order = 3
     config_theta_adv_order = 3
