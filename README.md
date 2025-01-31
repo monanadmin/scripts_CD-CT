@@ -7,6 +7,11 @@ This folder aims to create a version for testing MONAN with GFS at Egeon.
 ## History: ##
 
 **1.0.0**
+- Changing integration method (3rd Rung-Kutta), time step (150s), nlat and nlon for post processing at 15km and minor adjustments.
+- adding configurations for 15km.
+- correction on logic of how many submiting will be computed if nfiles were little then maxpostpernodes.
+- new parallel post.
+- Target_domain values have been fixed.
 - Add copy configs files from convert_mpas to dataout/YYYYMMDDHH/Post/logs (MODEL config files and VERSION.txt also).
 - fix in config_len_disp in script 3.run_model.bash .
 - modifications in datain/namelists/namelist.atmosphere.TEMPLATE and 3.run_model.bash from Saulo's PR 8 .
