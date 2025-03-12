@@ -93,8 +93,8 @@ export PMIX_MCA_gds=hash
 export MPI_PARAMS="-iface ib0 -bind-to core -map-by core"
 
 # Libraries paths:
-export NETCDF=/mnt/beegfs/monan/libs/netcdf
-export PNETCDF=/mnt/beegfs/monan/libs/PnetCDF
+export NETCDF=/mnt/beegfs/monan/libs_openmpi/netcdf
+export PNETCDF=/mnt/beegfs/monan/libs_openmpi/PnetCDF
 export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
 export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v0.5.0
