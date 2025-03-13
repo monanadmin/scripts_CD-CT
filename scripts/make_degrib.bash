@@ -104,8 +104,8 @@ cat << EOF0 > ${SCRIPTS}/degrib.bash
 #SBATCH --ntasks=${DEGRIB_ncores}             
 #SBATCH --tasks-per-node=${DEGRIB_ncpn}                     # ic for benchmark
 #SBATCH --time=${STATIC_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/debrib.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/debrib.e%j     # File name for standard error output
+#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o%j    # File name for standard output
+#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e%j     # File name for standard error output
 #
 
 ulimit -s unlimited
@@ -180,7 +180,7 @@ do
   then
     echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
     echo -e  "${RED}==>${NC} Degrib fails! At least the file ${file} was not generated at ${DATAIN}/${YYYYMMDDHHi}. \n"
-    echo -e  "${RED}==>${NC} Check logs at ${DATAOUT}/logs/debrib.* .\n"
+    echo -e  "${RED}==>${NC} Check logs at ${DATAOUT}/logs/degrib.* .\n"
     echo -e  "${RED}==>${NC} Exiting script. \n"
     exit -1
   fi

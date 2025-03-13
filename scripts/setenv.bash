@@ -4,13 +4,9 @@
 
 module purge
 module load ohpc
-module unload openmpi4
 module load phdf5
 module load netcdf 
 module load netcdf-fortran 
-module load mpich-4.0.2-gcc-9.4.0-gpof2pv
-module load hwloc
-module load phdf5
 module load cdo-2.0.4-gcc-9.4.0-bjulvnd
 module load opengrads/2.2.1
 module load nco-5.0.1-gcc-11.2.0-u37c3hb
@@ -97,8 +93,8 @@ export PMIX_MCA_gds=hash
 export MPI_PARAMS="-iface ib0 -bind-to core -map-by core"
 
 # Libraries paths:
-export NETCDF=/mnt/beegfs/monan/libs/netcdf
-export PNETCDF=/mnt/beegfs/monan/libs/PnetCDF
+export NETCDF=/mnt/beegfs/monan/libs_openmpi/netcdf
+export PNETCDF=/mnt/beegfs/monan/libs_openmpi/PnetCDF
 export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
 export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v0.5.0
