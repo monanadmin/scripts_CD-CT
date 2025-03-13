@@ -6,6 +6,9 @@ This folder aims to create a version for testing MONAN with GFS at Egeon.
 
 ## History: ##
 
+**1.0.1**
+- Fixing nIsobaricLev(22) in convert_mpas.nml and config_dt(15000) in run_model script.
+
 **1.0.0**
 - Changing integration method (3rd Rung-Kutta), time step (150s), nlat and nlon for post processing at 15km and minor adjustments.
 - adding configurations for 15km.
