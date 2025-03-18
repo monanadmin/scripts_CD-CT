@@ -87,6 +87,12 @@ START_HH="${YYYYMMDDHHi:8:2}"
 maxpostpernode=20    # <------ qtde max de convert_mpas por no!
 #-------------------------------------------------------
 
+# Variables for flex outpout interval from streams.atmosphere------------------------
+t_strout=$(cat ${DATAIN}/namelists/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
+t_stroutsec=$(echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
+t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
+#------------------------------------------------------------------------------------
+
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
    NLAT=720  #180/0.25
@@ -103,13 +109,12 @@ elif [ $RES -eq 2621442 ]; then  #15Km
    ENDLAT=90.0
    ENDLON=360.0
 elif [ $RES -eq 40962 ]; then  #120Km
-   #CR-TODO: verificar se precisa corrigir para esta resolucao tambem:
-   NLAT=181
-   NLON=361
-   STARTLAT=-90.5
-   STARTLON=-0.5
-   ENDLAT=90.5
-   ENDLON=360.5
+   NLAT=150 #180/1.2
+   NLON=300 #360/1.2
+   STARTLAT=-90.0
+   STARTLON=0.0
+   ENDLAT=90.0
+   ENDLON=360.0
 fi
 #-------------------------------------------------------
 
@@ -129,8 +134,8 @@ done
 # Captura quantos arquivos do modelo tiverem para serem pos-processados e
 # quando nos serao necessarios para executar ${maxpostpernode} convert_mpas por no:
 #nfiles=$(ls -l ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN*nc | wc -l)
-# from streams.atmosphere.TEMPLATE in diagnostics the output_interval is 3 hours
-output_interval=3
+# from streams.atmosphere.TEMPLATE in diagnostics the output_interval is flexible
+output_interval=${t_strouthor}
 #nfiles=FCST/output_interval + 1(time zero file)
 nfiles=$(echo "$FCST/$output_interval + 1" | bc)
 echo "${nfiles} post to submit."
@@ -154,8 +159,8 @@ do
    ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${SCRIPTS}/dir.${i}
    
    hh=${YYYYMMDDHHi:8:2}
-   currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00 $(echo "(${i}-1)*3" | bc) hours" +"%Y%m%d%H")
-   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.00.00.x${RES}L55.nc
+   currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 $(echo "(${i}-1)*${t_strout:0:2}" | bc) hours $(echo "(${i}-1)*${t_strout:3:2}" | bc) minutes $(echo "(${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
+   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L55.nc
    #CR-TODO: verificar se o arq existe antes de fazer o link:
    ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Model/${diag_name} ${SCRIPTS}/dir.${i}
 done
@@ -191,9 +196,8 @@ do
    cd ${SCRIPTS}/dir.\${i}
    
    hh=${YYYYMMDDHHi:8:2}
-   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
-   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L55.nc
-   
+   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 \$(echo "(${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
+   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L55.nc
    
    rm -f include_fields
    cp include_fields.diag include_fields
@@ -271,7 +275,7 @@ cd ${DATAOUT}/${YYYYMMDDHHi}/Post
 
 cdo mergetime latlon_*.nc latlon.nc
 sleep 5
-cdo settunits,hours -settaxis,${START_DATE_YYYYMMDD},${START_HH}:00,3hour latlon.nc MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}.00.00.x${RES}L55.nc
+cdo settunits,seconds -settaxis,${START_DATE_YYYYMMDD},${START_HH}:00,${t_stroutsec}second latlon.nc MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}.00.00.x${RES}L55.nc
 sleep 5
 
 # Saving important files to the logs directory:
