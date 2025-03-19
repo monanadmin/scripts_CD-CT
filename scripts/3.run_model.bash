@@ -95,7 +95,7 @@ t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
 
 # Format to HH:MM:SS t_strout (output_interval)
 IFS=":" read -r h m s <<< "${t_strout}"
-printf -v $t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
+printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
