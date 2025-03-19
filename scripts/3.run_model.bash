@@ -93,6 +93,10 @@ t_stroutsec=$(echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
 t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
 #------------------------------------------------------------------------------------
 
+# Format to HH:MM:SS t_strout (output_interval)
+IFS=":" read -r h m s <<< "${t_strout}"
+printf -v $t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
+
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
    CONFIG_DT=150.0
@@ -252,7 +256,7 @@ output_interval=${t_strouthor}
 nfiles=$(echo "$FCST/$output_interval + 1" | bc)
 for ii in $(seq 1 ${nfiles})
 do
-   i=$(printf "%03d" ${ii})
+   i=$(printf "%04d" ${ii})
    hh=${YYYYMMDDHHi:8:2}
    currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 $(echo "(${i}-1)*${t_strout:0:2}" | bc) hours $(echo "(${i}-1)*${t_strout:3:2}" | bc) minutes $(echo "(${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
    file=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L55.nc

@@ -93,6 +93,10 @@ t_stroutsec=$(echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
 t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
 #------------------------------------------------------------------------------------
 
+# Format to HH:MM:SS t_strout (output_interval)
+IFS=":" read -r h m s <<< "${t_strout}"
+printf -v $t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
+
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
    NLAT=720  #180/0.25
@@ -146,7 +150,7 @@ how_many_nodes ${nfiles} ${maxpostpernode}
 cd ${SCRIPTS}
 for ii in $(seq 1 ${nfiles})
 do
-   i=$(printf "%03d" ${ii})
+   i=$(printf "%04d" ${ii})
    mkdir -p ${SCRIPTS}/dir.${i}
 
    ln -sf ${DATAIN}/namelists/include_fields.diag  ${SCRIPTS}/dir.${i}/include_fields.diag
@@ -191,7 +195,7 @@ echo "Submiting posts ${inicio} to ${fim} in node Node ${node}."
 
 for ii in \$(seq  ${inicio} ${fim})
 do
-   i=\$(printf "%03d" \${ii})
+   i=\$(printf "%04d" \${ii})
    echo "Executing post \${i}"
    cd ${SCRIPTS}/dir.\${i}
    
@@ -213,7 +217,7 @@ wait
 
 for ii in \$(seq  ${inicio} ${fim})
 do
-   i=\$(printf "%03d" \${ii})
+   i=\$(printf "%04d" \${ii})
    cd ${SCRIPTS}/dir.\${i}
    python ${SCRIPTS}/group_levels.py ${SCRIPTS}/dir.\${i} latlon.nc latlon_\${i}.nc > saida_python.txt &
 done
@@ -225,7 +229,7 @@ deactivate
 
 for ii in \$(seq  ${inicio} ${fim})
 do
-   i=\$(printf "%03d" \${ii})
+   i=\$(printf "%04d" \${ii})
    cd ${SCRIPTS}/dir.\${i}
    rm -f ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon_\${i}.nc
    cp -f latlon_\${i}.nc ${DATAOUT}/${YYYYMMDDHHi}/Post/ &
