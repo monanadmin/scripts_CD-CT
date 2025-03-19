@@ -87,6 +87,12 @@ hhi=${YYYYMMDDHHi:8:2}
 NLEV=55
 CONFIG_CONV_INTERVAL="00:30:00"
 
+# Variables for flex outpout interval from streams.atmosphere------------------------
+t_strout=$(cat ${DATAIN}/namelists/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
+t_stroutsec=$(echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
+t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
+#------------------------------------------------------------------------------------
+
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
    CONFIG_DT=150.0
@@ -241,20 +247,22 @@ sbatch --wait ${SCRIPTS}/model.bash
 mv ${SCRIPTS}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 
 
-output_interval=3
-for i in $(seq 0 ${output_interval} ${FCST})
+#-----Loop que verifica se os arquivos foram gerados corretamente (>0)-----
+output_interval=${t_strouthor}
+nfiles=$(echo "$FCST/$output_interval + 1" | bc)
+for ii in $(seq 1 ${nfiles})
 do
+   i=$(printf "%03d" ${ii})
    hh=${YYYYMMDDHHi:8:2}
-   currentdate=$(date -u +"%Y%m%d%H" -d "${YYYYMMDDHHi:0:8} ${hh}:00 ${i} hours")
-   file=MONAN_DIAG_G_MOD_GFS_${YYYYMMDDHHi}_${currentdate}.00.00.x${RES}L55.nc
-   
+   currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 $(echo "(${i}-1)*${t_strout:0:2}" | bc) hours $(echo "(${i}-1)*${t_strout:3:2}" | bc) minutes $(echo "(${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
+   file=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L55.nc
+
    if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Model/${file} ]
    then
-    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
+    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"   
     echo -e  "${RED}==>${NC} [${0}] At least the file ${DATAOUT}/${YYYYMMDDHHi}/Model/${file} was not generated. \n"
     exit -1
-  fi
-      
+   fi
+
 done
 
-   

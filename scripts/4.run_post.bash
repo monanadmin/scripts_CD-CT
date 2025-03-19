@@ -196,7 +196,7 @@ do
    cd ${SCRIPTS}/dir.\${i}
    
    hh=${YYYYMMDDHHi:8:2}
-   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 \$(echo "(${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
+   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 \$(echo "(\${i}-1)*\${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*\${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*\${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
    diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L55.nc
    
    rm -f include_fields
