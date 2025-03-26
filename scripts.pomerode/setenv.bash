@@ -20,7 +20,7 @@ export MONANDIR=/dados/monan/marcelo.paiva/scripts_CD-CT/sources/MONAN-Model_fea
 
 # PRE-Static phase:
 export STATIC_QUEUE="pgpu"
-export STATIC_gres="gpu:4g.40gb:1"
+export STATIC_gres="gpu:1"
 export STATIC_ncores=32
 export STATIC_nnodes=1
 export STATIC_ncpn=32
@@ -29,7 +29,7 @@ export STATIC_walltime="02:00:00"
 
 # PRE-Degrib phase:
 export DEGRIB_QUEUE="pgpu"
-export DEGRIB_gres="gpu:4g.40gb:1"
+export DEGRIB_gres="gpu:1"
 export DEGRIB_ncores=1
 export DEGRIB_nnodes=1
 export DEGRIB_ncpn=1
@@ -38,7 +38,7 @@ export DEGRIB_jobname="Pre.degrib"
 
 # PRE-Init Atmosphere phase:
 export INITATMOS_QUEUE="pgpu"
-export INITATMOS_gres="gpu:4g.40gb:1"
+export INITATMOS_gres="gpu:1"
 export INITATMOS_ncores=64
 export INITATMOS_nnodes=1
 ### export INITATMOS_ncpn=1 not used yet  - using INITATMOS_ncores 
@@ -48,12 +48,12 @@ export INITATMOS_jobname="Pre.InitAtmos"
 
 # Model phase:
 export MODEL_QUEUE="pgpu"
-export MODEL_gres="gpu:4g.40gb:1"
-export MODEL_ncores=32
+export MODEL_gres="gpu:1"
+export MODEL_ncores=128
 export MODEL_nnodes=1
-export MODEL_ncpn=32
+export MODEL_ncpn=128
 export MODEL_jobname="Model.MONAN"
-export MODEL_walltime="0:20:00"
+export MODEL_walltime="2:00:00"
 
 
 # Post phase:
