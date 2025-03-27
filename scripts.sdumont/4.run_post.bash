@@ -64,7 +64,7 @@ fi
 # Standart directories variables:---------------------------------------
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
-export SCRIPTS=${DIRHOMES}/scripts.sdmunont;    mkdir -p ${SCRIPTS}
+export SCRIPTS=${DIRHOMES}/scripts.sdumont;   mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
 DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
 SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
