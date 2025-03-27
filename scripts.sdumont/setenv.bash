@@ -5,7 +5,10 @@
 module purge
 module use /scratch/cptec/nvidia/x86_64/hpc_sdk/modulefiles/ 
 module load nvhpc/23.1
+module load general/anaconda3/2024.10
 module list
+
+source activate $HOME/conda-env/test-tf
 
 # Set environment variables and importants directories-------------------------------------------------- 
 
