@@ -89,15 +89,15 @@ maxpostpernode=20    # <------ qtde max de convert_mpas por no!
 
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
-   NLAT=720  #180/0.25
-   NLON=1440 #360/0.25
+   NLAT=721  #180/0.25
+   NLON=1441 #360/0.25
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
 elif [ $RES -eq 2621442 ]; then  #15Km
-   NLAT=1200 #180/0.15
-   NLON=2400 #360/0.15
+   NLAT=1201 #180/0.15
+   NLON=2401 #360/0.15
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
@@ -106,10 +106,10 @@ elif [ $RES -eq 40962 ]; then  #120Km
    #CR-TODO: verificar se precisa corrigir para esta resolucao tambem:
    NLAT=181
    NLON=361
-   STARTLAT=-90.5
-   STARTLON=-0.5
-   ENDLAT=90.5
-   ENDLON=360.5
+   STARTLAT=-90
+   STARTLON=0.0
+   ENDLAT=90
+   ENDLON=360
 fi
 #-------------------------------------------------------
 
@@ -161,7 +161,7 @@ do
 done
 
 cd ${SCRIPTS}
-. ${SCRIPTS}/setenv_python.bash
+#CR-611:. ${SCRIPTS}/setenv_python.bash
 
 # Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
 node=1
@@ -180,7 +180,7 @@ cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
 #SBATCH --exclusive
 
 . ${SCRIPTS}/setenv.bash
-. ${SCRIPTS}/../.venv/bin/activate
+#CR-611: . ${SCRIPTS}/../.venv/bin/activate
 
 echo "Submiting posts ${inicio} to ${fim} in node Node ${node}."
 
@@ -193,39 +193,41 @@ do
    hh=${YYYYMMDDHHi:8:2}
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
    diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L55.nc
-   
+   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L55.nc
    
    rm -f include_fields
    cp include_fields.diag include_fields
    rm -f latlon.nc
    
-   time ./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
+   time ./convert_mpas  x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
    echo "./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name} > convert_mpas.output"
-   
+
 done
 
 # necessario aguardar as rodadas em background
+
 wait
 
 for ii in \$(seq  ${inicio} ${fim})
 do
    i=\$(printf "%03d" \${ii})
+   hh=${YYYYMMDDHHi:8:2}
+   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
+   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L55.nc
+   
    cd ${SCRIPTS}/dir.\${i}
-   python ${SCRIPTS}/group_levels.py ${SCRIPTS}/dir.\${i} latlon.nc latlon_\${i}.nc > saida_python.txt &
+   cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post} >> convert_mpas.output & 
+   echo "cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post}  > convert_mpas.output"
 done
-
+ 
 wait
-
-# unload the python's environment
-deactivate
-
+ 
 for ii in \$(seq  ${inicio} ${fim})
 do
    i=\$(printf "%03d" \${ii})
-   cd ${SCRIPTS}/dir.\${i}
-   rm -f ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon_\${i}.nc
-   cp -f latlon_\${i}.nc ${DATAOUT}/${YYYYMMDDHHi}/Post/ &
+   #rm -rf ${SCRIPTS}/dir.\${i}
 done
+
 wait 
 
 EOSH
@@ -246,6 +248,63 @@ for job_id in "${jobid[@]}"
 do
    dependency="${dependency}:${job_id}"
 done
+
+
+
+exit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -281,7 +340,7 @@ cp -f ${SCRIPTS}/dir.001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.001/include_fields.diag ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.001/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.001/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.001/saida_python.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+#cp -f ${SCRIPTS}/dir.001/saida_python.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.001/PostAtmos_*.sh  ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs

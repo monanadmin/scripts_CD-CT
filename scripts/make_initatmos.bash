@@ -113,16 +113,6 @@ cat << EOF0 > ${SCRIPTS}/initatmos.bash
 
 export executable=init_atmosphere_model
 
-#export MPAS_DYNAMICS_RANKS_PER_NODE=2
-#export MPAS_RADIATION_RANKS_PER_NODE=6
-#export MALLOCSTATS=1
-
-export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
-export MKL_NUM_THREADS=${SLURM_CPUS_PER_TASK}
-export I_MPI_DEBUG=5
-export MKL_DEBUG_CPU_TYPE=5
-export I_MPI_FABRICS=shm:ofi
-
 ulimit -c unlimited
 ulimit -v unlimited
 ulimit -s unlimited
@@ -135,8 +125,7 @@ cd ${SCRIPTS}
 
 
 date
-#time mpirun -np \${SLURM_NTASKS} -env UCX_NET_DEVICES=mlx5_0:1 -genvall ./\${executable}
-time mpirun -np \${SLURM_NTASKS} ./\${executable}
+time mpirun -np \${SLURM_NTASKS} -env UCX_NET_DEVICES=mlx5_0:1 -genvall ./\${executable}
 date
 
 

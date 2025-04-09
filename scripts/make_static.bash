@@ -113,11 +113,6 @@ cat << EOF0 > ${SCRIPTS}/static.bash
 #SBATCH --exclusive
 ##SBATCH --mem=500000
 
-export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
-export MKL_NUM_THREADS=${SLURM_CPUS_PER_TASK}
-export I_MPI_DEBUG=5
-export MKL_DEBUG_CPU_TYPE=5
-export I_MPI_FABRICS=shm:ofi
 
 executable=init_atmosphere_model
 
@@ -130,8 +125,7 @@ ulimit -v unlimited
 cd ${SCRIPTS}
 
 date
-#time mpirun -np \${SLURM_NTASKS} -env UCX_NET_DEVICES=mlx5_0:1 -genvall ./\${executable}
-time mpirun -np \${SLURM_NTASKS} ./\${executable}
+time mpirun -np \${SLURM_NTASKS} -env UCX_NET_DEVICES=mlx5_0:1 -genvall ./\${executable}
 date
 
 grep "Finished running" log.init_atmosphere.0000.out >& /dev/null
