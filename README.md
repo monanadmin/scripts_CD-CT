@@ -7,7 +7,9 @@ This folder aims to create a version for testing MONAN with GFS at Egeon.
 ## History: ##
 
 **1.1.0**
-- 
+- Fixed `model.bash` script to check generated files with flexible output_interval field (no longer with constant 3h).
+- Now it is possible to run all 4 phases with 00z, 06z, 12z and 18z.
+- Namelist `namelist.atmosphere.TEMPLATE` was updated to work with MONAN-Model version 1.3.0/, especific `convection_permitting_monan` phisic suite.
 
 **1.0.1**
 - Fixing nIsobaricLev(22) in convert_mpas.nml and config_dt(15000) in run_model script.
