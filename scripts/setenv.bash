@@ -4,13 +4,9 @@
 
 module purge
 module load ohpc
-module unload openmpi4
 module load phdf5
 module load netcdf 
 module load netcdf-fortran 
-module load mpich-4.0.2-gcc-9.4.0-gpof2pv
-module load hwloc
-module load phdf5
 module load cdo-2.0.4-gcc-9.4.0-bjulvnd
 module load opengrads/2.2.1
 module load nco-5.0.1-gcc-11.2.0-u37c3hb
@@ -30,7 +26,7 @@ module list
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=$MONANDIR
+export MONANDIR=/mnt/beegfs/monan/users/renato/issues/i-686/scripts_CD-CT/sources/MONAN-Model_1.3.0-rc
 
 # Submiting variables:
 
@@ -61,8 +57,8 @@ export INITATMOS_jobname="Pre.InitAtmos"
 
 # Model phase:
 export MODEL_QUEUE="batch"
-export MODEL_ncores=512
-export MODEL_nnodes=8
+export MODEL_ncores=256
+export MODEL_nnodes=4
 export MODEL_ncpn=64
 export MODEL_jobname="Model.MONAN"
 export MODEL_walltime="8:00:00"
@@ -97,8 +93,8 @@ export PMIX_MCA_gds=hash
 export MPI_PARAMS="-iface ib0 -bind-to core -map-by core"
 
 # Libraries paths:
-export NETCDF=/mnt/beegfs/monan/libs/netcdf
-export PNETCDF=/mnt/beegfs/monan/libs/PnetCDF
+export NETCDF=/mnt/beegfs/monan/libs_openmpi/netcdf
+export PNETCDF=/mnt/beegfs/monan/libs_openmpi/PnetCDF
 export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
 export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v0.5.0

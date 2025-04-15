@@ -63,9 +63,9 @@ cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
 
 # Se nao existir CI no diretorio do IO, 
 # busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
-if [ ! -s ${BNDDIR}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+if [ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
 then
-   if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+   if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
    then
       echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
       echo -e "${RED}==>${NC}Check ${BNDDIR} or." 
@@ -76,7 +76,7 @@ then
    fi    
 fi
 
-files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${BNDDIR}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")
+files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -90,8 +90,7 @@ done
 ln -sf ${DATAIN}/fixed/x1.${RES}.static.nc ${SCRIPTS}
 ln -sf ${DATAIN}/fixed/Vtable.${EXP} ${SCRIPTS}/Vtable
 ln -sf ${EXECS}/ungrib.exe ${SCRIPTS}
-cp -rf ${BNDDIR}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
-
+cp -rf ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
 
 
 
@@ -104,8 +103,8 @@ cat << EOF0 > ${SCRIPTS}/degrib.bash
 #SBATCH --ntasks=${DEGRIB_ncores}             
 #SBATCH --tasks-per-node=${DEGRIB_ncpn}                     # ic for benchmark
 #SBATCH --time=${STATIC_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/debrib.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/debrib.e%j     # File name for standard error output
+#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o%j    # File name for standard output
+#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e%j     # File name for standard error output
 #
 
 ulimit -s unlimited
@@ -128,8 +127,7 @@ rm -f GRIBFILE.* namelist.wps
 sed -e "s,#LABELI#,${start_date},g;s,#PREFIX#,GFS,g" \
 	${DATAIN}/namelists/namelist.wps.TEMPLATE > ./namelist.wps
 
-./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
-
+./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
 
 date
 time mpirun -np 1 ./ungrib.exe
@@ -157,8 +155,7 @@ fi
    rm -f ${SCRIPTS}/Vtable 
    rm -f ${SCRIPTS}/x1.${RES}.static.nc
    rm -f ${SCRIPTS}/GRIBFILE.AAA
-   rm -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
-
+   rm -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
 
 echo "End of degrib Job"
 
@@ -180,7 +177,7 @@ do
   then
     echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
     echo -e  "${RED}==>${NC} Degrib fails! At least the file ${file} was not generated at ${DATAIN}/${YYYYMMDDHHi}. \n"
-    echo -e  "${RED}==>${NC} Check logs at ${DATAOUT}/logs/debrib.* .\n"
+    echo -e  "${RED}==>${NC} Check logs at ${DATAOUT}/logs/degrib.* .\n"
     echo -e  "${RED}==>${NC} Exiting script. \n"
     exit -1
   fi
