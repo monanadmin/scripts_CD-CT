@@ -6,6 +6,9 @@ This folder aims to create a version for testing MONAN with GFS at Egeon.
 
 ## History: ##
 
+**1.1.0**
+- 
+
 **1.0.1**
 - Fixing nIsobaricLev(22) in convert_mpas.nml and config_dt(15000) in run_model script.
 
