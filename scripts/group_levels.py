@@ -42,7 +42,12 @@ def main(data_dir, file_in, file_out, levels=[1000, 975, 950, 925, 900, 875, 850
         else:
             variable_groups[variable_type].append(variable)
 
-    level_dimension_size = len(variable_groups[first_hpa_variable]) 
+    # if there isn't any hPa variable - set default 22 levels
+    if not first_hpa_variable:
+        print("Nenhuma variável com nível isobárico ('hPa') foi encontrada no arquivo.")
+        level_dimension_size = 22
+    else:
+        level_dimension_size = len(variable_groups[first_hpa_variable]) 
 
     # Copy dimensions Time, latitude, longitude
     for dim_name, dim_type in nc_file_in.dimensions.items():
