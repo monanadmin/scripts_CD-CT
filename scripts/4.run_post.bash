@@ -246,6 +246,7 @@ EOSH
    temp=$((fim + maxpostpernode))
    fim=$(( temp < nfiles ? temp : nfiles ))
    node=$((node+1))
+   sleep 5
 done
 
 # Dependencias JobId:
@@ -307,7 +308,7 @@ rm -rf ${SCRIPTS}/PostAtmos_*.sh
 
 EOSH
 chmod a+x ${SCRIPTS}/PostAtmos_node.${node}.sh
-sbatch --dependency=${dependency} ${SCRIPTS}/PostAtmos_node.${node}.sh 
+sbatch --wait --dependency=${dependency} ${SCRIPTS}/PostAtmos_node.${node}.sh 
 
 
 
