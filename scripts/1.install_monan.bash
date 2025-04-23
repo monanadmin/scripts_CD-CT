@@ -85,11 +85,11 @@ EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
 # Input variables:-----------------------------------------------------
 github_link_MONAN=${1};   #github_link=https://github.com/monanadmin/MONAN-Model.git
 tag_or_branch_name_MONAN=${2}
-tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="1.0.0"}
+tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="release/1.3.1-rc"}
 echo "MONAN branch name in use: ${tag_or_branch_name_MONAN}"
 
 tag_or_branch_name_CONVERT_MPAS=${3}
-tag_or_branch_name_CONVERT_MPAS=${tag_or_branch_name_CONVERT_MPAS:="1.0.0"}
+tag_or_branch_name_CONVERT_MPAS=${tag_or_branch_name_CONVERT_MPAS:="1.1.0"}
 echo "convert_mpas branch name in use: ${tag_or_branch_name_CONVERT_MPAS}"
 #----------------------------------------------------------------------
 
@@ -99,6 +99,49 @@ MONANDIR=${SOURCES}/MONAN-Model_${tag_or_branch_name_MONAN}
 CONVERT_MPAS_DIR=${SOURCES}/convert_mpas_${tag_or_branch_name_CONVERT_MPAS}
 $(sed -i "s;MONANDIR=.*$;MONANDIR=$MONANDIR;" setenv.bash)
 #----------------------------------------------------------------------
+
+#=====================================================================================
+#
+# ATTENTION, please:
+# 
+# scripts_CD-CT versions up to 1.1.0 run MONAN-Model versions up to 1.3.0
+#
+# scripts_CD-CT versions 1.2.0 onwards run MONAN-Model versions 1.3.1 onwards
+#
+#=====================================================================================
+
+# Just making sure you will install the correct MONAN-model version,
+#  for this version of scripts-CD-CT version:
+
+echo ""
+echo "********************************************************************************"
+echo "*"
+echo "* ATTENTION, please:"
+echo "*"
+echo "* scripts_CD-CT versions up to 1.1.0 run MONAN-Model only versions up to 1.3.0"
+echo "*"
+echo "* scripts_CD-CT versions 1.2.0 onwards run MONAN-Model only versions 1.3.1 onwards"
+echo "*"
+echo "********************************************************************************"
+
+echo ""
+echo -e "${GREEN}==>${NC} tag_or_branch_name_MONAN = ${tag_or_branch_name_MONAN}"
+echo ""
+read -p "Are you sure you are installing the right versions scripts x MONAN-Model ? [Y/n]" confirma
+confirma=${confirma:-Y}
+
+if [[ "${confirma}" =~ ^[Yy]$ ]]
+then
+   echo ""
+   echo -e "${GREEN}==>${NC} OK, so keep going."
+   echo ""
+else
+   echo ""
+   echo -e "    ${RED}==>${NC} Please, make the right versions and try again."
+   exit
+   echo ""
+fi
+
 
 checkout_system ${MONANDIR} ${github_link_MONAN} ${tag_or_branch_name_MONAN}
 checkout_system ${CONVERT_MPAS_DIR} ${github_link_CONVERT_MPAS} ${tag_or_branch_name_CONVERT_MPAS}
