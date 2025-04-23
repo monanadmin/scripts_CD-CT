@@ -87,6 +87,16 @@ START_HH="${YYYYMMDDHHi:8:2}"
 maxpostpernode=20    # <------ qtde max de convert_mpas por no!
 #-------------------------------------------------------
 
+# Variables for flex outpout interval from streams.atmosphere------------------------
+t_strout=$(cat ${DATAIN}/namelists/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
+t_stroutsec=$(echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
+t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
+#------------------------------------------------------------------------------------
+
+# Format to HH:MM:SS t_strout (output_interval)
+IFS=":" read -r h m s <<< "${t_strout}"
+printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
+
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
    NLAT=721  #180/0.25
@@ -103,13 +113,12 @@ elif [ $RES -eq 2621442 ]; then  #15Km
    ENDLAT=90.0
    ENDLON=360.0
 elif [ $RES -eq 40962 ]; then  #120Km
-   #CR-TODO: verificar se precisa corrigir para esta resolucao tambem:
-   NLAT=181
-   NLON=361
-   STARTLAT=-90
+   NLAT=150 #180/1.2
+   NLON=300 #360/1.2
+   STARTLAT=-90.0
    STARTLON=0.0
-   ENDLAT=90
-   ENDLON=360
+   ENDLAT=90.0
+   ENDLON=360.0
 fi
 #-------------------------------------------------------
 
@@ -129,8 +138,8 @@ done
 # Captura quantos arquivos do modelo tiverem para serem pos-processados e
 # quando nos serao necessarios para executar ${maxpostpernode} convert_mpas por no:
 #nfiles=$(ls -l ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN*nc | wc -l)
-# from streams.atmosphere.TEMPLATE in diagnostics the output_interval is 3 hours
-output_interval=3
+# from streams.atmosphere.TEMPLATE in diagnostics the output_interval is flexible
+output_interval=${t_strouthor}
 #nfiles=FCST/output_interval + 1(time zero file)
 nfiles=$(echo "$FCST/$output_interval + 1" | bc)
 echo "${nfiles} post to submit."
@@ -141,7 +150,7 @@ how_many_nodes ${nfiles} ${maxpostpernode}
 cd ${SCRIPTS}
 for ii in $(seq 1 ${nfiles})
 do
-   i=$(printf "%03d" ${ii})
+   i=$(printf "%04d" ${ii})
    mkdir -p ${SCRIPTS}/dir.${i}
 
    ln -sf ${DATAIN}/namelists/include_fields.diag  ${SCRIPTS}/dir.${i}/include_fields.diag
@@ -154,14 +163,13 @@ do
    ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${SCRIPTS}/dir.${i}
    
    hh=${YYYYMMDDHHi:8:2}
-   currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00 $(echo "(${i}-1)*3" | bc) hours" +"%Y%m%d%H")
-   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.00.00.x${RES}L55.nc
+   currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 $(echo "(${i}-1)*${t_strout:0:2}" | bc) hours $(echo "(${i}-1)*${t_strout:3:2}" | bc) minutes $(echo "(${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
+   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L55.nc
    #CR-TODO: verificar se o arq existe antes de fazer o link:
    ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Model/${diag_name} ${SCRIPTS}/dir.${i}
 done
 
 cd ${SCRIPTS}
-#CR-611:. ${SCRIPTS}/setenv_python.bash
 
 # Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
 node=1
@@ -180,56 +188,50 @@ cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
 #SBATCH --exclusive
 
 . ${SCRIPTS}/setenv.bash
-#CR-611: . ${SCRIPTS}/../.venv/bin/activate
 
 echo "Submiting posts ${inicio} to ${fim} in node Node ${node}."
 
 for ii in \$(seq  ${inicio} ${fim})
 do
-   i=\$(printf "%03d" \${ii})
+   i=\$(printf "%04d" \${ii})
    echo "Executing post \${i}"
    cd ${SCRIPTS}/dir.\${i}
    
    hh=${YYYYMMDDHHi:8:2}
-   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
-   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L55.nc
-   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L55.nc
-   
+   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
+   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L55.nc
+
    rm -f include_fields
    cp include_fields.diag include_fields
    rm -f latlon.nc
    
-   time ./convert_mpas  x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
+   time  ./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
    echo "./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name} > convert_mpas.output"
-
+   
 done
 
 # necessario aguardar as rodadas em background
-
 wait
 
 for ii in \$(seq  ${inicio} ${fim})
 do
-   i=\$(printf "%03d" \${ii})
+   i=\$(printf "%04d" \${ii})
    hh=${YYYYMMDDHHi:8:2}
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
    diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L55.nc
    
    cd ${SCRIPTS}/dir.\${i}
-   cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post} >> convert_mpas.output & 
-   echo "cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post}  > convert_mpas.output"
+   #CR: use the lines below if you want to make 1 file foreach model output:
+   #CR: cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post} >> convert_mpas.output & 
+   #CR: echo "cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post}"  > convert_mpas.output
+   
+   #CR: use the line below if you want to make all time output in one uniq file:
+   cp latlon.nc ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon_\${i}.nc &
+   echo "cp latlon.nc ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon_\${i}.nc" > convert_mpas.output
 done
  
 wait
  
-for ii in \$(seq  ${inicio} ${fim})
-do
-   i=\$(printf "%03d" \${ii})
-   #rm -rf ${SCRIPTS}/dir.\${i}
-done
-
-wait 
-
 EOSH
 
    chmod a+x ${SCRIPTS}/PostAtmos_node.${node}.sh
@@ -240,6 +242,7 @@ EOSH
    temp=$((fim + maxpostpernode))
    fim=$(( temp < nfiles ? temp : nfiles ))
    node=$((node+1))
+   sleep 5
 done
 
 # Dependencias JobId:
@@ -248,65 +251,6 @@ for job_id in "${jobid[@]}"
 do
    dependency="${dependency}:${job_id}"
 done
-
-
-
-exit
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -323,42 +267,36 @@ cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
 #SBATCH --exclusive
 
 . ${SCRIPTS}/setenv.bash
-. ${SCRIPTS}/../.venv/bin/activate
-
 
 cd ${DATAOUT}/${YYYYMMDDHHi}/Post
 
 cdo mergetime latlon_*.nc latlon.nc
-sleep 5
-cdo settunits,hours -settaxis,${START_DATE_YYYYMMDD},${START_HH}:00,3hour latlon.nc MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}.00.00.x${RES}L55.nc
-sleep 5
+sleep 3
+cdo settunits,seconds -settaxis,${START_DATE_YYYYMMDD},${START_HH}:00,${t_stroutsec}second latlon.nc MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}.00.00.x${RES}L55.nc
+sleep 3
 
 # Saving important files to the logs directory:
 cp -f ${EXECS}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
 cp -f ${EXECS}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.001/include_fields.diag ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.001/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.001/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-#cp -f ${SCRIPTS}/dir.001/saida_python.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.001/PostAtmos_*.sh  ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.0001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.0001/include_fields.diag ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.0001/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.0001/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.0001/saida_python.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.0001/PostAtmos_*.sh  ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${SCRIPTS}/dir.0001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
 
 # Removing all files created to run:
 rm -rf ${SCRIPTS}/dir.* 
 rm -rf ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon*.nc
-rm -rf ${SCRIPTS}/PostAtmos_*.sh
-
-
-
-
 
 
 EOSH
 chmod a+x ${SCRIPTS}/PostAtmos_node.${node}.sh
-sbatch --dependency=${dependency} ${SCRIPTS}/PostAtmos_node.${node}.sh 
+sbatch --wait --dependency=${dependency} ${SCRIPTS}/PostAtmos_node.${node}.sh 
+rm -rf ${SCRIPTS}/PostAtmos_node.*.sh
 
 
 

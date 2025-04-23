@@ -125,7 +125,7 @@ ulimit -v unlimited
 cd ${SCRIPTS}
 
 date
-time mpirun -np \${SLURM_NTASKS} -env UCX_NET_DEVICES=mlx5_0:1 -genvall ./\${executable}
+time mpirun -np \${SLURM_NTASKS} ./\${executable}
 date
 
 grep "Finished running" log.init_atmosphere.0000.out >& /dev/null
