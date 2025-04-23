@@ -104,12 +104,9 @@ git branch | head -1
 
 echo -e  "${GREEN}==>${NC} copying and linking fixed input data... \n"
 mkdir -p ${DATAIN}
-if [ ! -d ${DATAIN}/fixed ]
-then
-   rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
-   rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
-   ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
-fi
+rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
+rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
+ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
 
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]

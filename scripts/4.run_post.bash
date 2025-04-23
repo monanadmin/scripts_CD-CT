@@ -99,15 +99,15 @@ printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
-   NLAT=720  #180/0.25
-   NLON=1440 #360/0.25
+   NLAT=721  #180/0.25
+   NLON=1441 #360/0.25
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
 elif [ $RES -eq 2621442 ]; then  #15Km
-   NLAT=1200 #180/0.15
-   NLON=2400 #360/0.15
+   NLAT=1201 #180/0.15
+   NLON=2401 #360/0.15
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
@@ -170,7 +170,6 @@ do
 done
 
 cd ${SCRIPTS}
-. ${SCRIPTS}/setenv_python.bash
 
 # Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
 node=1
@@ -189,7 +188,6 @@ cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
 #SBATCH --exclusive
 
 . ${SCRIPTS}/setenv.bash
-. ${SCRIPTS}/../.venv/bin/activate
 
 echo "Submiting posts ${inicio} to ${fim} in node Node ${node}."
 
@@ -207,7 +205,7 @@ do
    cp include_fields.diag include_fields
    rm -f latlon.nc
    
-   time ./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
+   time  ./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
    echo "./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name} > convert_mpas.output"
    
 done
@@ -218,24 +216,22 @@ wait
 for ii in \$(seq  ${inicio} ${fim})
 do
    i=\$(printf "%04d" \${ii})
+   hh=${YYYYMMDDHHi:8:2}
+   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
+   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L55.nc
+   
    cd ${SCRIPTS}/dir.\${i}
-   python ${SCRIPTS}/group_levels.py ${SCRIPTS}/dir.\${i} latlon.nc latlon_\${i}.nc > saida_python.txt &
+   #CR: use the lines below if you want to make 1 file foreach model output:
+   #CR: cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post} >> convert_mpas.output & 
+   #CR: echo "cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post}"  > convert_mpas.output
+   
+   #CR: use the line below if you want to make all time output in one uniq file:
+   cp latlon.nc ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon_\${i}.nc &
+   echo "cp latlon.nc ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon_\${i}.nc" > convert_mpas.output
 done
-
+ 
 wait
-
-# unload the python's environment
-deactivate
-
-for ii in \$(seq  ${inicio} ${fim})
-do
-   i=\$(printf "%04d" \${ii})
-   cd ${SCRIPTS}/dir.\${i}
-   rm -f ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon_\${i}.nc
-   cp -f latlon_\${i}.nc ${DATAOUT}/${YYYYMMDDHHi}/Post/ &
-done
-wait 
-
+ 
 EOSH
 
    chmod a+x ${SCRIPTS}/PostAtmos_node.${node}.sh
@@ -258,8 +254,6 @@ done
 
 
 
-
-
 # Script principal para juntar os arquivos finais em um unico:
 node=0
 cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
@@ -273,15 +267,13 @@ cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
 #SBATCH --exclusive
 
 . ${SCRIPTS}/setenv.bash
-. ${SCRIPTS}/../.venv/bin/activate
-
 
 cd ${DATAOUT}/${YYYYMMDDHHi}/Post
 
 cdo mergetime latlon_*.nc latlon.nc
-sleep 5
+sleep 3
 cdo settunits,seconds -settaxis,${START_DATE_YYYYMMDD},${START_HH}:00,${t_stroutsec}second latlon.nc MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}.00.00.x${RES}L55.nc
-sleep 5
+sleep 3
 
 # Saving important files to the logs directory:
 cp -f ${EXECS}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
@@ -299,16 +291,12 @@ cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 # Removing all files created to run:
 rm -rf ${SCRIPTS}/dir.* 
 rm -rf ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon*.nc
-rm -rf ${SCRIPTS}/PostAtmos_*.sh
-
-
-
-
 
 
 EOSH
 chmod a+x ${SCRIPTS}/PostAtmos_node.${node}.sh
 sbatch --wait --dependency=${dependency} ${SCRIPTS}/PostAtmos_node.${node}.sh 
+rm -rf ${SCRIPTS}/PostAtmos_node.*.sh
 
 
 
