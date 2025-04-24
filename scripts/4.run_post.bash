@@ -85,6 +85,7 @@ mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 START_DATE_YYYYMMDD="${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}"
 START_HH="${YYYYMMDDHHi:8:2}"
 maxpostpernode=20    # <------ qtde max de convert_mpas por no!
+VARTABLE=".OPER"
 #-------------------------------------------------------
 
 # Variables for flex outpout interval from streams.atmosphere------------------------
@@ -124,7 +125,7 @@ fi
 
 clean_post_tmp_files
 
-files_needed=("${DATAIN}/namelists/include_fields.diag" "${DATAIN}/namelists/convert_mpas.nml" "${DATAIN}/namelists/target_domain.TEMPLATE" "${EXECS}/convert_mpas" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc")
+files_needed=("${DATAIN}/namelists/include_fields.diag${VARTABLE}" "${DATAIN}/namelists/convert_mpas.nml" "${DATAIN}/namelists/target_domain.TEMPLATE" "${EXECS}/convert_mpas" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -153,7 +154,7 @@ do
    i=$(printf "%04d" ${ii})
    mkdir -p ${SCRIPTS}/dir.${i}
 
-   ln -sf ${DATAIN}/namelists/include_fields.diag  ${SCRIPTS}/dir.${i}/include_fields.diag
+   ln -sf ${DATAIN}/namelists/include_fields.diag${VARTABLE}  ${SCRIPTS}/dir.${i}/include_fields.diag${VARTABLE}
    ln -sf ${DATAIN}/namelists/convert_mpas.nml ${SCRIPTS}/dir.${i}/convert_mpas.nml
    sed -e "s,#NLAT#,${NLAT},g;s,#NLON#,${NLON},g;s,#STARTLAT#,${STARTLAT},g;s,#ENDLAT#,${ENDLAT},g;s,#STARTLON#,${STARTLON},g;s,#ENDLON#,${ENDLON},g;" \
       ${DATAIN}/namelists/target_domain.TEMPLATE > ${SCRIPTS}/dir.${i}/target_domain
@@ -202,7 +203,7 @@ do
    diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L55.nc
 
    rm -f include_fields
-   cp include_fields.diag include_fields
+   cp include_fields.diag${VARTABLE} include_fields
    rm -f latlon.nc
    
    time  ./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
