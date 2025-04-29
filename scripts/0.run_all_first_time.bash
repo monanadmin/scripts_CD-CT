@@ -27,14 +27,14 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 
 
 # Standart directories variables:---------------------------------------
-export DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;    mkdir -p ${DIRHOMES}  
-export DIRDADOSIN=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
-export DIRDADOSOUT=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
-export SCRIPTS=${DIRHOMES}/scripts;              mkdir -p ${SCRIPTS}
-export DATAIN=${DIRHOMED}/datain;                mkdir -p ${DATAIN}
-export DATAOUT=${DIRHOMED}/dataout;              mkdir -p ${DATAOUT}
-export SOURCES=${DIRHOMES}/sources;              mkdir -p ${SOURCES}
-export EXECS=${DIRHOMED}/execs;                  mkdir -p ${EXECS}
+export DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;         mkdir -p ${DIRHOMES}  
+export DIRDADOSIN=${DIR_SCRATCHIN}/scripts_CD-CT;     mkdir -p ${DIRDADOSIN}  
+export DIRDADOSOUT=${DIR_SCRATCHOUT}/scripts_CD-CT;   mkdir -p ${DIRDADOSOUT}  
+export SCRIPTS=${DIRHOMES}/scripts;                   mkdir -p ${SCRIPTS}
+export DATAIN=${DIRDADOSIN}/datain;                   mkdir -p ${DATAIN}
+export DATAOUT=${DIRDADOSOUT}/dataout;                mkdir -p ${DATAOUT}
+export SOURCES=${DIRHOMES}/sources;                   mkdir -p ${SOURCES}
+export EXECS=${DIRDADOSIN}/execs;                     mkdir -p ${EXECS}
 #----------------------------------------------------------------------
 
 
@@ -55,13 +55,13 @@ FCST=24
 #exit
 
 # STEP 2: Executing the pre-processing fase. Preparing all CI/CC files needed:
-#time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
-#exit
+time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+exit
 
 # STEP 3: Executing the Model run:
 #time ${SCRIPTS}/3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
 #exit
 
 # STEP 4: Executing the Post of Model run:
-time ${SCRIPTS}/4.run_post.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+#time ${SCRIPTS}/4.run_post.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
 exit

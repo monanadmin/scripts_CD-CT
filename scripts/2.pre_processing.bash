@@ -65,14 +65,14 @@ fi
 
 
 # Standart directories variables:---------------------------------------
-export DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;    mkdir -p ${DIRHOMES}  
-export DIRDADOSIN=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
-export DIRDADOSOUT=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
-export SCRIPTS=${DIRHOMES}/scripts;              mkdir -p ${SCRIPTS}
-export DATAIN=${DIRHOMED}/datain;                mkdir -p ${DATAIN}
-export DATAOUT=${DIRHOMED}/dataout;              mkdir -p ${DATAOUT}
-export SOURCES=${DIRHOMES}/sources;              mkdir -p ${SOURCES}
-export EXECS=${DIRHOMED}/execs;                  mkdir -p ${EXECS}
+export DIRHOMES=${DIRDADOSIN}/scripts_CD-CT;         mkdir -p ${DIRHOMES}  
+export DIRDADOSIN=${DIR_SCRATCHIN}/scripts_CD-CT;     mkdir -p ${DIRDADOSIN}  
+export DIRDADOSOUT=${DIR_SCRATCHOUT}/scripts_CD-CT;   mkdir -p ${DIRDADOSOUT}  
+export SCRIPTS=${DIRHOMES}/scripts;                   mkdir -p ${SCRIPTS}
+export DATAIN=${DIRDADOSIN}/datain;                   mkdir -p ${DATAIN}
+export DATAOUT=${DIRDADOSOUT}/dataout;                mkdir -p ${DATAOUT}
+export SOURCES=${DIRHOMES}/sources;                   mkdir -p ${SOURCES}
+export EXECS=${DIRDADOSIN}/execs;                     mkdir -p ${EXECS}
 #----------------------------------------------------------------------
 
 
@@ -106,8 +106,9 @@ git branch | head -1
 echo -e  "${GREEN}==>${NC} copying and linking fixed input data... \n"
 mkdir -p ${DATAIN}
 rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
-rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
+rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${EXECS}/..
 ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+
 
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
