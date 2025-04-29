@@ -25,7 +25,8 @@ module list
 # MONAN-suite install root directories:
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
-export DIR_DADOS=$(dirname $(dirname $(pwd)))
+export DIR_SCRATCHIN=$(dirname $(dirname $(pwd)))
+export DIR_SCRATCHOUT=$(dirname $(dirname $(pwd)))
 export MONANDIR=/mnt/beegfs/monan/users/renato/issues/scripts-vars-oper/scripts_CD-CT/sources/MONAN-Model_1.3.1-rc
 
 # Submiting variables:

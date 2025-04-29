@@ -27,13 +27,14 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
-DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
-SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
-DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
-DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
-SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
-EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
+export DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;    mkdir -p ${DIRHOMES}  
+export DIRDADOSIN=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
+export DIRDADOSOUT=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
+export SCRIPTS=${DIRHOMES}/scripts;              mkdir -p ${SCRIPTS}
+export DATAIN=${DIRHOMED}/datain;                mkdir -p ${DATAIN}
+export DATAOUT=${DIRHOMED}/dataout;              mkdir -p ${DATAOUT}
+export SOURCES=${DIRHOMES}/sources;              mkdir -p ${SOURCES}
+export EXECS=${DIRHOMED}/execs;                  mkdir -p ${EXECS}
 #----------------------------------------------------------------------
 
 
