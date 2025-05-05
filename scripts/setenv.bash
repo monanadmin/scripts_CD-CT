@@ -22,13 +22,11 @@ module list
 # Set environment variables and importants directories-------------------------------------------------- 
 
 
-# MONAN-suite install root directories:===========================================
+# MONAN-suite install root directories:
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
-export DIR_SCRATCHIN=/mnt/beegfs/monan/users/renato/issues/scripts-vars-oper/area_scratchin
-export DIR_SCRATCHOUT=/mnt/beegfs/monan/users/renato/issues/scripts-vars-oper/area_scratchout
-#=================================================================================
-export MONANDIR=/mnt/beegfs/monan/users/renato/issues/scripts-vars-oper/area_home/scripts_CD-CT/sources/MONAN-Model_1.3.1-rc
+export DIR_DADOS=$(dirname $(dirname $(pwd)))
+export MONANDIR=/mnt/beegfs/monan/users/renato/issues/scripts-vars-oper/branch/scripts_CD-CT/sources/MONAN-Model_1.3.1-rc
 
 # Submiting variables:
 

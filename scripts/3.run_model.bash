@@ -61,14 +61,13 @@ fi
 
 
 # Standart directories variables:---------------------------------------
-export DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;         mkdir -p ${DIRHOMES}  
-export DIRDADOSIN=${DIR_SCRATCHIN}/scripts_CD-CT;     mkdir -p ${DIRDADOSIN}  
-export DIRDADOSOUT=${DIR_SCRATCHOUT}/scripts_CD-CT;   mkdir -p ${DIRDADOSOUT}  
-export SCRIPTS=${DIRHOMES}/scripts;                   mkdir -p ${SCRIPTS}
-export DATAIN=${DIRDADOSIN}/datain;                   mkdir -p ${DATAIN}
-export DATAOUT=${DIRDADOSOUT}/dataout;                mkdir -p ${DATAOUT}
-export SOURCES=${DIRHOMES}/sources;                   mkdir -p ${SOURCES}
-export EXECS=${DIRDADOSIN}/execs;                     mkdir -p ${EXECS}
+DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
+DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
+SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
+DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
+DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
+SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
+EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 #----------------------------------------------------------------------
 
 
@@ -213,7 +212,8 @@ date
 
 mv MONAN_DIAG_* ${DATAOUT}/${YYYYMMDDHHi}/Model
 mv MONAN_HIST_* ${DATAOUT}/${YYYYMMDDHHi}/Model
-cp ${EXECS}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model
+cp -f ${EXECS}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model
+cp -f ${DIRHOMES}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/SCRIPTSCDCT-VERSION.txt
 
 mv log.atmosphere.*.out ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 mv log.atmosphere.*.err ${DATAOUT}/${YYYYMMDDHHi}/Model/logs

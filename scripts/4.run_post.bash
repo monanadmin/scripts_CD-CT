@@ -62,14 +62,13 @@ fi
 
 
 # Standart directories variables:---------------------------------------
-export DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;         mkdir -p ${DIRHOMES}  
-export DIRDADOSIN=${DIR_SCRATCHIN}/scripts_CD-CT;     mkdir -p ${DIRDADOSIN}  
-export DIRDADOSOUT=${DIR_SCRATCHOUT}/scripts_CD-CT;   mkdir -p ${DIRDADOSOUT}  
-export SCRIPTS=${DIRHOMES}/scripts;                   mkdir -p ${SCRIPTS}
-export DATAIN=${DIRDADOSIN}/datain;                   mkdir -p ${DATAIN}
-export DATAOUT=${DIRDADOSOUT}/dataout;                mkdir -p ${DATAOUT}
-export SOURCES=${DIRHOMES}/sources;                   mkdir -p ${SOURCES}
-export EXECS=${DIRDADOSIN}/execs;                     mkdir -p ${EXECS}
+DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
+DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
+export SCRIPTS=${DIRHOMES}/scripts;    mkdir -p ${SCRIPTS}
+DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
+DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
+SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
+EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 #----------------------------------------------------------------------
 
 
@@ -278,8 +277,8 @@ cdo settunits,seconds -settaxis,${START_DATE_YYYYMMDD},${START_HH}:00,${t_strout
 sleep 3
 
 # Saving important files to the logs directory:
-cp -f ${EXECS}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
-cp -f ${EXECS}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
+cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.0001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.0001/include_fields.diag ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.0001/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
@@ -288,6 +287,8 @@ cp -f ${SCRIPTS}/dir.0001/saida_python.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.0001/PostAtmos_*.sh  ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.0001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+
 
 
 # Removing all files created to run:

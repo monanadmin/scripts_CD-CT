@@ -65,14 +65,13 @@ fi
 
 
 # Standart directories variables:---------------------------------------
-export DIRHOMES=${DIRDADOSIN}/scripts_CD-CT;         mkdir -p ${DIRHOMES}  
-export DIRDADOSIN=${DIR_SCRATCHIN}/scripts_CD-CT;     mkdir -p ${DIRDADOSIN}  
-export DIRDADOSOUT=${DIR_SCRATCHOUT}/scripts_CD-CT;   mkdir -p ${DIRDADOSOUT}  
-export SCRIPTS=${DIRHOMES}/scripts;                   mkdir -p ${SCRIPTS}
-export DATAIN=${DIRDADOSIN}/datain;                   mkdir -p ${DATAIN}
-export DATAOUT=${DIRDADOSOUT}/dataout;                mkdir -p ${DATAOUT}
-export SOURCES=${DIRHOMES}/sources;                   mkdir -p ${SOURCES}
-export EXECS=${DIRDADOSIN}/execs;                     mkdir -p ${EXECS}
+DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
+DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
+SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
+DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
+DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
+SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
+EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 #----------------------------------------------------------------------
 
 
@@ -106,7 +105,7 @@ git branch | head -1
 echo -e  "${GREEN}==>${NC} copying and linking fixed input data... \n"
 mkdir -p ${DATAIN}
 rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
-rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${EXECS}/..
+rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
 ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
 
 

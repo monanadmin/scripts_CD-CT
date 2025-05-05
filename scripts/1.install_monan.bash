@@ -71,14 +71,14 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
 # Standart directories variables:---------------------------------------
-export DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;         mkdir -p ${DIRHOMES}  
-export DIRDADOSIN=${DIR_SCRATCHIN}/scripts_CD-CT;     mkdir -p ${DIRDADOSIN}  
-export DIRDADOSOUT=${DIR_SCRATCHOUT}/scripts_CD-CT;   mkdir -p ${DIRDADOSOUT}  
-export SCRIPTS=${DIRHOMES}/scripts;                   mkdir -p ${SCRIPTS}
-export DATAIN=${DIRDADOSIN}/datain;                   mkdir -p ${DATAIN}
-export DATAOUT=${DIRDADOSOUT}/dataout;                mkdir -p ${DATAOUT}
-export SOURCES=${DIRHOMES}/sources;                   mkdir -p ${SOURCES}
-export EXECS=${DIRDADOSIN}/execs;                     mkdir -p ${EXECS}
+DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  
+DIRHOMED=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
+SCRIPTS=${DIRHOMES}/scripts;            mkdir -p ${SCRIPTS}
+DATAIN=${DIRHOMED}/datain;              mkdir -p ${DATAIN}
+DATAOUT=${DIRHOMED}/dataout;            mkdir -p ${DATAOUT}
+DATAOUTCRON=${DATAOUT}/cron;            mkdir -p ${DATAOUTCRON}
+SOURCES=${DIRHOMES}/sources;            mkdir -p ${SOURCES}
+EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
 #----------------------------------------------------------------------
 
 
@@ -146,9 +146,10 @@ fi
 checkout_system ${MONANDIR} ${github_link_MONAN} ${tag_or_branch_name_MONAN}
 checkout_system ${CONVERT_MPAS_DIR} ${github_link_CONVERT_MPAS} ${tag_or_branch_name_CONVERT_MPAS}
 
-rm -rf $MONANDIR/default_inputs/ 
+rm -rf $MONANDIR/default_inputs/ $MONANDIR/src/core_atmosphere/physics/physics_wrf/files
 rm -f  $MONANDIR/stream_list.* $MONANDIR/streams.* $MONANDIR/namelist.* 
-rm -f  $MONANDIR/make*.output.atmosphere $MONANDIR/make*.output.init_atmosphere $MONANDIR/make.sh $MONANDIR/make-all.sh
+rm -f  $MONANDIR/make*.output.atmosphere $MONANDIR/make*.output.init_atmosphere $MONANDIR/make-all.sh
+rm -fr $MONANDIR/src/core_atmosphere/inc $MONANDIR/src/core_init_atmosphere/inc
 
 
 #CR: TODO: maybe later move this make script to main scripts directory.
@@ -191,7 +192,10 @@ cat << EOF > make-all.sh
 
 
 . ${SCRIPTS}/setenv.bash
-rm -fr ${MONANDIR}/stream* ${MONANDIR}/namelist.* ${MONANDIR}/make_*output.atmosphere ${MONANDIR}/default_inputs
+rm -rf $MONANDIR/default_inputs/ $MONANDIR/src/core_atmosphere/physics/physics_wrf/files
+rm -f  $MONANDIR/stream_list.* $MONANDIR/streams.* $MONANDIR/namelist.* 
+rm -f  $MONANDIR/make*.output.atmosphere $MONANDIR/make*.output.init_atmosphere 
+rm -fr $MONANDIR/src/core_atmosphere/inc $MONANDIR/src/core_init_atmosphere/inc
 DATE_TIME_NOW=\$(date +"%Y%m%d%H%M%S")
 
 export NETCDF=${NETCDFDIR}
@@ -206,7 +210,7 @@ make -j 8 gfortran CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2
 #CR: TODO: put verify here if executable was created ok
 mv ${MONANDIR}/atmosphere_model ${EXECS}
 mv ${MONANDIR}/build_tables ${EXECS}
-cp ${MONANDIR}/VERSION.txt ${EXECS}
+cp ${MONANDIR}/VERSION.txt ${EXECS}/MONAN-VERSION.txt
 cp ${MONANDIR}/GF_ConvPar_nml ${SCRIPTS}
 make clean CORE=atmosphere
 
@@ -230,78 +234,10 @@ fi
 EOF
 chmod a+x make-all.sh
 
-
-cat << EOF > make.sh
-#!/bin/bash
-#Usage: make target CORE=[core] [options]
-#Example targets:
-#    ifort
-#    gfortran
-#    xlf
-#    pgi
-#Availabe Cores:
-#    atmosphere
-#    init_atmosphere
-#    landice
-#    ocean
-#    seaice
-#    sw
-#    test
-#Available Options:
-#    DEBUG=true    - builds debug version. Default is optimized version.
-#    USE_PAPI=true - builds version using PAPI for timers. Default is off.
-#    TAU=true      - builds version using TAU hooks for profiling. Default is off.
-#    AUTOCLEAN=true    - forces a clean of infrastructure prior to build new core.
-#    GEN_F90=true  - Generates intermediate .f90 files through CPP, and builds with them.
-#    TIMER_LIB=opt - Selects the timer library interface to be used for profiling the model. Options are:
-#                    TIMER_LIB=native - Uses native built-in timers in MPAS
-#                    TIMER_LIB=gptl - Uses gptl for the timer interface instead of the native interface
-#                    TIMER_LIB=tau - Uses TAU for the timer interface instead of the native interface
-#    OPENMP=true   - builds and links with OpenMP flags. Default is to not use OpenMP.
-#    OPENACC=true  - builds and links with OpenACC flags. Default is to not use OpenACC.
-#    USE_PIO2=true - links with the PIO 2 library. Default is to use the PIO 1.x library.
-#    PRECISION=single - builds with default single-precision real kind. Default is to use double-precision.
-#    SHAREDLIB=true - generate position-independent code suitable for use in a shared library. Default is false.
-
-. ${SCRIPTS}/setenv.bash
-rm -fr ${MONANDIR}/stream* ${MONANDIR}/namelist.* ${MONANDIR}/make_*output.atmosphere ${MONANDIR}/default_inputs
-DATE_TIME_NOW=\$(date +"%Y%m%d%H%M%S")
-
-
-export NETCDF=${NETCDFDIR}
-export PNETCDF=${PNETCDFDIR}
-# PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL
-export PIO=
-
-MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.atmosphere"
-make clean CORE=atmosphere
-make -j 8 gfortran CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
-
-#CR: TODO: put verify here if executable was created ok
-mv ${MONANDIR}/atmosphere_model ${EXECS}
-mv ${MONANDIR}/build_tables ${EXECS}
-make clean CORE=atmosphere
-
-if  [ -e "${EXECS}/atmosphere_model" ]; then
-    echo ""
-    echo -e "${GREEN}==>${NC} Files init_atmosphere_model and atmosphere_model generated Successfully in ${EXECS} !"
-    echo
-else
-    echo -e "${RED}==>${NC} !!! An error occurred during build. Check output"
-    exit -1
-fi
-
-EOF
-chmod a+x make.sh
-
-
 echo ""
 echo -e  "${GREEN}==>${NC} Installing init_atmosphere_model and atmosphere_model...\n"
 echo ""
 
-#CR: TODO: maybe at this point we should put our registry-file et all.
-#CR: make-all.sh compile all for the first time
-#CR: make.sh just compile  the A-model
 . ${MONANDIR}/make-all.sh
 
 
@@ -324,6 +260,8 @@ make  2>&1 | tee make.convert.output
 
 #CR: TODO: put verify here if executable was created ok
 mv ${CONVERT_MPAS_DIR}/convert_mpas ${EXECS}/
+cp ${CONVERT_MPAS_DIR}/VERSION.txt ${EXECS}/CONVMPAS-VERSION.txt
+
 
 if [ -s "${EXECS}/convert_mpas" ] ; then
     echo ""
