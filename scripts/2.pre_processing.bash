@@ -93,8 +93,8 @@ final_date=${yyyymmddhhf:0:4}-${yyyymmddhhf:4:2}-${yyyymmddhhf:6:2}_${yyyymmddhh
 
 
 echo -e  "${GREEN}==>${NC} Scripts_CD-CT last commit: \n"
-git log -1 --name-only
-git branch | head -1
+#git log -1 --name-only
+git log | head -1
 
 
 # Untar the fixed files:
