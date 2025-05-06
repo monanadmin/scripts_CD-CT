@@ -155,7 +155,7 @@ fi
    rm -f ${SCRIPTS}/Vtable 
    rm -f ${SCRIPTS}/x1.${RES}.static.nc
    rm -f ${SCRIPTS}/GRIBFILE.AAA
-   rm -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
+   rm -fr ${DATAIN}/${YYYYMMDDHHi}
 
 echo "End of degrib Job"
 
