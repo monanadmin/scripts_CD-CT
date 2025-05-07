@@ -213,7 +213,9 @@ date
 mv MONAN_DIAG_* ${DATAOUT}/${YYYYMMDDHHi}/Model
 mv MONAN_HIST_* ${DATAOUT}/${YYYYMMDDHHi}/Model
 cp -f ${EXECS}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model
+cp -f ${EXECS}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
 cp -f ${DIRHOMES}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/SCRIPTSCDCT-VERSION.txt
+cp -f ${MONANDIR}/README.md ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
 
 mv log.atmosphere.*.out ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 mv log.atmosphere.*.err ${DATAOUT}/${YYYYMMDDHHi}/Model/logs

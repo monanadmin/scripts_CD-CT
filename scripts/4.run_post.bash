@@ -283,7 +283,6 @@ cp -f ${SCRIPTS}/dir.0001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.0001/include_fields.diag ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.0001/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.0001/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.0001/saida_python.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.0001/PostAtmos_*.sh  ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${SCRIPTS}/dir.0001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
