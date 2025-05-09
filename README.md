@@ -6,6 +6,11 @@ This folder aims to create a version for testing MONAN with GFS at Egeon.
 
 ## History: ##
 
+**1.3.0**
+- This version was created to work in operational runs.
+- Adjusted to run using 16 nodes and 1024 cores.
+- Operational vars table is also in this version.
+
 **1.2.0**
 - This version should work only with MONAN-Model 1.3.1/ (3D native model variables)
 - Was added some warnings to users regarding the choice of MONAN-Model versions versus scripts_CD-CT versions:
