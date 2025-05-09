@@ -26,7 +26,7 @@ module list
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/mnt/beegfs/monan/users/renato/issues/i-694-scripts_v1.2.0/scripts_CD-CT/sources/MONAN-Model_release/1.3.1-rc
+export MONANDIR=/mnt/beegfs/monan/users/renato/issues/ecflow-PREOPER/MONAN-WorkFlow-OPER/MONAN_PRE_OPER/MONAN/scripts_CD-CT/sources/MONAN-Model_release/1.4.0-rc
 
 # Submiting variables:
 
@@ -57,8 +57,8 @@ export INITATMOS_jobname="Pre.InitAtmos"
 
 # Model phase:
 export MODEL_QUEUE="batch"
-export MODEL_ncores=256
-export MODEL_nnodes=4
+export MODEL_ncores=124
+export MODEL_nnodes=16
 export MODEL_ncpn=64
 export MODEL_jobname="Model.MONAN"
 export MODEL_walltime="8:00:00"
