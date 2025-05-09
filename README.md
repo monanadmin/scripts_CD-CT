@@ -6,17 +6,17 @@ This folder aims to create a version for testing MONAN with GFS at Egeon.
 
 ## History: ##
 
-**1,3,0**
+**1.3.0**
 - This version was created to work in operational runs.
-- Adjusted for run with 16 nodes and 1024 cores.
-- Operational vars table created and convert_mpas.nml to 18 levels.
+- Adjusted to run using 16 nodes and 1024 cores.
+- Operational vars table is also in this version.
 
 **1.2.0**
 - This version should work only with MONAN-Model 1.3.1/ (3D native model variables)
 - Was added some warnings to users regarding the choice of MONAN-Model versions versus scripts_CD-CT versions:
 - scripts_CD-CT versions up to 1.1.0 run MONAN-Model only versions up to 1.3.0
 - scripts_CD-CT versions 1.2.0 onwards run MONAN-Model only versions 1.3.1 onwards
-  
+- 
 **1.1.0**
 - Fixed `model.bash` script to check generated files with flexible output_interval field (no longer with constant 3h).
 - Now it is possible to run all 4 phases with 00z, 06z, 12z and 18z.
