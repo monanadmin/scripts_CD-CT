@@ -49,6 +49,7 @@ FCST=${4};        #FCST=24
 # Local variables--------------------------------------
 GEODATA=${DATAIN}/WPS_GEOG
 cores=${STATIC_ncores}
+DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 
 
@@ -71,7 +72,7 @@ fi
 
 
 
-files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.grid.nc" "${DATAIN}/namelists/namelist.init_atmosphere.STATIC" "${DATAIN}/namelists/streams.init_atmosphere.STATIC")
+files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -82,25 +83,25 @@ do
   fi
 done
 
-ln -sf ${DATAIN}/fixed/*.TBL ${SCRIPTS}
-ln -sf ${DATAIN}/fixed/*.GFS ${SCRIPTS}
-ln -sf ${EXECS}/init_atmosphere_model ${SCRIPTS}
-ln -sf ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${SCRIPTS}
-ln -sf ${DATAIN}/fixed/x1.${RES}.grid.nc ${SCRIPTS}
+ln -sf ${DATAIN}/fixed/*.TBL ${DIRRUN}
+ln -sf ${DATAIN}/fixed/*.GFS ${DIRRUN}
+ln -sf ${EXECS}/init_atmosphere_model ${DIRRUN}
+ln -sf ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
+ln -sf ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
 
 sed -e "s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g" \
-   ${DATAIN}/namelists/namelist.init_atmosphere.STATIC \
-   > ${SCRIPTS}/namelist.init_atmosphere
+   ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC \
+   > ${DIRRUN}/namelist.init_atmosphere
 
 sed -e "s,#RES#,${RES},g" \
-   ${DATAIN}/namelists/streams.init_atmosphere.STATIC \
-   > ${SCRIPTS}/streams.init_atmosphere
+   ${SCRIPTS}/namelists/streams.init_atmosphere.STATIC \
+   > ${DIRRUN}/streams.init_atmosphere
 
 
-
+cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 mkdir -p ${DATAOUT}/logs
-rm -f ${SCRIPTS}/static.bash 
-cat << EOF0 > ${SCRIPTS}/static.bash 
+rm -f ${DIRRUN}/static.bash 
+cat << EOF0 > ${DIRRUN}/static.bash 
 #!/bin/bash
 #SBATCH --job-name=${STATIC_jobname}
 #SBATCH --nodes=${STATIC_nnodes} 
@@ -122,7 +123,7 @@ ulimit -v unlimited
 
 . $(pwd)/setenv.bash
 
-cd ${SCRIPTS}
+cd ${DIRRUN}
 
 date
 time mpirun -np \${SLURM_NTASKS} ./\${executable}
@@ -142,32 +143,27 @@ echo "  ### Static completed - \$(date) ####"
 echo "  ####################################"
 echo " "
 
-#
-# clean up and remove links
-#
 
 mv log.init_atmosphere.0000.out ${DATAOUT}/logs/log.init_atmosphere.0000.x1.${RES}.static.nc.out
 
 
 EOF0
-chmod a+x ${SCRIPTS}/static.bash
+chmod a+x ${DIRRUN}/static.bash
 
 
 echo -e  "${GREEN}==>${NC} Executing sbatch static.bash...\n"
-cd ${SCRIPTS}
-sbatch --wait ${SCRIPTS}/static.bash
-mv ${SCRIPTS}/static.bash ${DATAOUT}/logs/
+cd ${DIRRUN}
+sbatch --wait ${DIRRUN}/static.bash
+mv ${DIRRUN}/static.bash ${DATAOUT}/logs/
 
-if [ -s ${SCRIPTS}/x1.${RES}.static.nc ]
+
+if [ -s ${DIRRUN}/x1.${RES}.static.nc ]
 then
-   mv ${SCRIPTS}/x1.${RES}.static.nc ${DATAIN}/fixed
+   mv ${DIRRUN}/x1.${RES}.static.nc ${DATAIN}/fixed
 else
-   echo -e  "${RED}==>${NC} File ${SCRIPTS}/x1.${RES}.static.nc was not created. \n"
+   echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.static.nc was not created. \n"
    exit -1
 fi
 
-find ${SCRIPTS} -maxdepth 1 -type l -exec rm -f {} \;
-rm -f ${SCRIPTS}/log.init_atmosphere.* 
-rm -f ${SCRIPTS}/streams.init_atmosphere
-rm -f ${SCRIPTS}/namelist.init_atmosphere
+rm -fr ${DIRRUN}
 
