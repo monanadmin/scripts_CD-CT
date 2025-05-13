@@ -5,3 +5,4 @@ execs
 .venv
 scripts/GF_ConvPar_nml
 sources
+run.*

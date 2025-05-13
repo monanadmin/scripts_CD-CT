@@ -40,12 +40,12 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 
 # Input variables:-----------------------------------------------------
 github_link="https://github.com/monanadmin/MONAN-Model.git"
-monan_branch=1.4.0-rc
+monan_branch=release/1.4.1-rc
 convertmpas_branch=1.1.0
 EXP=GFS
 RES=1024002
 YYYYMMDDHHi=2024010100
-FCST=240
+FCST=24
 #----------------------------------------------------------------------
 
 
@@ -54,7 +54,7 @@ FCST=240
 #exit
 
 # STEP 2: Executing the pre-processing fase. Preparing all CI/CC files needed:
-#time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
 #exit
 
 # STEP 3: Executing the Model run:
