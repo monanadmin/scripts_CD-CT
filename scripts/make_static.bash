@@ -102,7 +102,7 @@ cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 mkdir -p ${DATAOUT}/logs
 rm -f ${DIRRUN}/static.bash 
 cat << EOF0 > ${DIRRUN}/static.bash 
-#!/bin/bash
+#!/bin/bash -x
 #SBATCH --job-name=${STATIC_jobname}
 #SBATCH --nodes=${STATIC_nnodes} 
 #SBATCH --ntasks=${STATIC_ncores}             

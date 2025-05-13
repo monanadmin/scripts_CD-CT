@@ -102,7 +102,7 @@ cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 rm -f ${DIRRUN}/initatmos.bash 
 cat << EOF0 > ${DIRRUN}/initatmos.bash 
-#!/bin/bash
+#!/bin/bash -x
 #SBATCH --job-name=${INITATMOS_jobname}
 #SBATCH --nodes=${INITATMOS_nnodes}                         # depends on how many boundary files are available
 #SBATCH --partition=${INITATMOS_QUEUE} 

@@ -138,6 +138,7 @@ do
    mkdir -p ${DIRRUN}/dir.${i}
    cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}/dir.${i}
    cp -f ${SCRIPTS}/namelists/include_fields.diag${VARTABLE}  ${DIRRUN}/dir.${i}/include_fields.diag${VARTABLE}
+   cp -f ${DIRRUN}/dir.${i}/include_fields.diag${VARTABLE} ${DIRRUN}/dir.${i}/include_fields
    cp -f ${SCRIPTS}/namelists/convert_mpas.nml ${DIRRUN}/dir.${i}/convert_mpas.nml
    sed -e "s,#NLAT#,${NLAT},g;s,#NLON#,${NLON},g;s,#STARTLAT#,${STARTLAT},g;s,#ENDLAT#,${ENDLAT},g;s,#STARTLON#,${STARTLON},g;s,#ENDLON#,${ENDLON},g;" \
       ${SCRIPTS}/namelists/target_domain.TEMPLATE > ${DIRRUN}/dir.${i}/target_domain
@@ -154,7 +155,7 @@ while [ ${inicio} -le ${nfiles} ]
 do
    rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
 cat > ${DIRRUN}/PostAtmos_node.${node}.sh <<EOSH
-#!/bin/bash
+#!/bin/bash -x
 #SBATCH --job-name=MO.Pos${node}
 #SBATCH --nodes=1
 #SBATCH --partition=${POST_QUEUE}
@@ -172,14 +173,7 @@ do
    i=\$(printf "%04d" \${ii})
    echo "Preparing post files \${i}"
    cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}/dir.\${i} &
-   
-   hh=${YYYYMMDDHHi:8:2}
-   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
-   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L55.nc
-   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/${diag_name} ${DIRRUN}/dir.\${i} &
    cp -f ${EXECS}/convert_mpas ${DIRRUN}/dir.\${i} &
-   cp include_fields.diag${VARTABLE} include_fields
-
 done
 
 wait
@@ -191,7 +185,7 @@ do
    cd ${DIRRUN}/dir.\${i}
    
    hh=${YYYYMMDDHHi:8:2}
-   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
+   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
    diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L55.nc
 
    time  ./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
@@ -205,7 +199,7 @@ for ii in \$(seq  ${inicio} ${fim})
 do
    i=\$(printf "%04d" \${ii})
    hh=${YYYYMMDDHHi:8:2}
-   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
+   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
    diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L55.nc
    
    cd ${DIRRUN}/dir.\${i}
@@ -223,6 +217,7 @@ wait
 EOSH
 
    chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
+   cp -f ${DIRRUN}/PostAtmos_node.${node}.sh ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
    jobid[${node}]=$(sbatch --parsable ${DIRRUN}/PostAtmos_node.${node}.sh)
    echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
   
@@ -246,7 +241,7 @@ done
 node=0
 rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
 cat > ${DIRRUN}/PostAtmos_node.${node}.sh <<EOSH
-#!/bin/bash
+#!/bin/bash -x
 #SBATCH --job-name=MO.Pos${node}
 #SBATCH --nodes=1
 #SBATCH --partition=${POST_QUEUE}
@@ -268,10 +263,8 @@ sleep 3
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DIRRUN}/dir.0001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/dir.0001/include_fields.diag ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DIRRUN}/dir.0001/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DIRRUN}/dir.0001/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/dir.0001/PostAtmos_*.sh  ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DIRRUN}/dir.0001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
@@ -282,6 +275,7 @@ cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi
 
 EOSH
 chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
+cp -f ${DIRRUN}/PostAtmos_node.${node}.sh ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 sbatch --wait --dependency=${dependency} ${DIRRUN}/PostAtmos_node.${node}.sh 
 rm -rf ${DIRRUN}
 rm -rf ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon*.nc

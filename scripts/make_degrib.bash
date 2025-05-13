@@ -98,7 +98,7 @@ cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib.bash 
 cat << EOF0 > ${DIRRUN}/degrib.bash 
-#!/bin/bash
+#!/bin/bash -x
 #SBATCH --job-name=${DEGRIB_jobname}
 #SBATCH --nodes=${DEGRIB_nnodes}
 #SBATCH --partition=${DEGRIB_QUEUE}

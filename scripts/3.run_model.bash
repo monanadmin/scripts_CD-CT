@@ -161,7 +161,7 @@ cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.surface ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 rm -f ${DIRRUN}/model.bash 
 cat << EOF0 > ${DIRRUN}/model.bash 
-#!/bin/bash
+#!/bin/bash -x
 #SBATCH --job-name=${MODEL_jobname}
 #SBATCH --nodes=${MODEL_nnodes}
 #SBATCH --ntasks=${MODEL_ncores}
