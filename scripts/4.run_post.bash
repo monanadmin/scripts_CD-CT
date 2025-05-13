@@ -67,10 +67,11 @@ START_DATE_YYYYMMDD="${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}"
 START_HH="${YYYYMMDDHHi:8:2}"
 maxpostpernode=20    # <------ qtde max de convert_mpas por no!
 VARTABLE=".OPER"
+export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 
 # Variables for flex outpout interval from streams.atmosphere------------------------
-t_strout=$(cat ${DATAIN}/namelists/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
+t_strout=$(cat ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
 t_stroutsec=$(echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
 t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
 #------------------------------------------------------------------------------------
@@ -106,7 +107,7 @@ fi
 
 
 
-files_needed=("${DATAIN}/namelists/include_fields.diag${VARTABLE}" "${DATAIN}/namelists/convert_mpas.nml" "${DATAIN}/namelists/target_domain.TEMPLATE" "${EXECS}/convert_mpas" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc")
+files_needed=("${SCRIPTS}/namelists/include_fields.diag${VARTABLE}" "${SCRIPTS}/namelists/convert_mpas.nml" "${SCRIPTS}/namelists/target_domain.TEMPLATE" "${EXECS}/convert_mpas" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -129,29 +130,29 @@ echo "Max ${maxpostpernode} submits per nodes."
 how_many_nodes ${nfiles} ${maxpostpernode}
 
 # Cria os diretorios e arquivos/links para cada saida do convert_mpas:
-cd ${SCRIPTS}
+cd ${DIRRUN}
+cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 for ii in $(seq 1 ${nfiles})
 do
    i=$(printf "%04d" ${ii})
-   mkdir -p ${SCRIPTS}/dir.${i}
-
-   ln -sf ${DATAIN}/namelists/include_fields.diag${VARTABLE}  ${SCRIPTS}/dir.${i}/include_fields.diag${VARTABLE}
-   ln -sf ${DATAIN}/namelists/convert_mpas.nml ${SCRIPTS}/dir.${i}/convert_mpas.nml
+   mkdir -p ${DIRRUN}/dir.${i}
+   cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}/dir.${i}
+   cp -f ${SCRIPTS}/namelists/include_fields.diag${VARTABLE}  ${DIRRUN}/dir.${i}/include_fields.diag${VARTABLE}
+   cp -f ${SCRIPTS}/namelists/convert_mpas.nml ${DIRRUN}/dir.${i}/convert_mpas.nml
    sed -e "s,#NLAT#,${NLAT},g;s,#NLON#,${NLON},g;s,#STARTLAT#,${STARTLAT},g;s,#ENDLAT#,${ENDLAT},g;s,#STARTLON#,${STARTLON},g;s,#ENDLON#,${ENDLON},g;" \
-      ${DATAIN}/namelists/target_domain.TEMPLATE > ${SCRIPTS}/dir.${i}/target_domain
+      ${SCRIPTS}/namelists/target_domain.TEMPLATE > ${DIRRUN}/dir.${i}/target_domain
 
-   rm -rf ${SCRIPTS}/dir.${i}/convert_mpas
-   ln -sf ${EXECS}/convert_mpas ${SCRIPTS}/dir.${i}
-   ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${SCRIPTS}/dir.${i}
+   cp -f ${EXECS}/convert_mpas ${DIRRUN}/dir.${i}
+   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}/dir.${i}
    
    hh=${YYYYMMDDHHi:8:2}
    currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 $(echo "(${i}-1)*${t_strout:0:2}" | bc) hours $(echo "(${i}-1)*${t_strout:3:2}" | bc) minutes $(echo "(${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
    diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L55.nc
    #CR-TODO: verificar se o arq existe antes de fazer o link:
-   ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Model/${diag_name} ${SCRIPTS}/dir.${i}
+   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/${diag_name} ${DIRRUN}/dir.${i}
 done
 
-cd ${SCRIPTS}
+cd ${DIRRUN}
 
 # Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
 node=1
@@ -159,7 +160,8 @@ inicio=1
 fim=$((maxpostpernode <= nfiles ? maxpostpernode : nfiles))
 while [ ${inicio} -le ${nfiles} ]
 do
-cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
+   rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
+cat > ${DIRRUN}/PostAtmos_node.${node}.sh <<EOSH
 #!/bin/bash
 #SBATCH --job-name=MO.Pos${node}
 #SBATCH --nodes=1
@@ -169,7 +171,7 @@ cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
 #SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j     # File name for standard error output
 #SBATCH --exclusive
 
-. ${SCRIPTS}/setenv.bash
+. ${DIRRUN}/setenv.bash
 
 echo "Submiting posts ${inicio} to ${fim} in node Node ${node}."
 
@@ -177,7 +179,7 @@ for ii in \$(seq  ${inicio} ${fim})
 do
    i=\$(printf "%04d" \${ii})
    echo "Executing post \${i}"
-   cd ${SCRIPTS}/dir.\${i}
+   cd ${DIRRUN}/dir.\${i}
    
    hh=${YYYYMMDDHHi:8:2}
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
@@ -202,7 +204,7 @@ do
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
    diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L55.nc
    
-   cd ${SCRIPTS}/dir.\${i}
+   cd ${DIRRUN}/dir.\${i}
    #CR: use the lines below if you want to make 1 file foreach model output:
    #CR: cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post} >> convert_mpas.output & 
    #CR: echo "cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post}"  > convert_mpas.output
@@ -216,8 +218,8 @@ wait
  
 EOSH
 
-   chmod a+x ${SCRIPTS}/PostAtmos_node.${node}.sh
-   jobid[${node}]=$(sbatch --parsable ${SCRIPTS}/PostAtmos_node.${node}.sh)
+   chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
+   jobid[${node}]=$(sbatch --parsable ${DIRRUN}/PostAtmos_node.${node}.sh)
    echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
   
    inicio=$((fim + 1))
@@ -238,7 +240,8 @@ done
 
 # Script principal para juntar os arquivos finais em um unico:
 node=0
-cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
+rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
+cat > ${DIRRUN}/PostAtmos_node.${node}.sh <<EOSH
 #!/bin/bash
 #SBATCH --job-name=MO.Pos${node}
 #SBATCH --nodes=1
@@ -248,7 +251,7 @@ cat > ${SCRIPTS}/PostAtmos_node.${node}.sh <<EOSH
 #SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j     # File name for standard error output
 #SBATCH --exclusive
 
-. ${SCRIPTS}/setenv.bash
+. ${DIRRUN}/setenv.bash
 
 cd ${DATAOUT}/${YYYYMMDDHHi}/Post
 
@@ -260,26 +263,24 @@ sleep 3
 # Saving important files to the logs directory:
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.0001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.0001/include_fields.diag ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.0001/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.0001/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.0001/PostAtmos_*.sh  ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${SCRIPTS}/dir.0001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/include_fields.diag ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/PostAtmos_*.sh  ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
 
 
-# Removing all files created to run:
-rm -rf ${SCRIPTS}/dir.* 
-rm -rf ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon*.nc
 
 
 EOSH
-chmod a+x ${SCRIPTS}/PostAtmos_node.${node}.sh
-sbatch --wait --dependency=${dependency} ${SCRIPTS}/PostAtmos_node.${node}.sh 
-rm -rf ${SCRIPTS}/PostAtmos_node.*.sh
+chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
+sbatch --wait --dependency=${dependency} ${DIRRUN}/PostAtmos_node.${node}.sh 
+rm -rf ${DIRRUN}
+rm -rf ${DATAOUT}/${YYYYMMDDHHi}/Post/latlon*.nc
 
 
 
