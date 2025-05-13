@@ -89,7 +89,7 @@ yyyymmddi=${YYYYMMDDHHi:0:8}
 hhi=${YYYYMMDDHHi:8:2}
 yyyymmddhhf=$(date +"%Y%m%d%H" -d "${yyyymmddi} ${hhi}:00 ${FCST} hours" )
 final_date=${yyyymmddhhf:0:4}-${yyyymmddhhf:4:2}-${yyyymmddhhf:6:2}_${yyyymmddhhf:8:2}.00.00
-DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
+export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 
 
@@ -110,24 +110,21 @@ rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
 ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
 
 
-# Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
-#if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
-#then
+ Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
+if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
+then
    echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
    time ./make_static.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
-#else
-#   echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
-#fi
+else
+   echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
+fi
 #----------------------------------------------------------------------------------
 
-exit
 
 # Degrib phase:---------------------------------------------------------------------
 echo -e  "${GREEN}==>${NC} Submiting Degrib...\n"
 time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
-
-exit
 
 
 # Init Atmosphere phase:------------------------------------------------------------

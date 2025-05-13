@@ -52,6 +52,7 @@ start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHH
 OPERDIREXP=${OPERDIR}/${EXP}
 BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
 GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
+export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 mkdir -p ${DATAIN}/${YYYYMMDDHHi}
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
@@ -87,15 +88,16 @@ do
   fi
 done
 
-ln -sf ${DATAIN}/fixed/x1.${RES}.static.nc ${SCRIPTS}
-ln -sf ${DATAIN}/fixed/Vtable.${EXP} ${SCRIPTS}/Vtable
-ln -sf ${EXECS}/ungrib.exe ${SCRIPTS}
-cp -rf ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
+cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
+cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}/Vtable
+cp -f ${EXECS}/ungrib.exe ${DIRRUN}
+cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
 
 
-
-rm -f ${SCRIPTS}/degrib.bash 
-cat << EOF0 > ${SCRIPTS}/degrib.bash 
+cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
+cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
+rm -f ${DIRRUN}/degrib.bash 
+cat << EOF0 > ${DIRRUN}/degrib.bash 
 #!/bin/bash
 #SBATCH --job-name=${DEGRIB_jobname}
 #SBATCH --nodes=${DEGRIB_nnodes}
@@ -115,17 +117,17 @@ export PMIX_MCA_gds=hash
 
 
 export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${HOME}/local/lib64
-ldd ungrib.exe
 
-cd ${SCRIPTS}
+cd ${DIRRUN}
 . setenv.bash
 
+ldd ungrib.exe
 
 rm -f GRIBFILE.* namelist.wps
 
 
 sed -e "s,#LABELI#,${start_date},g;s,#PREFIX#,GFS,g" \
-	${DATAIN}/namelists/namelist.wps.TEMPLATE > ./namelist.wps
+	${SCRIPTS}/namelists/namelist.wps.TEMPLATE > ${DIRRUN}/namelist.wps
 
 ./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
 
@@ -134,12 +136,12 @@ time mpirun -np 1 ./ungrib.exe
 date
 
 
-grep "Successful completion of program ungrib.exe" ${SCRIPTS}/ungrib.log >& /dev/null
+grep "Successful completion of program ungrib.exe" ${DIRRUN}/ungrib.log >& /dev/null
 
 if [ \$? -ne 0 ]; then
    echo "  BUMMER: Ungrib generation failed for some yet unknown reason."
    echo " "
-   tail -10 ${SCRIPTS}/ungrib.log
+   tail -10 ${DIRRUN}/ungrib.log
    echo " "
    exit 21
 fi
@@ -151,22 +153,17 @@ fi
    mv namelist.wps ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.${start_date}.wps
    mv GFS\:${start_date:0:13} ${DATAOUT}/${YYYYMMDDHHi}/Pre
 
-   rm -f ${SCRIPTS}/ungrib.exe 
-   rm -f ${SCRIPTS}/Vtable 
-   rm -f ${SCRIPTS}/x1.${RES}.static.nc
-   rm -f ${SCRIPTS}/GRIBFILE.AAA
    rm -fr ${DATAIN}/${YYYYMMDDHHi}
 
 echo "End of degrib Job"
 
 
 EOF0
-chmod a+x ${SCRIPTS}/degrib.bash
+chmod a+x ${DIRRUN}/degrib.bash
 
 echo -e  "${GREEN}==>${NC} Executing sbatch degrib.bash...\n"
-cd ${SCRIPTS}
-sbatch --wait ${SCRIPTS}/degrib.bash
-mv ${SCRIPTS}/degrib.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+cd ${DIRRUN}
+sbatch --wait ${DIRRUN}/degrib.bash
 
 
 
@@ -183,3 +180,5 @@ do
   fi
 done
 
+mv ${DIRRUN}/degrib.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+rm -fr ${DIRRUN}

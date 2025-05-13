@@ -49,7 +49,7 @@ FCST=${4};        #FCST=24
 # Local variables--------------------------------------
 GEODATA=${DATAIN}/WPS_GEOG
 cores=${STATIC_ncores}
-DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
+export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 
 
@@ -83,11 +83,11 @@ do
   fi
 done
 
-ln -sf ${DATAIN}/fixed/*.TBL ${DIRRUN}
-ln -sf ${DATAIN}/fixed/*.GFS ${DIRRUN}
-ln -sf ${EXECS}/init_atmosphere_model ${DIRRUN}
-ln -sf ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
-ln -sf ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
+cp -f ${DATAIN}/fixed/*.TBL ${DIRRUN}
+cp -f ${DATAIN}/fixed/*.GFS ${DIRRUN}
+cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
+cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
+cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
 
 sed -e "s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g" \
    ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC \
