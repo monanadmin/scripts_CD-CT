@@ -45,7 +45,7 @@ convertmpas_branch=1.1.0
 EXP=GFS
 RES=1024002
 YYYYMMDDHHi=2024010100
-FCST=24
+FCST=240
 #----------------------------------------------------------------------
 
 
@@ -58,7 +58,7 @@ FCST=24
 #exit
 
 # STEP 3: Executing the Model run:
-#time ${SCRIPTS}/3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+time ${SCRIPTS}/3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
 #exit
 
 # STEP 4: Executing the Post of Model run:

@@ -142,14 +142,6 @@ do
    sed -e "s,#NLAT#,${NLAT},g;s,#NLON#,${NLON},g;s,#STARTLAT#,${STARTLAT},g;s,#ENDLAT#,${ENDLAT},g;s,#STARTLON#,${STARTLON},g;s,#ENDLON#,${ENDLON},g;" \
       ${SCRIPTS}/namelists/target_domain.TEMPLATE > ${DIRRUN}/dir.${i}/target_domain
 
-   cp -f ${EXECS}/convert_mpas ${DIRRUN}/dir.${i}
-   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}/dir.${i}
-   
-   hh=${YYYYMMDDHHi:8:2}
-   currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 $(echo "(${i}-1)*${t_strout:0:2}" | bc) hours $(echo "(${i}-1)*${t_strout:3:2}" | bc) minutes $(echo "(${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
-   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L55.nc
-   #CR-TODO: verificar se o arq existe antes de fazer o link:
-   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/${diag_name} ${DIRRUN}/dir.${i}
 done
 
 cd ${DIRRUN}
@@ -178,6 +170,23 @@ echo "Submiting posts ${inicio} to ${fim} in node Node ${node}."
 for ii in \$(seq  ${inicio} ${fim})
 do
    i=\$(printf "%04d" \${ii})
+   echo "Preparing post files \${i}"
+   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}/dir.\${i} &
+   
+   hh=${YYYYMMDDHHi:8:2}
+   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
+   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L55.nc
+   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/${diag_name} ${DIRRUN}/dir.\${i} &
+   cp -f ${EXECS}/convert_mpas ${DIRRUN}/dir.\${i} &
+   cp include_fields.diag${VARTABLE} include_fields
+
+done
+
+wait
+
+for ii in \$(seq  ${inicio} ${fim})
+do
+   i=\$(printf "%04d" \${ii})
    echo "Executing post \${i}"
    cd ${DIRRUN}/dir.\${i}
    
@@ -185,13 +194,8 @@ do
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
    diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L55.nc
 
-   rm -f include_fields
-   cp include_fields.diag${VARTABLE} include_fields
-   rm -f latlon.nc
-   
    time  ./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
    echo "./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name} > convert_mpas.output"
-   
 done
 
 # necessario aguardar as rodadas em background
