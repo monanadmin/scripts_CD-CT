@@ -57,7 +57,7 @@ export INITATMOS_jobname="Pre.InitAtmos"
 
 # Model phase:
 export MODEL_QUEUE="batch"
-export MODEL_ncores=124
+export MODEL_ncores=1024
 export MODEL_nnodes=16
 export MODEL_ncpn=64
 export MODEL_jobname="Model.MONAN"
@@ -127,66 +127,6 @@ how_many_nodes () {
 #----------------------------------------------------------------------------------------------
 
 
-
-clean_model_tmp_files () {
-
-   echo "Removing all temporary files from last MODEL run trash."
-
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/atmosphere_model
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/*TBL
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/*DBL
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/*DATA
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.nc
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.graph.info.part.*
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/Vtable.GFS
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/streams.atmosphere
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stream_list.atmosphere.surface
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stream_list.atmosphere.output
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stream_list.atmosphere.diagnostics
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/namelist.atmosphere
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/MONAN_DIAG_*
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/log.atmosphere.*
-   echo ""
-   
-}
-#----------------------------------------------------------------------------------------------
-
-
-clean_post_tmp_files () {
-
-   echo "Removing all temporary files from last POST run trash."
-
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/dir.*
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/PostAtmos_*.sh
-   
-   echo ""
-   
-}
-#----------------------------------------------------------------------------------------------
-
-
-
-clean_pre_tmp_files () {
-
-   echo "Removing all temporary files from last PRE run trash."
-
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/log.*.0000.out
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.init.nc
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/GFS*
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/init_atmosphere_model
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/namelist*
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/streams.init_atmosphere
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.graph.info.part.*
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.static.nc
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/ungrib.exe
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/Vtable
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/*.log
-   
-   
-   echo ""
-   
-}
-#----------------------------------------------------------------------------------------------
 
 
 
