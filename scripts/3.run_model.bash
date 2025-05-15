@@ -86,6 +86,17 @@ cores=${MODEL_ncores}
 hhi=${YYYYMMDDHHi:8:2}
 NLEV=55
 CONFIG_CONV_INTERVAL="00:30:00"
+VARTABLE=".OPER"
+
+# Variables for flex outpout interval from streams.atmosphere------------------------
+t_strout=$(cat ${DATAIN}/namelists/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
+t_stroutsec=$(echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
+t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
+#------------------------------------------------------------------------------------
+
+# Format to HH:MM:SS t_strout (output_interval)
+IFS=":" read -r h m s <<< "${t_strout}"
+printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
@@ -129,7 +140,7 @@ fi
 
 clean_model_tmp_files
 
-files_needed=("${DATAIN}/namelists/stream_list.atmosphere.output" ""${DATAIN}/namelists/stream_list.atmosphere.diagnostics "${DATAIN}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.GFS")
+files_needed=("${DATAIN}/namelists/stream_list.atmosphere.output" ""${DATAIN}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} "${DATAIN}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.GFS")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -160,7 +171,7 @@ s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_
    ${DATAIN}/namelists/streams.atmosphere.TEMPLATE > ${SCRIPTS}/streams.atmosphere
 fi
 cp -f ${DATAIN}/namelists/stream_list.atmosphere.output ${SCRIPTS}
-cp -f ${DATAIN}/namelists/stream_list.atmosphere.diagnostics ${SCRIPTS}
+cp -f ${DATAIN}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} ${SCRIPTS}/stream_list.atmosphere.diagnostics
 cp -f ${DATAIN}/namelists/stream_list.atmosphere.surface ${SCRIPTS}
 
 
@@ -182,16 +193,6 @@ cat << EOF0 > ${SCRIPTS}/model.bash
 
 export executable=atmosphere_model
 
-#export MPAS_DYNAMICS_RANKS_PER_NODE=2
-#export MPAS_RADIATION_RANKS_PER_NODE=6
-#export MALLOCSTATS=1
-
-export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
-export MKL_NUM_THREADS=${SLURM_CPUS_PER_TASK}
-export I_MPI_DEBUG=5
-export MKL_DEBUG_CPU_TYPE=5
-export I_MPI_FABRICS=shm:ofi
-
 ulimit -c unlimited
 ulimit -v unlimited
 ulimit -s unlimited
@@ -202,7 +203,6 @@ cd ${SCRIPTS}
 
 
 date
-#time mpirun -np \${SLURM_NTASKS} -env UCX_NET_DEVICES=mlx5_0:1 -genvall ./\${executable}
 time mpirun -np \${SLURM_NTASKS} ./\${executable}
 date
 
@@ -212,7 +212,10 @@ date
 
 mv MONAN_DIAG_* ${DATAOUT}/${YYYYMMDDHHi}/Model
 mv MONAN_HIST_* ${DATAOUT}/${YYYYMMDDHHi}/Model
-cp ${EXECS}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model
+cp -f ${EXECS}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model
+cp -f ${EXECS}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
+cp -f ${DIRHOMES}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/SCRIPTSCDCT-VERSION.txt
+cp -f ${MONANDIR}/README.md ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
 
 mv log.atmosphere.*.out ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 mv log.atmosphere.*.err ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
@@ -241,20 +244,22 @@ sbatch --wait ${SCRIPTS}/model.bash
 mv ${SCRIPTS}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 
 
-output_interval=3
-for i in $(seq 0 ${output_interval} ${FCST})
+#-----Loop que verifica se os arquivos foram gerados corretamente (>0)-----
+output_interval=${t_strouthor}
+nfiles=$(echo "$FCST/$output_interval + 1" | bc)
+for ii in $(seq 1 ${nfiles})
 do
+   i=$(printf "%04d" ${ii})
    hh=${YYYYMMDDHHi:8:2}
-   currentdate=$(date -u +"%Y%m%d%H" -d "${YYYYMMDDHHi:0:8} ${hh}:00 ${i} hours")
-   file=MONAN_DIAG_G_MOD_GFS_${YYYYMMDDHHi}_${currentdate}.00.00.x${RES}L55.nc
-   
+   currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 $(echo "(${i}-1)*${t_strout:0:2}" | bc) hours $(echo "(${i}-1)*${t_strout:3:2}" | bc) minutes $(echo "(${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
+   file=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L55.nc
+
    if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Model/${file} ]
    then
-    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
+    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"   
     echo -e  "${RED}==>${NC} [${0}] At least the file ${DATAOUT}/${YYYYMMDDHHi}/Model/${file} was not generated. \n"
     exit -1
-  fi
-      
+   fi
+
 done
 
-   

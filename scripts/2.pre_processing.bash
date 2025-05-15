@@ -93,8 +93,8 @@ final_date=${yyyymmddhhf:0:4}-${yyyymmddhhf:4:2}-${yyyymmddhhf:6:2}_${yyyymmddhh
 
 
 echo -e  "${GREEN}==>${NC} Scripts_CD-CT last commit: \n"
-git log -1 --name-only
-git branch | head -1
+#git log -1 --name-only
+git log | head -1
 
 
 # Untar the fixed files:
@@ -107,6 +107,7 @@ mkdir -p ${DATAIN}
 rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
 rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
 ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+
 
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
