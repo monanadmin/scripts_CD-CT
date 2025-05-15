@@ -25,8 +25,8 @@ module list
 # MONAN-suite install root directories:
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
-export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/mnt/beegfs/monan/users/renato/issues/monan-correco-relhum-kubota-develop/scripts_CD-CT/sources/MONAN-Model_release/1.4.1-rc
+export DIR_DADOS=/mnt/beegfs/monan/users/renato/issues/ecflow-PREOPER/SCRATCHOUT
+export MONANDIR=/mnt/beegfs/monan/users/renato/issues/ecflow-PREOPER/MONAN-WorkFlow-OPER/MONAN_PRE_OPER/MONAN/scripts_CD-CT/sources/MONAN-Model_release/1.4.1-rc
 
 # Submiting variables:
 
@@ -57,8 +57,8 @@ export INITATMOS_jobname="Pre.InitAtmos"
 
 # Model phase:
 export MODEL_QUEUE="batch"
-export MODEL_ncores=1024
-export MODEL_nnodes=16
+export MODEL_ncores=512
+export MODEL_nnodes=8
 export MODEL_ncpn=64
 export MODEL_jobname="Model.MONAN"
 export MODEL_walltime="8:00:00"

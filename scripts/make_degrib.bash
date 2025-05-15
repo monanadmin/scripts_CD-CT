@@ -92,7 +92,7 @@ cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}/Vtable
 cp -f ${EXECS}/ungrib.exe ${DIRRUN}
 cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
-
+cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
 
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
@@ -127,7 +127,7 @@ rm -f GRIBFILE.* namelist.wps
 
 
 sed -e "s,#LABELI#,${start_date},g;s,#PREFIX#,GFS,g" \
-	${SCRIPTS}/namelists/namelist.wps.TEMPLATE > ${DIRRUN}/namelist.wps
+	${DIRRUN}/namelist.wps.TEMPLATE > ${DIRRUN}/namelist.wps
 
 ./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
 
