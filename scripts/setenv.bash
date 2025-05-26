@@ -25,8 +25,8 @@ module list
 # MONAN-suite install root directories:
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
-export DIR_DADOS=/mnt/beegfs/monan/users/renato/issues/ecflow-PREOPER/SCRATCHOUT
-export MONANDIR=/mnt/beegfs/monan/users/renato/issues/ecflow-PREOPER/MONAN-WorkFlow-OPER/MONAN_PRE_OPER/MONAN/scripts_CD-CT/sources/MONAN-Model_release/1.4.1-rc
+export DIR_DADOS=$(dirname $(dirname $(pwd)))
+export MONANDIR=${MONANDIR}
 
 # Submiting variables:
 
