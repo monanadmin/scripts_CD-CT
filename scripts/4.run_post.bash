@@ -236,7 +236,7 @@ do
 done
 
 
-
+ 
 # Script principal para juntar os arquivos finais em um unico:
 node=0
 rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
