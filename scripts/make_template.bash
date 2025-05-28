@@ -78,6 +78,7 @@ t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
 t_stroutmin=$(echo "${t_stroutsec}/60" | bc)
 #------------------------------------------------------------------------------------
 
+cd ${DIRRUN}
 
 
 # Format to HH:MM:SS t_strout (output_interval)
@@ -138,6 +139,6 @@ grads -blc "run ${DIRRUN}/qctlinfo.gs" | awk '/dset/,/endvars/' > ${DIRRUN}/qctl
 timectl=$(grep tdef ${DIRRUN}/qctlinfo.ctl | cut -d" " -f4)
 sed -i '3a\options template' ${DIRRUN}/qctlinfo.ctl
 sed -i "/tdef/c\tdef ${nfiles} linear ${timectl} ${t_stroutmin}mn" ${DIRRUN}/qctlinfo.ctl
-sed -i "/dset/c\dset ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_templ}" ${DIRRUN}/qctlinfo.ctl
+sed -i "/dset/c\dset ^${diag_name_templ}" ${DIRRUN}/qctlinfo.ctl
 mv ${DIRRUN}/qctlinfo.ctl ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}.template.ctl
 rm -fr ${DIRRUN}

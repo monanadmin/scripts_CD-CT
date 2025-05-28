@@ -65,7 +65,7 @@ mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 # Local variables--------------------------------------
 START_DATE_YYYYMMDD="${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}"
 START_HH="${YYYYMMDDHHi:8:2}"
-maxpostpernode=20    # <------ qtde max de convert_mpas por no!
+maxpostpernode=30    # <------ qtde max de convert_mpas por no!
 VARTABLE=".OPER"
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 N_MODEL_LEV=55
@@ -223,8 +223,8 @@ EOSH
 
    chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
    cp -f ${DIRRUN}/PostAtmos_node.${node}.sh ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   sbatch ${DIRRUN}/PostAtmos_node.${node}.sh
-
+   jobid[${node}]=$(sbatch --parsable ${DIRRUN}/PostAtmos_node.${node}.sh)
+   echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
   
    inicio=$((fim + 1))
    temp=$((fim + maxpostpernode))
@@ -233,8 +233,52 @@ EOSH
    sleep 5
 done
 
-rm -rf ${DIRRUN}
 
 
 
+# Dependencias JobId:
+dependency="afterok"
+for job_id in "${jobid[@]}"
+do
+   dependency="${dependency}:${job_id}"
+done
 
+
+# Script final , para conferir todos os arquivos, criar o template final  e apagar o diretorio DIRRUN
+node=0
+rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
+cat > ${DIRRUN}/PostAtmos_node.${node}.sh <<EOSH
+#!/bin/bash
+#SBATCH --job-name=MO.Pos${node}
+#SBATCH --nodes=1
+#SBATCH --partition=${POST_QUEUE}
+#SBATCH --time=${POST_walltime}
+#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o%j    # File name for standard output
+#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j     # File name for standard error output
+
+. ${DIRRUN}/setenv.bash
+
+
+# Saving important files to the logs directory:
+cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
+cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/PostAtmos_node.*.sh ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+
+
+cd ${DIRRUN}/..
+rm -fr ${DIRRUN}
+
+
+EOSH
+chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
+sbatch --wait --dependency=${dependency} ${DIRRUN}/PostAtmos_node.${node}.sh 
+
+#CR: passar este scriptpara dentro do script PostAtmos_node.0.sh, submetido.
+cd ${SCRIPTS}
+time ${SCRIPTS}/make_template.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
