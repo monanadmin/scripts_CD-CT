@@ -103,6 +103,13 @@ elif [ $RES -eq 40962 ]; then  #120Km
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
+elif [ $RES -eq 5898242 ]; then  #10Km
+   NLAT=1801 #180/0.10 (+1)
+   NLON=3601 #360/0.10 (+1)
+   STARTLAT=-90.0
+   STARTLON=0.0
+   ENDLAT=90.0
+   ENDLON=360.0
 fi
 #-------------------------------------------------------
 
