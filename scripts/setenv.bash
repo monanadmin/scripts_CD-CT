@@ -26,7 +26,7 @@ module list
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/mnt/beegfs/carlos.souza/issues/teste-scripts-conv--/scripts_CD-CT/sources/MONAN-Model_release/1.4.1-rc
+export MONANDIR=/mnt/beegfs/carlos.souza/issues/735-tag-convert-teste/scripts_CD-CT/sources/MONAN-Model_release/1.4.1-rc
 
 # Submiting variables:
 
@@ -97,7 +97,7 @@ export NETCDF=/mnt/beegfs/monan/libs_openmpi/netcdf
 export PNETCDF=/mnt/beegfs/monan/libs_openmpi/PnetCDF
 export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
-export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v0.5.0
+export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v1.4.x
 export OPERDIR=/oper/dados/ioper/tempo
 
 # Colors:
