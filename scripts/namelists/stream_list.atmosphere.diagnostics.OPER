@@ -13,6 +13,7 @@ surface_pressure
 mslp
 precipw
 rainnc
+rainc
 cape
 cin
 acswdnb
@@ -24,3 +25,7 @@ q2
 t2m
 hfx
 lh
+cldfrac_tot_UPP
+ter
+landmask
+omega_isobaric

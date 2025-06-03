@@ -9,7 +9,8 @@ This folder aims to create a version for testing MONAN with GFS at Egeon.
 **1.3.0**
 - This version was created to work in operational runs.
 - Adjusted to run using 16 nodes and 1024 cores.
-- Operational vars table is also in this version.
+- Operational vars (cldfrac_tot_UPP, ter, landmask, and omega) table is also in this version.
+- Add flags for ~10Km mesh resolution.
 
 **1.2.0**
 - This version should work only with MONAN-Model 1.3.1/ (3D native model variables)

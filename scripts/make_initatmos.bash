@@ -50,6 +50,7 @@ FCST=${4};        #FCST=24
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
 GEODATA=${DATAIN}/WPS_GEOG
 cores=${INITATMOS_ncores}
+export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
@@ -73,7 +74,7 @@ then
 fi
 
 
-files_needed=("${DATAIN}/namelists/namelist.init_atmosphere.TEMPLATE" "${DATAIN}/namelists/streams.init_atmosphere.TEMPLATE" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}:${start_date:0:13}" "${EXECS}/init_atmosphere_model")
+files_needed=("${SCRIPTS}/namelists/namelist.init_atmosphere.TEMPLATE" "${SCRIPTS}/namelists/streams.init_atmosphere.TEMPLATE" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}:${start_date:0:13}" "${EXECS}/init_atmosphere_model")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -86,21 +87,22 @@ done
 
 
 sed -e "s,#LABELI#,${start_date},g;s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g" \
-	 ${DATAIN}/namelists/namelist.init_atmosphere.TEMPLATE > ${SCRIPTS}/namelist.init_atmosphere
+	 ${SCRIPTS}/namelists/namelist.init_atmosphere.TEMPLATE > ${DIRRUN}/namelist.init_atmosphere
 
 sed -e "s,#RES#,${RES},g" \
-    ${DATAIN}/namelists/streams.init_atmosphere.TEMPLATE > ${SCRIPTS}/streams.init_atmosphere
+    ${SCRIPTS}/namelists/streams.init_atmosphere.TEMPLATE > ${DIRRUN}/streams.init_atmosphere
 
 
-ln -sf ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${SCRIPTS}
-ln -sf ${DATAIN}/fixed/x1.${RES}.static.nc ${SCRIPTS}
-ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:${start_date:0:13} ${SCRIPTS}
-ln -sf ${EXECS}/init_atmosphere_model ${SCRIPTS}
+cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
+cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:${start_date:0:13} ${DIRRUN}
+cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
 
 
-rm -f ${SCRIPTS}/initatmos.bash 
-cat << EOF0 > ${SCRIPTS}/initatmos.bash 
-#!/bin/bash
+cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
+rm -f ${DIRRUN}/initatmos.bash 
+cat << EOF0 > ${DIRRUN}/initatmos.bash 
+#!/bin/bash -x
 #SBATCH --job-name=${INITATMOS_jobname}
 #SBATCH --nodes=${INITATMOS_nnodes}                         # depends on how many boundary files are available
 #SBATCH --partition=${INITATMOS_QUEUE} 
@@ -120,7 +122,7 @@ ulimit -s unlimited
 
 . $(pwd)/setenv.bash
 
-cd ${SCRIPTS}
+cd ${DIRRUN}
 
 
 
@@ -129,25 +131,18 @@ time mpirun -np \${SLURM_NTASKS} ./\${executable}
 date
 
 
-mv ${SCRIPTS}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log.init_atmosphere.0000.x1.${RES}.init.nc.${YYYYMMDDHHi}.out
-mv namelist.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
-mv streams.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
-mv ${SCRIPTS}/x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
-
-chmod a+x ${DATAIN}/fixed//x1.${RES}.init.nc 
-rm -f ${SCRIPTS}/${EXP}\:${start_date:0:13}
-rm -f ${SCRIPTS}/init_atmosphere_model
-rm -f ${SCRIPTS}/x1.${RES}.graph.info.part.${cores}
-rm -f ${SCRIPTS}/x1.${RES}.static.nc
-rm -f ${SCRIPTS}/log.init_atmosphere.*.err
+mv ${DIRRUN}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log.init_atmosphere.0000.x1.${RES}.init.nc.${YYYYMMDDHHi}.out
+mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+mv ${DIRRUN}/x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
 
 EOF0
-chmod a+x ${SCRIPTS}/initatmos.bash
+chmod a+x ${DIRRUN}/initatmos.bash
 
 echo -e  "${GREEN}==>${NC} Executing sbatch initatmos.bash...\n"
-cd ${SCRIPTS}
-sbatch --wait ${SCRIPTS}/initatmos.bash
-mv ${SCRIPTS}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+cd ${DIRRUN}
+sbatch --wait ${DIRRUN}/initatmos.bash
+mv ${DIRRUN}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
 if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ]
 then
@@ -157,3 +152,4 @@ then
   exit -1
 fi
 
+rm -fr ${DIRRUN}

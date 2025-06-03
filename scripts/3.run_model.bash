@@ -23,7 +23,6 @@ then
    echo "${0} [EXP_NAME/OP] RESOLUTION LABELI FCST"
    echo ""
    echo "EXP_NAME    :: Forcing: GFS"
-   echo "OP          :: clean: remove all temporary files createed in the last run."
    echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
    echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
    echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
@@ -32,8 +31,6 @@ then
    echo "${0} GFS 1024002 2024010100 24"
    echo "48 hour forecast example for 120km:"
    echo "${0} GFS   40962 2024010100 48"
-   echo "Cleannig temp files example:"
-   echo "${0} clean"
    echo ""
 
    exit
@@ -44,20 +41,6 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
-if [ $# -eq 1 ]
-then
-   op=$(echo "${1}" | tr '[A-Z]' '[a-z]')
-   if [ ${op} = "clean" ]
-   then
-      clean_model_tmp_files
-      exit
-   else
-      echo "Should type just \"clean\" for cleanning."
-      echo "${0} clean"
-      echo ""
-      exit
-   fi   
-fi
 
 
 # Standart directories variables:---------------------------------------
@@ -87,9 +70,11 @@ hhi=${YYYYMMDDHHi:8:2}
 NLEV=55
 CONFIG_CONV_INTERVAL="00:30:00"
 VARTABLE=".OPER"
+export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
+#------------------------------------------------------------------------------------
 
 # Variables for flex outpout interval from streams.atmosphere------------------------
-t_strout=$(cat ${DATAIN}/namelists/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
+t_strout=$(cat ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
 t_stroutsec=$(echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
 t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
 #------------------------------------------------------------------------------------
@@ -97,19 +82,21 @@ t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
 # Format to HH:MM:SS t_strout (output_interval)
 IFS=":" read -r h m s <<< "${t_strout}"
 printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
+# From now on, CONFI_LEN_DISP becames cte = 0.0, pickin up this value from static file.
 
 # Calculating default parameters for different resolutions
 if [ $RES -eq 1024002 ]; then  #24Km
    CONFIG_DT=150.0
-   CONFIG_LEN_DISP=24000.0
    CONFIG_CONV_INTERVAL="00:15:00"
 elif [ $RES -eq 2621442 ]; then  #15Km
    CONFIG_DT=90.0
-   CONFIG_LEN_DISP=15000.0
    CONFIG_CONV_INTERVAL="00:15:00"
 elif [ $RES -eq 40962 ]; then  #120Km
    CONFIG_DT=600.0
-   CONFIG_LEN_DISP=120000.0
+elif [ $RES -eq 5898242 ]; then  #10Km
+   CONFIG_DT=60.0
+   CONFIG_LEN_DISP=10000.0
+   CONFIG_CONV_INTERVAL="00:15:00"
 fi
 #-------------------------------------------------------
 
@@ -138,9 +125,8 @@ then
    rm -fr x1.${RES}.tar.gz x1.${RES}_static.tar.gz
 fi
 
-clean_model_tmp_files
 
-files_needed=("${DATAIN}/namelists/stream_list.atmosphere.output" ""${DATAIN}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} "${DATAIN}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.GFS")
+files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" ""${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.GFS")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -151,34 +137,35 @@ do
   fi
 done
 
-ln -sf ${EXECS}/atmosphere_model ${SCRIPTS}
-ln -sf ${DATAIN}/fixed/*TBL ${SCRIPTS}
-ln -sf ${DATAIN}/fixed/*DBL ${SCRIPTS}
-ln -sf ${DATAIN}/fixed/*DATA ${SCRIPTS}
-ln -sf ${DATAIN}/fixed/x1.${RES}.static.nc ${SCRIPTS}
-ln -sf ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${SCRIPTS}
-ln -sf ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${SCRIPTS}
-ln -sf ${DATAIN}/fixed/Vtable.GFS ${SCRIPTS}
+cp -f ${EXECS}/atmosphere_model ${DIRRUN}
+cp -f ${DATAIN}/fixed/*TBL ${DIRRUN}
+cp -f ${DATAIN}/fixed/*DBL ${DIRRUN}
+cp -f ${DATAIN}/fixed/*DATA ${DIRRUN}
+cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
+cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}
+cp -f ${DATAIN}/fixed/Vtable.GFS ${DIRRUN}
 
 
 if [ ${EXP} = "GFS" ]
 then
    sed -e "s,#LABELI#,${start_date},g;s,#FCSTS#,${DD_HHMMSS_forecast},g;s,#RES#,${RES},g;
 s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_CONV_INTERVAL#,${CONFIG_CONV_INTERVAL},g" \
-   ${DATAIN}/namelists/namelist.atmosphere.TEMPLATE > ${SCRIPTS}/namelist.atmosphere
+   ${SCRIPTS}/namelists/namelist.atmosphere.TEMPLATE > ${DIRRUN}/namelist.atmosphere
    
    sed -e "s,#RES#,${RES},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
-   ${DATAIN}/namelists/streams.atmosphere.TEMPLATE > ${SCRIPTS}/streams.atmosphere
+   ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE > ${DIRRUN}/streams.atmosphere
 fi
-cp -f ${DATAIN}/namelists/stream_list.atmosphere.output ${SCRIPTS}
-cp -f ${DATAIN}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} ${SCRIPTS}/stream_list.atmosphere.diagnostics
-cp -f ${DATAIN}/namelists/stream_list.atmosphere.surface ${SCRIPTS}
+cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.output ${DIRRUN}
+cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diagnostics
+cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.surface ${DIRRUN}
 
 
 
-rm -f ${SCRIPTS}/model.bash 
-cat << EOF0 > ${SCRIPTS}/model.bash 
-#!/bin/bash
+cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
+rm -f ${DIRRUN}/model.bash 
+cat << EOF0 > ${DIRRUN}/model.bash 
+#!/bin/bash -x
 #SBATCH --job-name=${MODEL_jobname}
 #SBATCH --nodes=${MODEL_nnodes}
 #SBATCH --ntasks=${MODEL_ncores}
@@ -199,7 +186,7 @@ ulimit -s unlimited
 
 . $(pwd)/setenv.bash
 
-cd ${SCRIPTS}
+cd ${DIRRUN}
 
 
 date
@@ -222,26 +209,16 @@ mv log.atmosphere.*.err ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 mv namelist.atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 mv stream* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 
-rm -f ${SCRIPTS}/atmosphere_model
-rm -f ${SCRIPTS}/*TBL 
-rm -f ${SCRIPTS}/*.DBL
-rm -f ${SCRIPTS}/*DATA
-rm -f ${SCRIPTS}/x1.${RES}.static.nc
-rm -f ${SCRIPTS}/x1.${RES}.graph.info.part.${cores}
-rm -f ${SCRIPTS}/Vtable.GFS
-rm -f ${SCRIPTS}/x1.${RES}.init.nc
-
-
 
 EOF0
-chmod a+x ${SCRIPTS}/model.bash
+chmod a+x ${DIRRUN}/model.bash
 
 
 echo -e  "${GREEN}==>${NC} Submitting MONAN atmosphere model and waiting for finish before exit... \n"
 echo -e  "${GREEN}==>${NC} Logs being generated at ${DATAOUT}/logs... \n"
 echo -e  "sbatch ${SCRIPTS}/model.bash"
-sbatch --wait ${SCRIPTS}/model.bash
-mv ${SCRIPTS}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
+sbatch --wait ${DIRRUN}/model.bash
+mv ${DIRRUN}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 
 
 #-----Loop que verifica se os arquivos foram gerados corretamente (>0)-----
@@ -263,3 +240,4 @@ do
 
 done
 
+rm -fr ${DIRRUN}
