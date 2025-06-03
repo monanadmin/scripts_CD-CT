@@ -11,7 +11,7 @@ if ( ( ${#argv} == 1 ) || ( ( ${#argv} == 2 ) && ( ${2} == "." ) ) ) then
 
    foreach f ( ${1}* )
    
-      ln -sf ${f} GRIBFILE.$alpha[$i3]$alpha[$i2]$alpha[$i1]
+      cp -f ${f} GRIBFILE.$alpha[$i3]$alpha[$i2]$alpha[$i1]
       @ i1 ++
    
       if ( $i1 > 26 ) then

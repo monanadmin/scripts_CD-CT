@@ -26,7 +26,7 @@ module list
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/mnt/beegfs/monan/users/renato/issues/ecflow-PREOPER/MONAN-WorkFlow-OPER/MONAN_PRE_OPER/MONAN/scripts_CD-CT/sources/MONAN-Model_release/1.4.0-rc
+export MONANDIR=/mnt/beegfs/carlos.souza/issues/735-tag-convert-teste/scripts_CD-CT/sources/MONAN-Model_release/1.4.1-rc
 
 # Submiting variables:
 
@@ -57,8 +57,8 @@ export INITATMOS_jobname="Pre.InitAtmos"
 
 # Model phase:
 export MODEL_QUEUE="batch"
-export MODEL_ncores=124
-export MODEL_nnodes=16
+export MODEL_ncores=512
+export MODEL_nnodes=8
 export MODEL_ncpn=64
 export MODEL_jobname="Model.MONAN"
 export MODEL_walltime="8:00:00"
@@ -97,7 +97,7 @@ export NETCDF=/mnt/beegfs/monan/libs_openmpi/netcdf
 export PNETCDF=/mnt/beegfs/monan/libs_openmpi/PnetCDF
 export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
-export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v0.5.0
+export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v1.4.x
 export OPERDIR=/oper/dados/ioper/tempo
 
 # Colors:
@@ -127,66 +127,6 @@ how_many_nodes () {
 #----------------------------------------------------------------------------------------------
 
 
-
-clean_model_tmp_files () {
-
-   echo "Removing all temporary files from last MODEL run trash."
-
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/atmosphere_model
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/*TBL
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/*DBL
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/*DATA
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.nc
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.graph.info.part.*
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/Vtable.GFS
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/streams.atmosphere
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stream_list.atmosphere.surface
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stream_list.atmosphere.output
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stream_list.atmosphere.diagnostics
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/namelist.atmosphere
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/MONAN_DIAG_*
-   rm -f ${DIR_SCRIPTS}/scripts_CD-CT/scripts/log.atmosphere.*
-   echo ""
-   
-}
-#----------------------------------------------------------------------------------------------
-
-
-clean_post_tmp_files () {
-
-   echo "Removing all temporary files from last POST run trash."
-
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/dir.*
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/PostAtmos_*.sh
-   
-   echo ""
-   
-}
-#----------------------------------------------------------------------------------------------
-
-
-
-clean_pre_tmp_files () {
-
-   echo "Removing all temporary files from last PRE run trash."
-
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/log.*.0000.out
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.init.nc
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/GFS*
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/init_atmosphere_model
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/namelist*
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/streams.init_atmosphere
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.graph.info.part.*
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/x1.*.static.nc
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/ungrib.exe
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/Vtable
-   rm -fr ${DIR_SCRIPTS}/scripts_CD-CT/scripts/*.log
-   
-   
-   echo ""
-   
-}
-#----------------------------------------------------------------------------------------------
 
 
 
