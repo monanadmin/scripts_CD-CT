@@ -56,6 +56,7 @@ MESH=lat_40_lon_-8_oradius_300_iradius_100_margin_200_hres_3_lres_30.region
 
 # STEP 2: Generating mesh. Preparing all CI/CC files needed:
 #time ${SCRIPTS}/2.create_mesh.bash
+#exit
 
 # STEP 3: Executing the pre-processing fase. Preparing all CI/CC files needed:
 time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH} 
