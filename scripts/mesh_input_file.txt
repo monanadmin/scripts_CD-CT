@@ -1,0 +1,25 @@
+# Mesh parameters
+## Folder containing mesh_input_file.txt
+exp_dir=/mnt/beegfs/guilherme.mendonca/scripts_CD-CT/scripts
+N=1
+## Folder containing vtx-mpas-meshes to generate meshes
+vtx_mpas_meshes_dir=/mnt/beegfs/guilherme.mendonca/scripts_CD-CT/sources/CGFD-USP-Create-Mesh/vtx-mpas-meshes
+## Folder to save generated meshes
+meshes_dir=/mnt/beegfs/guilherme.mendonca/scripts_CD-CT/dataout/meshes
+## Coordinates of mesh center
+lon=-7.73
+lat=39.7136
+## Inner and outer radius (km)
+inner_radius=100
+outer_radius=300
+## Number of external layers for r > outer_radius
+n_layers=8
+## High resolution for r < inner_radius
+high_res=3
+## Low resolution for r > outer_radius
+low_res=30
+## Whether to cut regional mesh (y/n)
+do_regional=y
+## Grid type (doughnut/constant)
+grid_type=doughnut
+# Automatic additions
