@@ -46,6 +46,7 @@ EXP=GFS
 RES=1024002
 YYYYMMDDHHi=2024010100
 FCST=24
+MESH=lat_40_lon_-8_oradius_300_iradius_100_margin_200_hres_3_lres_30.region
 #----------------------------------------------------------------------
 
 
@@ -53,16 +54,19 @@ FCST=24
 #time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
 #exit
 
-# STEP 2: Executing the pre-processing fase. Preparing all CI/CC files needed:
-#time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
-#exit
+# STEP 2: Generating mesh. Preparing all CI/CC files needed:
+#time ${SCRIPTS}/2.create_mesh.bash
 
-# STEP 3: Executing the Model run:
-time ${SCRIPTS}/3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+# STEP 3: Executing the pre-processing fase. Preparing all CI/CC files needed:
+time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH} 
 exit
 
-# STEP 4: Executing the Post of Model run:
-#time ${SCRIPTS}/4.run_post.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+# STEP 4: Executing the Model run:
+#time ${SCRIPTS}/4.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+#exit
+
+# STEP 5: Executing the Post of Model run:
+#time ${SCRIPTS}/5.run_post.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
 #exit
 
 #time ${SCRIPTS}/make_template.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}

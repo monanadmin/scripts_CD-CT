@@ -43,6 +43,7 @@ EXP=${1};         #EXP=GFS
 RES=${2};         #RES=1024002
 YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
 FCST=${4};        #FCST=24
+MESH=${5};
 #-------------------------------------------------------
 
 
@@ -70,9 +71,21 @@ then
    rm -fr x1.${RES}.tar.gz x1.${RES}_static.tar.gz
 fi
 
+# If MESH is specified: Check if respective info.part file exists
+if [ -n "$MESH" ]
+then
+   echo -e "${GREEN}==>${NC} Creating ${MESH}.graph.info.part.${cores} ... \n"
+   cd ${DATAIN}/fixed/${MESH}
+   gpmetis -minconn -contig -niter=200 ${MESH}.graph.info ${cores} 
+fi
 
+if [ -n "$MESH" ]
+then
+   files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/${MESH}/${MESH}.graph.info.part.${cores}" "${DATAIN}/fixed/${MESH}/${MESH}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
+else
+   files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
+fi
 
-files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -86,8 +99,14 @@ done
 cp -f ${DATAIN}/fixed/*.TBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*.GFS ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
-cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
-cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
+if [ -n "$MESH" ]
+then
+   cp -f ${DATAIN}/fixed/${MESH}/${MESH}.graph.info.part.${cores} ${DIRRUN}
+   cp -f ${DATAIN}/fixed/${MESH}/${MESH}.grid.nc ${DIRRUN}
+else
+   cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
+   cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
+fi
 
 sed -e "s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g" \
    ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC \

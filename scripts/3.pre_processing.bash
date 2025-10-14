@@ -47,7 +47,7 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 
 
 
-# Standart directories variables:---------------------------------------
+# Standard directories variables:---------------------------------------
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
@@ -63,6 +63,7 @@ EXP=${1};         #EXP=GFS
 RES=${2};         #RES=1024002
 YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
 FCST=${4};        #FCST=24
+MESH=${5};        #MESH=lat_40_lon_-8_oradius_300_iradius_100_margin_200_hres_3_lres_30.region
 #-------------------------------------------------------
 
 
@@ -92,12 +93,21 @@ rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
 rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
 ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
 
-
-# Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
-if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
+# If $MESH is specified: use personalized mesh to create ${MESH}.static.nc once:----
+if [ -n "$MESH" ];
+then
+   if [ ! -s ${DATAIN}/fixed/${MESH}.static.nc ]
+   then
+      echo -e "${GREEN}==>${NC} Personalized mesh selected: Creating static.bash for submiting init_atmosphere to create ${MESH}.static.nc...\n"
+      time ./make_static.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH}
+   else
+      echo -e "${GREEN}==>${NC} File ${MESH}.static.nc already exist in ${DATAIN}/fixed.\n"
+   fi
+# Else: Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
+elif [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
 then
    echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
-   time ./make_static.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+   time ./make_static.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH}
 else
    echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
 fi

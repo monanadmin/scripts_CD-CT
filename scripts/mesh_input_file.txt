@@ -5,7 +5,7 @@ N=1
 ## Folder containing vtx-mpas-meshes to generate meshes
 vtx_mpas_meshes_dir=/mnt/beegfs/guilherme.mendonca/scripts_CD-CT/sources/CGFD-USP-Create-Mesh/vtx-mpas-meshes
 ## Folder to save generated meshes
-meshes_dir=/mnt/beegfs/guilherme.mendonca/scripts_CD-CT/dataout/meshes
+meshes_dir=/mnt/beegfs/guilherme.mendonca/scripts_CD-CT/datain/fixed
 ## Coordinates of mesh center
 lon=-7.73
 lat=39.7136
