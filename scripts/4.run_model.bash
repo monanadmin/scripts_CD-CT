@@ -15,7 +15,7 @@
 #
 #-----------------------------------------------------------------------------#
 
-if [ $# -ne 4 -a $# -ne 1 ]
+if [ $# -ne 5 -a $# -ne 1 ]
 then
    echo ""
    echo "Instructions: execute the command below"
@@ -56,9 +56,10 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 
 # Input variables:--------------------------------------
 EXP=${1};         #EXP=GFS
-RES=${2};         #RES=1024002
+MESH=${2};         #MESH
 YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
 FCST=${4};        #FCST=6
+RES=${5};          #RES(km)    
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 
@@ -85,18 +86,22 @@ printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 # From now on, CONFI_LEN_DISP becames cte = 0.0, pickin up this value from static file.
 
 # Calculating default parameters for different resolutions
-if [ $RES -eq 1024002 ]; then  #24Km
+if [ $RES -eq 24 ]; then  #24Km
    CONFIG_DT=150.0
    CONFIG_CONV_INTERVAL="00:15:00"
-elif [ $RES -eq 2621442 ]; then  #15Km
+elif [ $RES -eq 15 ]; then  #15Km
    CONFIG_DT=90.0
    CONFIG_CONV_INTERVAL="00:15:00"
-elif [ $RES -eq 40962 ]; then  #120Km
+elif [ $RES -eq 120 ]; then  #120Km
    CONFIG_DT=600.0
-elif [ $RES -eq 5898242 ]; then  #10Km
+elif [ $RES -eq 10 ]; then  #10Km
    CONFIG_DT=60.0
    CONFIG_LEN_DISP=10000.0
    CONFIG_CONV_INTERVAL="00:15:00"
+elif [ $RES -eq 3 ]; then # 3km
+   echo "RES 3"
+   CONFIG_DT=10.0
+   CONFIG_LEN_DISP=3000.0
 fi
 #-------------------------------------------------------
 
@@ -108,25 +113,31 @@ inh=$(printf "%02.0f\n" $(echo "((${FCST}/24)-${ind})*24" | bc -l))
 DD_HHMMSS_forecast=$(echo "${ind}_${inh}:00:00")
 
 
-if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
+if [ ! -s ${DATAIN}/fixed/${MESH}.graph.info.part.${cores} ]
 then
-   if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info ]
+   if [[ ${MESH} == x1.* ]]
    then
+      if [ ! -s ${DATAIN}/fixed/${MESH}.graph.info ]
+      then
+         cd ${DATAIN}/fixed
+         echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
+         wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/${MESH}.tar.gz
+         wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/${MESH}_static.tar.gz
+         tar -xzvf ${MESH}.tar.gz
+         tar -xzvf ${MESH}_static.tar.gz
+      fi
+      echo -e "${GREEN}==>${NC} Creating ${MESH}.graph.info.part.${cores} ... \n"
       cd ${DATAIN}/fixed
-      echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
-      wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
-      wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}_static.tar.gz
-      tar -xzvf x1.${RES}.tar.gz
-      tar -xzvf x1.${RES}_static.tar.gz
+      gpmetis -minconn -contig -niter=200 ${MESH}.graph.info ${cores}
+      rm -fr ${MESH}.tar.gz ${MESH}_static.tar.gz
+   else
+      echo -e "${GREEN}==>${NC} Creating ${MESH}.graph.info.part.${cores} ... \n"
+      cd ${DATAIN}/fixed
+      gpmetis -minconn -contig -niter=200 ${MESH}.graph.info ${cores}
    fi
-   echo -e "${GREEN}==>${NC} Creating x1.${RES}.graph.info.part.${cores} ... \n"
-   cd ${DATAIN}/fixed
-   gpmetis -minconn -contig -niter=200 x1.${RES}.graph.info ${cores}
-   rm -fr x1.${RES}.tar.gz x1.${RES}_static.tar.gz
 fi
 
-
-files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" ""${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.GFS")
+files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" ""${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/${MESH}.static.nc" "${DATAIN}/fixed/${MESH}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/${MESH}.init.nc" "${DATAIN}/fixed/Vtable.GFS")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -141,19 +152,19 @@ cp -f ${EXECS}/atmosphere_model ${DIRRUN}
 cp -f ${DATAIN}/fixed/*TBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*DBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*DATA ${DIRRUN}
-cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
-cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
-cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}
+cp -f ${DATAIN}/fixed/${MESH}.static.nc ${DIRRUN}
+cp -f ${DATAIN}/fixed/${MESH}.graph.info.part.${cores} ${DIRRUN}
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${MESH}.init.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.GFS ${DIRRUN}
 
 
 if [ ${EXP} = "GFS" ]
 then
-   sed -e "s,#LABELI#,${start_date},g;s,#FCSTS#,${DD_HHMMSS_forecast},g;s,#RES#,${RES},g;
+   sed -e "s,#LABELI#,${start_date},g;s,#FCSTS#,${DD_HHMMSS_forecast},g;s,#MESH#,${MESH},g;
 s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_CONV_INTERVAL#,${CONFIG_CONV_INTERVAL},g" \
    ${SCRIPTS}/namelists/namelist.atmosphere.TEMPLATE > ${DIRRUN}/namelist.atmosphere
    
-   sed -e "s,#RES#,${RES},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
+   sed -e "s,#MESH#,${MESH},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
    ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE > ${DIRRUN}/streams.atmosphere
 fi
 cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.output ${DIRRUN}
@@ -229,7 +240,7 @@ do
    i=$(printf "%04d" ${ii})
    hh=${YYYYMMDDHHi:8:2}
    currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 $(echo "(${i}-1)*${t_strout:0:2}" | bc) hours $(echo "(${i}-1)*${t_strout:3:2}" | bc) minutes $(echo "(${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
-   file=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L55.nc
+   file=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.${MESH}L55.nc
 
    if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Model/${file} ]
    then

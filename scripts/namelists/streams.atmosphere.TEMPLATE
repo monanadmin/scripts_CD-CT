@@ -1,7 +1,7 @@
 <streams>
 <immutable_stream name="input"
                   type="input"
-                  filename_template="x1.#RES#.init.nc"
+                  filename_template="#MESH#.init.nc"
                   input_interval="initial_only" />
 
 <immutable_stream name="restart"
@@ -12,7 +12,7 @@
 
 <stream name="output"
         type="output"
-        filename_template="MONAN_HIST_G_MOD_#CIORIG#_#LABELI#_$Y$M$D$h.$m.$s.x#RES#L#NLEV#.nc"
+        filename_template="MONAN_HIST_G_MOD_#CIORIG#_#LABELI#_$Y$M$D$h.$m.$s.x#MESH#L#NLEV#.nc"
         output_interval="none" >
 
 	<file name="stream_list.atmosphere.output"/>
@@ -20,7 +20,7 @@
 
 <stream name="diagnostics"
         type="output"
-        filename_template="MONAN_DIAG_G_MOD_#CIORIG#_#LABELI#_$Y$M$D$h.$m.$s.x#RES#L#NLEV#.nc"
+        filename_template="MONAN_DIAG_G_MOD_#CIORIG#_#LABELI#_$Y$M$D$h.$m.$s.x#MESH#L#NLEV#.nc"
         output_interval="3:00:00" >
 
 	<file name="stream_list.atmosphere.diagnostics"/>
@@ -28,7 +28,7 @@
 
 <stream name="surface"
         type="input"
-        filename_template="x1.#RES#.sfc_update.nc"
+        filename_template="x1.#MESH#.sfc_update.nc"
         filename_interval="none"
         input_interval="none" >
 
@@ -37,7 +37,7 @@
 
 <immutable_stream name="iau"
                   type="input"
-                  filename_template="x1.#RES#.AmB.$Y-$M-$D_$h.$m.$s.nc"
+                  filename_template="x1.#MESH#.AmB.$Y-$M-$D_$h.$m.$s.nc"
                   filename_interval="none"
                   packages="iau"
                   input_interval="initial_only" />
