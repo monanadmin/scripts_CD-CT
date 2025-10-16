@@ -97,7 +97,7 @@ sed -e "s,#MESH#,${MESH},g" \
     ${SCRIPTS}/namelists/streams.init_atmosphere.TEMPLATE > ${DIRRUN}/streams.init_atmosphere
 
 
-cp -f ${DATAIN}/fixed/${MESH}.igraph.info.part.${cores} ${DIRRUN}
+cp -f ${DATAIN}/fixed/${MESH}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAIN}/fixed/${MESH}.static.nc ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:${start_date:0:13} ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
@@ -138,7 +138,7 @@ date
 mv ${DIRRUN}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log.init_atmosphere.0000.${MESH}.init.nc.${YYYYMMDDHHi}.out
 mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
-mv ${DIRRUN}/x1.${MESH}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
+mv ${DIRRUN}/${MESH}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
 
 EOF0
 chmod a+x ${DIRRUN}/initatmos.bash
@@ -148,7 +148,7 @@ cd ${DIRRUN}
 sbatch --wait ${DIRRUN}/initatmos.bash
 mv ${DIRRUN}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
-if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${MESH}.init.nc ]
+if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/${MESH}.init.nc ]
 then
   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	
   echo -e  "${RED}==>${NC} Init Atmosphere phase fails! Check logs at ${DATAOUT}/logs/initatmos.* .\n"
