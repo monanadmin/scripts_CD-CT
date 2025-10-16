@@ -73,7 +73,7 @@ then
       rm -fr ${MESH}.tar.gz ${MESH}_static.tar.gz
    else
       echo -e "${GREEN}==>${NC} Creating ${MESH}.graph.info.part.${cores} ... \n"
-      cd ${DATAIN}/fixed/${MESH}
+      cd ${DATAIN}/fixed
       gpmetis -minconn -contig -niter=200 ${MESH}.graph.info ${cores}
    fi
 fi

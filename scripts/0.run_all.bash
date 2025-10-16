@@ -43,7 +43,6 @@ github_link="https://github.com/monanadmin/MONAN-Model.git"
 monan_branch=release/1.4.1-rc
 convertmpas_branch=release/1.2.0
 EXP=GFS
-RES=1024002
 YYYYMMDDHHi=2024010100
 FCST=24
 MESH=lat_40_lon_-8_oradius_300_iradius_100_margin_200_hres_3_lres_30.region
