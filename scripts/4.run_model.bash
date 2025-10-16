@@ -88,12 +88,14 @@ printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 # Calculating default parameters for different resolutions
 if [ $RES -eq 24 ]; then  #24Km
    CONFIG_DT=150.0
+   CONFIG_LEN_DISP=10000.0
    CONFIG_CONV_INTERVAL="00:15:00"
 elif [ $RES -eq 15 ]; then  #15Km
    CONFIG_DT=90.0
    CONFIG_CONV_INTERVAL="00:15:00"
 elif [ $RES -eq 120 ]; then  #120Km
    CONFIG_DT=600.0
+   CONFIG_LEN_DISP=10000.0
 elif [ $RES -eq 10 ]; then  #10Km
    CONFIG_DT=60.0
    CONFIG_LEN_DISP=10000.0

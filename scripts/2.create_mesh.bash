@@ -19,3 +19,18 @@ done < mesh_input_file.txt
 # Run script
 cd $vtx_mpas_meshes_dir
 python3 create_regional_mesh.py --vtx_mpas_meshes_dir $vtx_mpas_meshes_dir --exp_dir $exp_dir --meshes_dir $meshes_dir --N $N --lon $lon --lat $lat --inner_radius $inner_radius --outer_radius $outer_radius --n_layers $n_layers --high_res $high_res --low_res $low_res --do_regional $do_regional --grid_type $grid_type
+
+cd -
+
+# Select parameters from input_file.txt
+echo "Reading input parameters:"
+while IFS="=" read -r name value; do
+    if [[ ! "$name" =~ ^\# ]]; then
+        declare -r $name=$value
+        echo $name":" $value
+    fi
+done < mesh_input_file.txt
+
+# copy relevant files to fixed/
+cd ${meshes_dir}/${file_name}
+cp *.grid.nc *.graph.info ../  

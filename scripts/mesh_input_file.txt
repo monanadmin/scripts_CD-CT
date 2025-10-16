@@ -10,16 +10,17 @@ meshes_dir=/mnt/beegfs/guilherme.mendonca/scripts_CD-CT/datain/fixed
 lon=-7.73
 lat=39.7136
 ## Inner and outer radius (km)
-inner_radius=100
-outer_radius=300
+inner_radius=600
+outer_radius=2880
 ## Number of external layers for r > outer_radius
 n_layers=8
 ## High resolution for r < inner_radius
-high_res=3
+high_res=24
 ## Low resolution for r > outer_radius
-low_res=30
+low_res=240
 ## Whether to cut regional mesh (y/n)
-do_regional=y
+do_regional=n
 ## Grid type (doughnut/constant)
 grid_type=doughnut
 # Automatic additions
+file_name=lat_40_lon_-8_oradius_2880_iradius_600_margin_2280_hres_24_lres_240.region

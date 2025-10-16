@@ -45,8 +45,8 @@ convertmpas_branch=release/1.2.0
 EXP=GFS
 YYYYMMDDHHi=2024010100
 FCST=24
-MESH=lat_40_lon_-8_oradius_300_iradius_100_margin_200_hres_3_lres_30.region
-RES=3
+MESH=lat_40_lon_-8_oradius_2880_iradius_600_margin_2280_hres_24_lres_240.region
+RES=24 #3
 #----------------------------------------------------------------------
 
 
@@ -59,14 +59,15 @@ RES=3
 #exit
 
 # STEP 3: Executing the pre-processing fase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH} 
-#time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} 
+time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} 
+#exit
 
 # STEP 4: Executing the Model run:
 time ${SCRIPTS}/4.run_model.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES} 
-exit
+#exit
 
 # STEP 5: Executing the Post of Model run:
-#time ${SCRIPTS}/5.run_post.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} 
-#exit
+time ${SCRIPTS}/5.run_post.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} 
+exit
 
 #time ${SCRIPTS}/make_template.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
