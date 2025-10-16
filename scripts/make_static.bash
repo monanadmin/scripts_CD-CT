@@ -40,10 +40,9 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 
 # Input variables:--------------------------------------
 EXP=${1};         #EXP=GFS
-RES=${2};         #RES=1024002
+MESH=${2};         #RES=1024002
 YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
 FCST=${4};        #FCST=24
-MESH=${5};
 #-------------------------------------------------------
 
 
@@ -54,37 +53,31 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 #-------------------------------------------------------
 
 
-if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
+if [ ! -s ${DATAIN}/fixed/${MESH}.graph.info.part.${cores} ]
 then
-   if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info ]
+   if [[ ${MESH} == x1.* ]]
    then
+      if [ ! -s ${DATAIN}/fixed/${MESH}.graph.info ]
+      then
+         cd ${DATAIN}/fixed
+         echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
+         wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/${MESH}.tar.gz
+         wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/${MESH}_static.tar.gz
+         tar -xzvf ${MESH}.tar.gz
+         tar -xzvf ${MESH}_static.tar.gz
+      fi
+      echo -e "${GREEN}==>${NC} Creating ${MESH}.graph.info.part.${cores} ... \n"
       cd ${DATAIN}/fixed
-      echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
-      wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
-      wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}_static.tar.gz
-      tar -xzvf x1.${RES}.tar.gz
-      tar -xzvf x1.${RES}_static.tar.gz
+      gpmetis -minconn -contig -niter=200 ${MESH}.graph.info ${cores}
+      rm -fr ${MESH}.tar.gz ${MESH}_static.tar.gz
+   else
+      echo -e "${GREEN}==>${NC} Creating ${MESH}.graph.info.part.${cores} ... \n"
+      cd ${DATAIN}/fixed/${MESH}
+      gpmetis -minconn -contig -niter=200 ${MESH}.graph.info ${cores} 
    fi
-   echo -e "${GREEN}==>${NC} Creating x1.${RES}.graph.info.part.${cores} ... \n"
-   cd ${DATAIN}/fixed
-   gpmetis -minconn -contig -niter=200 x1.${RES}.graph.info ${cores}
-   rm -fr x1.${RES}.tar.gz x1.${RES}_static.tar.gz
 fi
 
-# If MESH is specified: Check if respective info.part file exists
-if [ -n "$MESH" ]
-then
-   echo -e "${GREEN}==>${NC} Creating ${MESH}.graph.info.part.${cores} ... \n"
-   cd ${DATAIN}/fixed/${MESH}
-   gpmetis -minconn -contig -niter=200 ${MESH}.graph.info ${cores} 
-fi
-
-if [ -n "$MESH" ]
-then
-   files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/${MESH}/${MESH}.graph.info.part.${cores}" "${DATAIN}/fixed/${MESH}/${MESH}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
-else
-   files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
-fi
+files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/${MESH}.graph.info.part.${cores}" "${DATAIN}/fixed/${MESH}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
 
 for file in "${files_needed[@]}"
 do
@@ -99,20 +92,14 @@ done
 cp -f ${DATAIN}/fixed/*.TBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*.GFS ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
-if [ -n "$MESH" ]
-then
-   cp -f ${DATAIN}/fixed/${MESH}/${MESH}.graph.info.part.${cores} ${DIRRUN}
-   cp -f ${DATAIN}/fixed/${MESH}/${MESH}.grid.nc ${DIRRUN}
-else
-   cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
-   cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
-fi
+cp -f ${DATAIN}/fixed/${MESH}.graph.info.part.${cores} ${DIRRUN}
+cp -f ${DATAIN}/fixed/${MESH}.grid.nc ${DIRRUN}
 
-sed -e "s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g" \
+sed -e "s,#GEODAT#,${GEODATA},g;s,#MESH#,${MESH},g" \
    ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC \
    > ${DIRRUN}/namelist.init_atmosphere
 
-sed -e "s,#RES#,${RES},g" \
+sed -e "s,#MESH#,${MESH},g" \
    ${SCRIPTS}/namelists/streams.init_atmosphere.STATIC \
    > ${DIRRUN}/streams.init_atmosphere
 
@@ -163,7 +150,7 @@ echo "  ####################################"
 echo " "
 
 
-mv log.init_atmosphere.0000.out ${DATAOUT}/logs/log.init_atmosphere.0000.x1.${RES}.static.nc.out
+mv log.init_atmosphere.0000.out ${DATAOUT}/logs/log.init_atmosphere.0000.${MESH}.static.nc.out
 
 
 EOF0
@@ -176,11 +163,11 @@ sbatch --wait ${DIRRUN}/static.bash
 mv ${DIRRUN}/static.bash ${DATAOUT}/logs/
 
 
-if [ -s ${DIRRUN}/x1.${RES}.static.nc ]
+if [ -s ${DIRRUN}/${MESH}.static.nc ]
 then
-   mv ${DIRRUN}/x1.${RES}.static.nc ${DATAIN}/fixed
+   mv ${DIRRUN}/${MESH}.static.nc ${DATAIN}/fixed
 else
-   echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.static.nc was not created. \n"
+   echo -e  "${RED}==>${NC} File ${DIRRUN}/${MESH}.static.nc was not created. \n"
    exit -1
 fi
 
