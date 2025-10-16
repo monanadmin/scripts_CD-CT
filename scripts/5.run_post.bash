@@ -15,7 +15,7 @@
 #
 #-----------------------------------------------------------------------------#
 
-if [ $# -ne 4 -a $# -ne 1 ]
+if [ $# -ne 5 -a $# -ne 1 ]
 then
    echo ""
    echo "Instructions: execute the command below"
@@ -55,9 +55,10 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 
 # Input variables:--------------------------------------
 EXP=${1};         #EXP=GFS
-RES=${2};         #RES=1024002
+MESH=${2};         #RES=1024002
 YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024042000
 FCST=${4};        #FCST=40
+RES=${5}
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
@@ -82,28 +83,28 @@ IFS=":" read -r h m s <<< "${t_strout}"
 printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 
 # Calculating default parameters for different resolutions
-if [ $RES -eq 1024002 ]; then  #24Km
+if [ $RES -eq 24 ]; then  #24Km
    NLAT=721  #180/0.25
    NLON=1441 #360/0.25
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
-elif [ $RES -eq 2621442 ]; then  #15Km
+elif [ $RES -eq 15 ]; then  #15Km
    NLAT=1201 #180/0.15
    NLON=2401 #360/0.15
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
-elif [ $RES -eq 40962 ]; then  #120Km
+elif [ $RES -eq 120 ]; then  #120Km
    NLAT=150 #180/1.2
    NLON=300 #360/1.2
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
-elif [ $RES -eq 5898242 ]; then  #10Km
+elif [ $RES -eq 10 ]; then  #10Km
    NLAT=1801 #180/0.10 (+1)
    NLON=3601 #360/0.10 (+1)
    STARTLAT=-90.0
@@ -122,7 +123,7 @@ else
 fi
 
 
-files_needed=("${SCRIPTS}/namelists/include_fields.diag${VARTABLE}" "${SCRIPTS}/namelists/convert_mpas.nml" "${SCRIPTS}/namelists/target_domain.TEMPLATE" "${EXECS}/convert_mpas" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc")
+files_needed=("${SCRIPTS}/namelists/include_fields.diag${VARTABLE}" "${SCRIPTS}/namelists/convert_mpas.nml" "${SCRIPTS}/namelists/target_domain.TEMPLATE" "${EXECS}/convert_mpas" "${DATAOUT}/${YYYYMMDDHHi}/Pre/${MESH}.init.nc")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -188,7 +189,7 @@ for ii in \$(seq  ${inicio} ${fim})
 do
    i=\$(printf "%04d" \${ii})
    echo "Preparing post files \${i}"
-   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}/dir.\${i} &
+   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${MESH}.init.nc ${DIRRUN}/dir.\${i} &
    cp -f ${EXECS}/convert_mpas ${DIRRUN}/dir.\${i} &
 done
 
@@ -202,10 +203,10 @@ do
    
    hh=${YYYYMMDDHHi:8:2}
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
-   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L${N_MODEL_LEV}.nc
+   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.${MESH}L${N_MODEL_LEV}.nc
 
-   time  ./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
-   echo "./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name} > convert_mpas.output"
+   time  ./convert_mpas ${MESH}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
+   echo "./convert_mpas ${MESH}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name} > convert_mpas.output"
 done
 
 # necessario aguardar as rodadas em background
@@ -216,7 +217,7 @@ do
    i=\$(printf "%04d" \${ii})
    hh=${YYYYMMDDHHi:8:2}
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
-   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L${NLEV}.nc
+   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.${MESH}L${NLEV}.nc
    
    cd ${DIRRUN}/dir.\${i}
    cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post} >> convert_mpas.output & 
@@ -288,4 +289,4 @@ sbatch --wait --dependency=${dependency} ${DIRRUN}/PostAtmos_node.${node}.sh
 
 #CR: passar este scriptpara dentro do script PostAtmos_node.0.sh, submetido.
 cd ${SCRIPTS}
-time ${SCRIPTS}/make_template.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+time ${SCRIPTS}/make_template.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES}

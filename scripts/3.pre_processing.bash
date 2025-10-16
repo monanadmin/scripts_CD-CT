@@ -95,7 +95,7 @@ ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
 if [ ! -s ${DATAIN}/fixed/${MESH}.static.nc ]
 then
-   echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
+   echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create ${MESH}.static.nc...\n"
    time ./make_static.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
 else
    echo -e "${GREEN}==>${NC} File ${MESH}.static.nc already exist in ${DATAIN}/fixed.\n"

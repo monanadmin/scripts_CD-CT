@@ -15,7 +15,7 @@
 #
 #-----------------------------------------------------------------------------#
 
-if [ $# -ne 4 -a $# -ne 1 ]
+if [ $# -ne 5 -a $# -ne 1 ]
 then
    echo ""
    echo "Instructions: execute the command below"
@@ -55,9 +55,10 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 
 # Input variables:--------------------------------------
 EXP=${1};         #EXP=GFS
-RES=${2};         #RES=1024002
+MESH=${2};         #RES=1024002
 YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024042000
 FCST=${4};        #FCST=40
+RES=${5}
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
@@ -86,21 +87,21 @@ IFS=":" read -r h m s <<< "${t_strout}"
 printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 
 # Calculating default parameters for different resolutions
-if [ $RES -eq 1024002 ]; then  #24Km
+if [ $RES -eq 24 ]; then  #24Km
    NLAT=721  #180/0.25
    NLON=1441 #360/0.25
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
-elif [ $RES -eq 2621442 ]; then  #15Km
+elif [ $RES -eq 15 ]; then  #15Km
    NLAT=1201 #180/0.15
    NLON=2401 #360/0.15
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
-elif [ $RES -eq 40962 ]; then  #120Km
+elif [ $RES -eq 120 ]; then  #120Km
    NLAT=150 #180/1.2
    NLON=300 #360/1.2
    STARTLAT=-90.0
@@ -121,8 +122,8 @@ fi
 output_interval=${t_strouthor}
 nfiles=$(echo "$FCST/$output_interval + 1" | bc)
 
-diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_${YYYYMMDDHHi}.00.00.x${RES}L${NLEV}.nc
-diag_name_templ=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_%y4%m2%d2%h2.%n2.00.x${RES}L${NLEV}.nc
+diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_${YYYYMMDDHHi}.00.00.${MESH}L${NLEV}.nc
+diag_name_templ=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_%y4%m2%d2%h2.%n2.00.${MESH}L${NLEV}.nc
 
 rm -fr ${DIRRUN}/qctlinfo.gs
 cat > ${DIRRUN}/qctlinfo.gs <<EOGS
