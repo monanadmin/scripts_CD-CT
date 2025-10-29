@@ -49,9 +49,8 @@ FCST=${4};        #FCST=24
 
 # Local variables--------------------------------------
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
-OPERDIREXP=${OPERDIR}/${EXP}
-BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
-GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
+ERA5_DATA=/mnt/beegfs/guilherme.mendonca/MPAS-BR/met_data/ERA5/DATA
+BNDDIR=${ERA5_DATA}
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 mkdir -p ${DATAIN}/${YYYYMMDDHHi}
@@ -62,22 +61,19 @@ cp -f /usr/lib64/libjasper.so* ${HOME}/local/lib64
 cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
 
 
-# Se nao existir CI no diretorio do IO, 
-# busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
-if [ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+# Se nao existir CI no diretorio ERA5_data, aborta!
+if [ ! -s ${BNDDIR}/era5.pl.${YYYYMMDDHHi}.grib ] || [ ! -s ${BNDDIR}/era5.sl.${YYYYMMDDHHi}.grib ]
 then
-   if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
-   then
-      echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
-      echo -e "${RED}==>${NC}Check ${BNDDIR} or."
-      echo -e "${RED}==>${NC}Check ${GCCCIS}"
-      exit 1
-   else
-      BNDDIR=${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
-   fi
+   echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
+   echo -e "${RED}==>${NC}Check ${BNDDIR} or."
+   echo -e "${RED}==>${NC}Check ${GCCCIS}"
+   exit 1
 fi
 
-files_needed=("${DATAIN}/fixed/${MESH}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ")
+# Copiar Vtable do ERA5
+cp /mnt/beegfs/guilherme.mendonca/WPS/ungrib/Variable_Tables/Vtable.ECMWF ${DATAIN}/fixed 
+
+files_needed=("${DATAIN}/fixed/${MESH}.static.nc" "${DATAIN}/fixed/Vtable.ECMWF" "${EXECS}/ungrib.exe" "${BNDDIR}/era5.pl.${YYYYMMDDHHi}.grib" "${BNDDIR}/era5.sl.${YYYYMMDDHHi}.grib")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -89,9 +85,10 @@ do
 done
 
 cp -f ${DATAIN}/fixed/${MESH}.static.nc ${DIRRUN}
-cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}/Vtable
+cp -f ${DATAIN}/fixed/Vtable.ECMWF ${DIRRUN}/Vtable
 cp -f ${EXECS}/ungrib.exe ${DIRRUN}
-cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
+cp -f ${BNDDIR}/era5.pl.${YYYYMMDDHHi}.grib ${DATAIN}/${YYYYMMDDHHi}
+cp -f ${BNDDIR}/era5.sl.${YYYYMMDDHHi}.grib ${DATAIN}/${YYYYMMDDHHi}
 cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
 
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
@@ -126,10 +123,10 @@ ldd ungrib.exe
 rm -f GRIBFILE.* namelist.wps
 
 
-sed -e "s,#LABELI#,${start_date},g;s,#PREFIX#,GFS,g" \
+sed -e "s,#LABELI#,${start_date},g;s,#PREFIX#,ERA5,g" \
 	${DIRRUN}/namelist.wps.TEMPLATE > ${DIRRUN}/namelist.wps
 
-./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
+./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/era5.*.${YYYYMMDDHHi}.grib
 
 date
 time mpirun -np 1 ./ungrib.exe
@@ -151,7 +148,7 @@ fi
 #
    mv ungrib.log ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/ungrib.${start_date}.log
    mv namelist.wps ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.${start_date}.wps
-   mv GFS\:${start_date:0:13} ${DATAOUT}/${YYYYMMDDHHi}/Pre
+   mv ERA5\:${start_date:0:13} ${DATAOUT}/${YYYYMMDDHHi}/Pre
 
    rm -fr ${DATAIN}/${YYYYMMDDHHi}
 
