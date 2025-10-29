@@ -14,7 +14,7 @@ then
    echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
    echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
    echo ""
-   echo "24 hour forcast example:"
+   echo "24 hour forecast example:"
    echo "${0} GFS 1024002 2024010100 24"
    echo "${0} GFS   40962 2024010100 48"
    echo ""
@@ -67,20 +67,14 @@ cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
 if [ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
 then
    if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
-   then 
-      if [ ! -s /mnt/beegfs/guilherme.mendonca/MPAS-BR/met_data/ERA5/DATA/'era5_pl_2007-06-22 00:00:00_0000.grib' ]
-      then
-         echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
-         echo -e "${RED}==>${NC}Check ${BNDDIR} or." 
-         echo -e "${RED}==>${NC}Check ${GCCCIS}"
-         exit 1
-      else
-         BNDDIR=/mnt/beegfs/guilherme.mendonca/MPAS-BR/met_data/ERA5/DATA/	      
-         filename=
-      fi  
+   then
+      echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
+      echo -e "${RED}==>${NC}Check ${BNDDIR} or."
+      echo -e "${RED}==>${NC}Check ${GCCCIS}"
+      exit 1
    else
       BNDDIR=${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
-   fi    
+   fi
 fi
 
 files_needed=("${DATAIN}/fixed/${MESH}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ")
