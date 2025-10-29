@@ -90,7 +90,7 @@ do
 done
 
 
-sed -e "s,#LABELI#,${start_date},g;s,#GEODAT#,${GEODATA},g;s,#MESH#,${MESH},g" \
+sed -e "s,#LABELI#,${start_date},g;s,#GEODAT#,${GEODATA},g;s,#MESH#,${MESH},g;s,#EXP#,${EXP},g" \
 	 ${SCRIPTS}/namelists/namelist.init_atmosphere.TEMPLATE > ${DIRRUN}/namelist.init_atmosphere
 
 sed -e "s,#MESH#,${MESH},g" \

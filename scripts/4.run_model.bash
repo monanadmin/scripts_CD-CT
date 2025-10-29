@@ -104,6 +104,10 @@ elif [ $RES -eq 3 ]; then # 3km
    echo "RES 3"
    CONFIG_DT=10.0
    CONFIG_LEN_DISP=3000.0
+elif [ $RES -eq 50 ]; then # 3km
+   echo "RES 50"
+   CONFIG_DT=300.0
+   CONFIG_LEN_DISP=20000.0
 fi
 #-------------------------------------------------------
 
@@ -160,7 +164,7 @@ cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${MESH}.init.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.GFS ${DIRRUN}
 
 
-if [ ${EXP} = "GFS" ]
+if [ ${EXP} = "GFS" -o  ${EXP} = "ERA5" ]
 then
    sed -e "s,#LABELI#,${start_date},g;s,#FCSTS#,${DD_HHMMSS_forecast},g;s,#MESH#,${MESH},g;
 s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_CONV_INTERVAL#,${CONFIG_CONV_INTERVAL},g" \

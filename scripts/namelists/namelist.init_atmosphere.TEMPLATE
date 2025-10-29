@@ -13,7 +13,7 @@
 /
 &data_sources
     config_geog_data_path = '#GEODAT#'
-    config_met_prefix = 'GFS'
+    config_met_prefix = '#EXP#'
     config_sfc_prefix = 'SST'
     config_fg_interval = 86400
     config_landuse_data = 'MODIFIED_IGBP_MODIS_NOAH'

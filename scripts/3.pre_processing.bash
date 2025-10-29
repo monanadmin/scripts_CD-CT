@@ -105,7 +105,7 @@ fi
 
 # Degrib phase:---------------------------------------------------------------------
 echo -e  "${GREEN}==>${NC} Submiting Degrib...\n"
-time ./make_degrib.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
+#time ./make_degrib.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
 
 
