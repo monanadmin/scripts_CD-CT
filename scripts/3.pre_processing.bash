@@ -104,13 +104,25 @@ fi
 
 
 # Degrib phase:---------------------------------------------------------------------
-echo -e  "${GREEN}==>${NC} Submiting Degrib...\n"
-#time ./make_degrib.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
+if [ ${EXP} = "GFS" ]
+then
+   echo -e  "${GREEN}==>${NC} Submitting Degrib for GFS data...\n"
+   time ./make_degrib_GFS.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
+elif [ ${EXP} = "ERA5" ]
+then
+   echo -e  "${GREEN}==>${NC} Submitting Degrib for ERA5 data...\n"
+   time ./make_degrib_ERA5.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
+else
+   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+   echo -e  "${RED}==>${NC} Degrib phase fails! Please select either EXP=GFS or EXP=ERA5.\n"
+   echo -e  "${RED}==>${NC} Exiting script. \n"
+   exit -1
+fi
 #----------------------------------------------------------------------------------
 
 
 # Init Atmosphere phase:------------------------------------------------------------
-echo -e  "${GREEN}==>${NC} Submiting Init Atmosphere...\n"
+echo -e  "${GREEN}==>${NC} Submitting Init Atmosphere...\n"
 time ./make_initatmos.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
 
