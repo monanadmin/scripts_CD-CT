@@ -5,4 +5,7 @@ execs
 .venv
 scripts/GF_ConvPar_nml
 sources
+!sources/CGFD-USP-Create-Mesh
+!sources/CGFD-USP-Post-Proc
+!sources/MPAS-Limited-Area
 run.*
