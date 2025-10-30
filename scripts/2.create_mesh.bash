@@ -2,6 +2,26 @@
 
 # !!!!! Requires vtx-mpas-meshes: https://github.com/marta-gil/vtx-mpas-meshes !!!!!
 
+# Set environment variables exports:
+echo ""
+echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
+. setenv.bash
+
+# Standard directories variables:---------------------------------------
+DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}
+DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}
+SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
+DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
+DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
+SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
+EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
+#----------------------------------------------------------------------
+
+echo -e  "${GREEN}==>${NC} creating fixed directory to save mesh... \n"
+mkdir -p ${DATAIN}
+rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
+
+
 # Activate conda vtx_env environment
 CONDA_PATH="$(conda info --root)"
 source "$CONDA_PATH/etc/profile.d/conda.sh"
