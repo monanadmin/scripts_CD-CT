@@ -46,7 +46,7 @@ EXP=ERA5
 YYYYMMDDHHi=2007062200
 FCST=72
 MESH=lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_hres_50_lres_250.region
-RES=50 #3
+RES=50 #3 # Minimum grid spacing (km)
 #----------------------------------------------------------------------
 
 
@@ -55,7 +55,7 @@ RES=50 #3
 #exit
 
 # STEP 2: Generating mesh. Preparing all CI/CC files needed:
-time ${SCRIPTS}/2.create_mesh.bash
+#time ${SCRIPTS}/2.create_mesh.bash
 #exit
 
 # STEP 3: Executing the pre-processing fase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH} 
@@ -63,7 +63,7 @@ time ${SCRIPTS}/2.create_mesh.bash
 #exit
 
 # STEP 4: Executing the Model run:
-#time ${SCRIPTS}/4.run_model.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES} 
+time ${SCRIPTS}/4.run_model.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES} 
 #exit
 
 # STEP 5: Executing the Post of Model run:

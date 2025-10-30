@@ -7,10 +7,10 @@
 #     
 #     Performs the following tasks:
 # 
-#        o VCheck all input files before 
-#        o Creates the submition script
+#        o Check all input files before 
+#        o Create the submission script
 #        o Submit the model
-#        o Veriffy all files generated
+#        o Verify all files generated
 #        
 #
 #-----------------------------------------------------------------------------#
@@ -108,6 +108,10 @@ elif [ $RES -eq 50 ]; then # 3km
    echo "RES 50"
    CONFIG_DT=300.0
    CONFIG_LEN_DISP=20000.0
+else
+    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+    echo -e  "${RED}==>${NC} [${0}] Simulation parameters for resolution $RES have not been set! \n"
+    exit -1
 fi
 #-------------------------------------------------------
 
