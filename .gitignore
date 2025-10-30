@@ -4,8 +4,8 @@ dataout
 execs
 .venv
 scripts/GF_ConvPar_nml
-sources
-!sources/CGFD-USP-Create-Mesh
-!sources/CGFD-USP-Post-Proc
-!sources/MPAS-Limited-Area
+sources/MONAN-Model_release
+sources/convert_mpas_release
+sources/CGFD-USP-Create-Mesh/vtx-mpas-meshes/data/
 run.*
+*.pyc
