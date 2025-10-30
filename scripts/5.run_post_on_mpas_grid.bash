@@ -38,7 +38,7 @@ LON_MAX=-20
 V_MIN=90000
 V_MAX=103000
 # Input file from which variable should be extracted
-FILENAME=MONAN_DIAG_G_MOD_ERA5_2007062200_2007062300.00.00.lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_hres_50_lres_250.regionL55
+FILENAME=MONAN_DIAG_G_MOD_ERA5_2007062200_2007062400.00.00.lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_hres_50_lres_250.regionL55
 FILEPATH=${DATAOUT}/2007062200/Model/${FILENAME}.nc
 # File from which grid characteristics should be extracted
 GFILEPATH=${DATAOUT}/2007062200/Pre/lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_hres_50_lres_250.region.init.nc
