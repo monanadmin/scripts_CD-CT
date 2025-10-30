@@ -33,9 +33,5 @@ GFILEPATH=${DATAIN}/fixed/lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_h
 POSTFILEPATH=${DATAIN}/fixed/lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_hres_50_lres_250.region.grid.png
 #---------------------------------------------------------------------
 
-if [ ! -d "${DATAOUT}/2007062200_test_wmo_downloaded_ERA5_data/Post" ]; then
-  mkdir "${DATAOUT}/2007062200_test_wmo_downloaded_ERA5_data/Post"
-fi
-
 conda activate vtx_env
 python3 ${SOURCES}/CGFD-USP-Post-Proc/mpas_plot_grid.py -g $GFILEPATH -o $POSTFILEPATH
