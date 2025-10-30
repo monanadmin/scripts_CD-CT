@@ -43,11 +43,12 @@ FILEPATH=${DATAOUT}/2007062200/Model/${FILENAME}.nc
 # File from which grid characteristics should be extracted
 GFILEPATH=${DATAOUT}/2007062200/Pre/lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_hres_50_lres_250.region.init.nc
 # Output directory and filename to save plot
-POSTFILEPATH=${DATAOUT}/2007062200/Post/${VAR}_${FILENAME}.png
+POSTFILEDIR=${DATAOUT}/2007062200/Post
+POSTFILEPATH=${POSTFILEDIR}/${VAR}_${FILENAME}.png
 #---------------------------------------------------------------------
 
-if [ ! -d "${DATAOUT}/2007062200_test_wmo_downloaded_ERA5_data/Post" ]; then
-  mkdir "${DATAOUT}/2007062200_test_wmo_downloaded_ERA5_data/Post"
+if [ ! -d "${POSTFILEDIR}" ]; then
+  mkdir "${POSTFILEDIR}"
 fi
 
 conda activate vtx_env
