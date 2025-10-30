@@ -18,8 +18,7 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 #----------------------------------------------------------------------
 
 echo -e  "${GREEN}==>${NC} creating fixed directory to save mesh... \n"
-mkdir -p ${DATAIN}
-rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
+mkdir -p ${DATAIN}/fixed
 
 
 # Activate conda vtx_env environment
