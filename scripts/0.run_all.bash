@@ -51,7 +51,7 @@ RES=50 #3 # Minimum grid spacing (km)
 
 
 # STEP 1: Installing and compiling the A-MONAN model and utility programs:
-#time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
+time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
 #exit
 
 # STEP 2: Generating mesh. Preparing all CI/CC files needed:
@@ -63,7 +63,7 @@ RES=50 #3 # Minimum grid spacing (km)
 #exit
 
 # STEP 4: Executing the Model run:
-time ${SCRIPTS}/4.run_model.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES} 
+#time ${SCRIPTS}/4.run_model.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES} 
 #exit
 
 # STEP 5: Executing the Post of Model run:
