@@ -33,5 +33,7 @@ GFILEPATH=${DATAIN}/fixed/lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_h
 POSTFILEPATH=${DATAIN}/fixed/lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_hres_50_lres_250.region.grid.png
 #---------------------------------------------------------------------
 
+CONDA_PATH="$(conda info --root)"
+source "$CONDA_PATH/etc/profile.d/conda.sh"
 conda activate vtx_env
 python3 ${SOURCES}/CGFD-USP-Post-Proc/mpas_plot_grid.py -g $GFILEPATH -o $POSTFILEPATH
