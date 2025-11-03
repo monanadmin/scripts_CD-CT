@@ -66,7 +66,7 @@ if not os.path.exists(regional_mesh):
     print ('creating regional mesh centered at chosen location')
     full_generation_process_gtm(
         regional_mesh, grid_type,
-        redo=False, do_plots=True, do_region=args.do_regional,
+        redo=False, do_plots=False, do_region=args.do_regional,
         highresolution=highres, lowresolution=lowres,
         num_boundary_layers=numlayers,
         size=size, margin=margin,
