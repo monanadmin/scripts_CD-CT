@@ -49,7 +49,7 @@ FCST=${4};        #FCST=24
 
 # Local variables--------------------------------------
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
-ERA5_DATA=/mnt/beegfs/guilherme.mendonca/MPAS-BR/met_data/ERA5/DATA
+ERA5_DATA=/pesq/share/monan/curso_OMM_INPE_2025/CGFD-USP_Cases/MPAS-BR/met_data/ERA5/DATA
 BNDDIR=${ERA5_DATA}
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
