@@ -28,14 +28,14 @@ Then, do
 source ~/.bashrc
 ```
 
-### 1.3) Make sure you have access to our conda environment
+### 1.4) Make sure you have access to our conda environment
 
 Write the command
 ```
 conda config --add envs_dirs /pesq/share/monan/curso_OMM_INPE_2025/.conda/envs
 ```
 
-### 1.4) Test if you can activate our conda environment
+### 1.5) Test if you can activate our conda environment
 
 Write the command
 ```
