@@ -50,13 +50,11 @@ Our second step is to clone the repository `scripts_CD-CT`, which contains all t
 ### 2.1) Go to your work directory:
 ```
 cd /mnt/beegfs/$USER
-
 ```
 ### 2.2) Clone the scripts repository:
 
 ```
 git clone -b feature/scripts-849-NF https://github.com/guilhermeltm/scripts_CD-CT
-
 ```
 
 ## 3) Installing and compiling MONAN
