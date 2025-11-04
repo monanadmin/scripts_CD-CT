@@ -342,7 +342,7 @@ While you enjoy your coffee break, you may check the status of your simulation b
 squeue -u $USER
 ```
 
-Once the simulation is done, you should see many files starting with MONAN_DIAG_G_MOD* under /mnt/beegfs/`$USER`/test_wmo_course/scripts_CD-CT/dataout/2007062200/Model.
+Once the simulation is done, you should see many files starting with MONAN_DIAG_G_MOD* under /mnt/beegfs/`$USER`/scripts_CD-CT/dataout/2007062200/Model.
 
 If the files are there, congratulations, you're ready to check the results!
 
