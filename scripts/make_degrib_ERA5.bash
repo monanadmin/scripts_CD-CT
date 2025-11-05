@@ -71,7 +71,7 @@ then
 fi
 
 # Copiar Vtable do ERA5
-cp /mnt/beegfs/guilherme.mendonca/WPS/ungrib/Variable_Tables/Vtable.ECMWF ${DATAIN}/fixed 
+cp /pesq/share/monan/curso_OMM_INPE_2025/CGFD-USP_Cases/WPS/ungrib/Variable_Tables/Vtable.ECMWF ${DATAIN}/fixed
 
 files_needed=("${DATAIN}/fixed/${MESH}.static.nc" "${DATAIN}/fixed/Vtable.ECMWF" "${EXECS}/ungrib.exe" "${BNDDIR}/era5.pl.${YYYYMMDDHHi}.grib" "${BNDDIR}/era5.sl.${YYYYMMDDHHi}.grib")
 for file in "${files_needed[@]}"

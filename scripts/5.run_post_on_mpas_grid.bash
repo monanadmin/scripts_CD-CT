@@ -51,5 +51,7 @@ if [ ! -d "${POSTFILEDIR}" ]; then
   mkdir "${POSTFILEDIR}"
 fi
 
+CONDA_PATH="$(conda info --root)"
+source "$CONDA_PATH/etc/profile.d/conda.sh"
 conda activate vtx_env
 python3 ${SOURCES}/CGFD-USP-Post-Proc/mpas_plot.py -f $FILEPATH -gf $GFILEPATH -vmin $V_MIN -vmax $V_MAX -v $VAR -lat_min $LAT_MIN -lat_max $LAT_MAX -lon_min $LON_MIN -lon_max $LON_MAX -o $POSTFILEPATH
