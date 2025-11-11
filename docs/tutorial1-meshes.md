@@ -66,16 +66,19 @@ Now that you have the scripts repository, we can start generating meshes. In thi
 
 3) A **refined regional mesh**, i.e. a mesh where as above the size of cells decreases over a region of interest, but where the rest of the globe is cut off so that one can perform the simulation only over that particular region, thereby saving a lot of computational time. This type of mesh will be used for the cases we will study over the next days of the course.
 
-To start generating our meshes, we need to tell the code our username so that it knows where to look for the mesh generation algorithm and where to save our meshes. To do this, follow steps 3.1) and 3.2) below.
+To start generating our meshes, we need to tell the code our username so that it knows where to look for the mesh generation algorithm and where to save our meshes. To do this, follow steps 3.1)-3.2) below.
 
+### 3.1) Go to the scripts directory
+```
+cd scripts_CD-CT/scripts
+```
 
-### 3.1) Substitute in mesh_input_file.txt the placeholder $USER by your actual username
+### 3.2) Substitute in mesh_input_file.txt the placeholder $USER by your actual username
 ```
 sed -i "s|\\\$USER|$USER|g" mesh_input_file.txt
 ```
 
-### 3.2) Check in mesh_input_file.txt if your username is actually there
-To check this, open the file with the text editor
+Now, check in mesh_input_file.txt if your username is actually there. For this, open the file with the text editor
 ```
 vi mesh_input_file.txt
 ```
