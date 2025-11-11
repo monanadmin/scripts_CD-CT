@@ -42,11 +42,11 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 github_link="https://github.com/monanadmin/MONAN-Model.git"
 monan_branch=release/1.4.1-rc
 convertmpas_branch=release/1.2.0
-EXP=ERA5
-YYYYMMDDHHi=2007062200
-FCST=72
-MESH=lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_hres_50_lres_250.region
-RES=50 #3 # Minimum grid spacing (km)
+EXP=IDEALIZED2
+YYYYMMDDHHi=2025111800
+FCST=360
+MESH=lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_240_lres_600.region
+RES=240 #3 # Minimum grid spacing (km)
 #----------------------------------------------------------------------
 
 
