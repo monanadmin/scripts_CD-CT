@@ -95,7 +95,7 @@ We start with the uniform global mesh. Still in `mesh_input_file.txt`, you can e
 ```
 ## Coordinates of mesh center
 lon=-30
-lat=-50
+lat=50
 ## Inner and outer radius (km)
 inner_radius=2000
 outer_radius=2800
@@ -190,11 +190,11 @@ Now, the remaining parameters we ignored in the last section become important. A
 
 As shown in the figure, `high_res`and `low_res` indicate the resolution inside and outside our region of interest. Parameters `inner_radius` and `outer_radius` indicate the radius of the internal part of this region, where the resolution is equal to `high_res`, and the radius of the external region, where the resolution is equal to `low_res`; the difference between these parameters give the size of the transition region where the resolution changes. Important are now also `lat` and `lon`, which give the center of this region of interest.
 
-For our refined global mesh, please set the parameters as follows:
+For our refined global mesh, copy and paste the mesh parameters as follows:
 ```
 ## Coordinates of mesh center
 lon=-30
-lat=-50
+lat=50
 ## Inner and outer radius (km)
 inner_radius=2000
 outer_radius=2800
@@ -210,9 +210,9 @@ do_regional=n
 grid_type=doughnut
 # Automatic additions
 ```
-where now `grid_type=doughnut` indicates that we want the refinement.
+where now `grid_type=doughnut` indicates that we want the refinement. The parameter `n_layers`is still not relevant for us: it indicates, if you have a regional mesh, how many "layers" of cells around outer_radius one wants to have before cutting the regional mesh from the global mesh.
 
-**Important: Delete the last line file_name=lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_240_lres_600.region**, because it refers to the mesh we generated in the previous section.
+**Important: Make sure the last line file_name=lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_240_lres_600.region is deleted**, because it refers to the mesh we generated in the previous section.
 
 Save and exit the file (command :wq).
 
@@ -270,11 +270,13 @@ We now proceed to the refined regional mesh. Open again `mesh_input_file.txt` wi
 ```
 vi mesh_input_file.txt
 ```
-Now, the only difference to the refined global mesh is that we want our mesh to be regional. For this, we just have to set `do_regional=y`. Hence, set the parameters as follows:
+Now, the only difference to the refined global mesh is that we want our mesh to be regional. For this, we just have to set `do_regional=y`. In addition, now `n_layers`becomes important: it tells the code how many "layers" of cells around outer_radius one wants to have before cutting the regional mesh from the global mesh. Hence it defines the limiting region where the regional mesh will be cut. We will use the default value `n_layers=8`.
+
+Hence, you can copy the parameters as follows:
 ```
 ## Coordinates of mesh center
 lon=-30
-lat=-50
+lat=50
 ## Inner and outer radius (km)
 inner_radius=2000
 outer_radius=2800
@@ -291,7 +293,7 @@ grid_type=doughnut
 # Automatic additions
 ```
 
-**Important: Delete the last line file_name=lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region**, because it refers to the mesh we generated in the previous section.
+**Important: Make sure the last line file_name=lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region is deleted**, because it refers to the mesh we generated in the previous section.
 
 Save and exit the file (command :wq).
 
