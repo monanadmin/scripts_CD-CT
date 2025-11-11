@@ -14,7 +14,7 @@ from vtxmpasmeshes.mpas_plots import view_resolution_map, \
     view_mpas_regional_mesh
 from vtxmpasmeshes.dataset_utilities import distance_latlon_matrix
 
-PATH_LIMITED_AREA = '/mnt/beegfs/guilherme.mendonca/scripts_CD-CT/sources/MPAS-Limited-Area'
+PATH_LIMITED_AREA = '../../MPAS-Limited-Area'
 
 
 def apply_resolution_at_distance(distances, ref_points, ref_resolutions):
