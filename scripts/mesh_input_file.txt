@@ -1,25 +1,25 @@
 # Mesh parameters
 ## Folder containing mesh_input_file.txt
-exp_dir=/mnt/beegfs/$USER/scripts_CD-CT/scripts
+exp_dir=/mnt/beegfs/$USER/preliminary_tests/scripts_CD-CT/scripts
 N=1
 ## Folder containing vtx-mpas-meshes to generate meshes
-vtx_mpas_meshes_dir=/mnt/beegfs/$USER/scripts_CD-CT/sources/CGFD-USP-Create-Mesh/vtx-mpas-meshes
+vtx_mpas_meshes_dir=/mnt/beegfs/$USER/preliminary_tests/scripts_CD-CT/sources/CGFD-USP-Create-Mesh/vtx-mpas-meshes
 ## Folder to save generated meshes
-meshes_dir=/mnt/beegfs/$USER/scripts_CD-CT/datain/fixed
+meshes_dir=/mnt/beegfs/$USER/preliminary_tests/scripts_CD-CT/datain/fixed
 ## Coordinates of mesh center
-lon=-55
-lat=-35
+lon=-30
+lat=50
 ## Inner and outer radius (km)
 inner_radius=2000
-outer_radius=2600
+outer_radius=2800
 ## Number of external layers for r > outer_radius
 n_layers=8
 ## High resolution for r < inner_radius
-high_res=50
+high_res=240
 ## Low resolution for r > outer_radius
-low_res=250
+low_res=600
 ## Whether to cut regional mesh (y/n)
 do_regional=n
 ## Grid type (doughnut/constant)
-grid_type=doughnut
+grid_type=constant
 # Automatic additions
