@@ -22,7 +22,7 @@ then
    echo ""
    echo "${0} [EXP_NAME/OP] RESOLUTION LABELI FCST"
    echo ""
-   echo "EXP_NAME    :: Forcing: GFS"
+   echo "EXP_NAME       :: Forcing: GFS, ERA5, or IDEALIZED*, where * corresponds to the idealized test case number following MPAS user guide, section 7.1. Example: IDEALIZED2 ==> test case 2: Jablonowski and Williamson baroclinic wave, with initial perturbation"   
    echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
    echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
    echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
@@ -88,26 +88,34 @@ printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 # Calculating default parameters for different resolutions
 if [ $RES -eq 24 ]; then  #24Km
    CONFIG_DT=150.0
-   CONFIG_LEN_DISP=10000.0
+   CONFIG_LEN_DISP=24000.0
    CONFIG_CONV_INTERVAL="00:15:00"
-elif [ $RES -eq 15 ]; then  #15Km
+elif [ $RES -eq 15 ]; then
    CONFIG_DT=90.0
+   CONFIG_LEN_DISP=15000.0
    CONFIG_CONV_INTERVAL="00:15:00"
-elif [ $RES -eq 120 ]; then  #120Km
+elif [ $RES -eq 120 ]; then
    CONFIG_DT=600.0
-   CONFIG_LEN_DISP=10000.0
-elif [ $RES -eq 10 ]; then  #10Km
+   CONFIG_LEN_DISP=120000.0
+elif [ $RES -eq 240 ]; then
+   CONFIG_DT=1200.0
+   CONFIG_LEN_DISP=240000.0
+elif [ $RES -eq 10 ]; then
    CONFIG_DT=60.0
    CONFIG_LEN_DISP=10000.0
    CONFIG_CONV_INTERVAL="00:15:00"
-elif [ $RES -eq 3 ]; then # 3km
+elif [ $RES -eq 3 ]; then 
    echo "RES 3"
    CONFIG_DT=10.0
    CONFIG_LEN_DISP=3000.0
-elif [ $RES -eq 50 ]; then # 3km
+elif [ $RES -eq 50 ]; then
    echo "RES 50"
    CONFIG_DT=300.0
-   CONFIG_LEN_DISP=20000.0
+   CONFIG_LEN_DISP=50000.0
+elif [ $RES -eq 48 ]; then
+   echo "RES 48"
+   CONFIG_DT=288.0
+   CONFIG_LEN_DISP=48000.0
 else
     echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
     echo -e  "${RED}==>${NC} [${0}] Simulation parameters for resolution $RES have not been set! \n"
@@ -147,7 +155,7 @@ then
    fi
 fi
 
-files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" ""${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/${MESH}.static.nc" "${DATAIN}/fixed/${MESH}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/${MESH}.init.nc" "${DATAIN}/fixed/Vtable.GFS")
+files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" ""${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/${MESH}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/${MESH}.init.nc")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -162,18 +170,25 @@ cp -f ${EXECS}/atmosphere_model ${DIRRUN}
 cp -f ${DATAIN}/fixed/*TBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*DBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*DATA ${DIRRUN}
-cp -f ${DATAIN}/fixed/${MESH}.static.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/${MESH}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${MESH}.init.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.GFS ${DIRRUN}
 
 
-if [ ${EXP} = "GFS" -o  ${EXP} = "ERA5" ]
+if [[ ${EXP} == "GFS" ||  ${EXP} == "ERA5" ]]
 then
    sed -e "s,#LABELI#,${start_date},g;s,#FCSTS#,${DD_HHMMSS_forecast},g;s,#MESH#,${MESH},g;
 s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_CONV_INTERVAL#,${CONFIG_CONV_INTERVAL},g" \
    ${SCRIPTS}/namelists/namelist.atmosphere.TEMPLATE > ${DIRRUN}/namelist.atmosphere
    
+   sed -e "s,#MESH#,${MESH},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
+   ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE > ${DIRRUN}/streams.atmosphere
+elif [[ ${EXP} == IDEALIZED* ]]
+then
+   sed -e "s,#LABELI#,${start_date},g;s,#FCSTS#,${DD_HHMMSS_forecast},g;s,#MESH#,${MESH},g;
+s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_CONV_INTERVAL#,${CONFIG_CONV_INTERVAL},g" \
+   ${SCRIPTS}/namelists/namelist.atmosphere.TEMPLATE_IDEALIZED > ${DIRRUN}/namelist.atmosphere
+
    sed -e "s,#MESH#,${MESH},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
    ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE > ${DIRRUN}/streams.atmosphere
 fi
