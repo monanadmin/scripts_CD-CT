@@ -160,6 +160,39 @@ def constant_resolution(**kwargs):
 
     return dists, resol, kwargs
 
+def constant_resolution_global(**kwargs):
+
+    # Setting parameters to the defaults if not passed as arguments
+    defaults = {'lowresolution': 25,
+                'highresolution': 3,
+                'size': 40,
+                'margin': 100,
+                'final_res_dist': 1000}
+
+    for name, default in defaults.items():
+        kwag = kwargs.get(name, None)
+        if kwag is None:
+            kwargs.update({name: default})
+
+    # Inner Circle
+    # ------------------------------
+    # From distance 0 to <size> -> constant highresolution
+    d0, r0 = 0., kwargs['highresolution']
+    d1, r1 = kwargs['size'], kwargs['highresolution']
+
+    # Boundary layers around it
+    # ------------------------------
+    kwargs['radius'] = kwargs['size']
+    kwargs['buffer'] = kwargs['num_boundary_layers'] * kwargs['highresolution']
+    kwargs['border'] = kwargs['radius'] + kwargs['buffer']
+    d2, r2 = kwargs['border'], kwargs['highresolution']
+
+    # Those are the points I fix
+    dists = np.array([d0, d1, d2])
+    resol = np.array([r0, r1, r2])
+
+    return dists, resol, kwargs
+
 def variable_resolution_latlonmap(grid, do_region, **kwargs):
 
     print('\n>> Creating a variable resolution map')
@@ -217,9 +250,15 @@ def variable_resolution_latlonmap(grid, do_region, **kwargs):
         else:
             raise ValueError('!! Flag do_regional should have either "y" or "n" values.')          
     elif grid == 'constant':
-        print('\tComputing resolutions using technique %s, regional.' % grid)
-        dists, resol, kwargs = constant_resolution(**kwargs)
-        ds['resolution'] = apply_resolution_at_distance(
+        if do_region == 'y':
+            print('\tComputing resolutions using technique %s, regional.' % grid)
+            dists, resol, kwargs = constant_resolution(**kwargs)
+            ds['resolution'] = apply_resolution_at_distance(
+            ds['distance'], ref_points=dists, ref_resolutions=resol)
+        elif do_region == 'n':
+            print('\tComputing resolutions using technique %s, global.' % grid)
+            dists, resol, kwargs = constant_resolution_global(**kwargs)
+            ds['resolution'] = apply_resolution_at_distance(
             ds['distance'], ref_points=dists, ref_resolutions=resol)
     else:
         raise ValueError('!! Grid %s not implemented.' % grid)
