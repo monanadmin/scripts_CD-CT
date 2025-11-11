@@ -28,27 +28,17 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 
 # Local variables------------------------------------------------------
 ## Variable to plot
-VAR=uReconstructZonal #surface_pressure
-## Latitude and longitude min/max values to plot
-#LAT_MIN=-60
-#LAT_MAX=-15
-#LON_MIN=-65
-#LON_MAX=-20
+VAR=vorticity
 # Minimum and maximum values of variable for colorbar
-V_MIN=-30 #90000
-V_MAX=30 #103000
+V_MIN=-0.000125
+V_MAX=0.000125
 # Input file from which variable should be extracted
-#FILENAME=MONAN_DIAG_G_MOD_ERA5_2007062200_2007062400.00.00.lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_hres_50_lres_250.regionL55
-FILENAME=MONAN_HIST_G_MOD_IDEALIZED2_2025111800_2025120100.00.00.x1.256002L55
-FILENAME=MONAN_HIST_G_MOD_IDEALIZED2_2025111800_2025120100.00.00.lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.regionL55
-FILENAME=MONAN_HIST_G_MOD_IDEALIZED2_2025111800_2025120100.00.00.lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_240_lres_240.regionL55
-#FILEPATH=${DATAOUT}/2007062200/Model/${FILENAME}.nc
-FILEPATH=${DATAOUT}/2025111800/Model/${FILENAME}.nc
+FILENAME=MONAN_HIST_G_MOD_IDEALIZED2_2025111800_2025120100.00.00.x1.10242L55
+FILEPATH=${DATAOUT}/2025111800_x1.10242L55/Model/${FILENAME}.nc
 # File from which grid characteristics should be extracted
-#GFILEPATH=${DATAOUT}/2007062200/Pre/lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_hres_50_lres_250.region.init.nc
-GFILEPATH=${DATAOUT}/2025111800/Pre/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_240_lres_240.init.nc
+GFILEPATH=${DATAOUT}/2025111800_x1.10242L55/Pre/x1.10242.init.nc
 # Output directory and filename to save plot
-POSTFILEDIR=${DATAOUT}/2025111800/Post
+POSTFILEDIR=${DATAOUT}/2025111800_x1.10242L55/Post
 POSTFILEPATH=${POSTFILEDIR}/${VAR}_${FILENAME}.png
 #---------------------------------------------------------------------
 
