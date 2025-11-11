@@ -301,7 +301,7 @@ To check the results we can plot fields on the native MPAS mesh using 5.run_post
 
 ### 7.1) Pressure field
 
-#### 7.1) Edit 5.run_post_on_mpas_grid.bash
+#### 7.1.1) Edit 5.run_post_on_mpas_grid.bash
 ```
 vi 5.run_post_on_mpas_grid.bash
 ```
@@ -367,7 +367,7 @@ POSTFILEPATH=${POSTFILEDIR}/${VAR}_${FILENAME}.png
 
 After selecting the parameters you want, just exit and save the script (:wq).
 
-### 7.2) Run 5.run_post_on_mpas_grid.bash
+### 7.1.2) Run 5.run_post_on_mpas_grid.bash
 ```
 bash 5.run_post_on_mpas_grid.bash
 ```
@@ -400,9 +400,9 @@ The resulting pressure field should look like the following:
 
 ![Alt text](pressure_group2.png)
 
-### 7.1) Vorticity field
+### 7.2) Vorticity field
 
-#### 7.1) Edit 5.run_post_on_mpas_grid.bash
+#### 7.2.1) Edit 5.run_post_on_mpas_grid.bash
 ```
 vi 5.run_post_on_mpas_grid.bash
 ```
@@ -475,7 +475,7 @@ POSTFILEPATH=${POSTFILEDIR}/${VAR}_${FILENAME}.png
 
 After selecting the parameters you want, just exit and save the script (:wq).
 
-### 7.2) Run 5.run_post_on_mpas_grid.bash
+### 7.2.2) Run 5.run_post_on_mpas_grid.bash
 ```
 bash 5.run_post_on_mpas_grid.bash
 ```
