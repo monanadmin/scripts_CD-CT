@@ -1,11 +1,11 @@
 # Mesh parameters
 ## Folder containing mesh_input_file.txt
-exp_dir=/mnt/beegfs/$USER/preliminary_tests/scripts_CD-CT/scripts
+exp_dir=/mnt/beegfs/$USER/scripts_CD-CT/scripts
 N=1
 ## Folder containing vtx-mpas-meshes to generate meshes
-vtx_mpas_meshes_dir=/mnt/beegfs/$USER/preliminary_tests/scripts_CD-CT/sources/CGFD-USP-Create-Mesh/vtx-mpas-meshes
+vtx_mpas_meshes_dir=/mnt/beegfs/$USER/scripts_CD-CT/sources/CGFD-USP-Create-Mesh/vtx-mpas-meshes
 ## Folder to save generated meshes
-meshes_dir=/mnt/beegfs/$USER/preliminary_tests/scripts_CD-CT/datain/fixed
+meshes_dir=/mnt/beegfs/$USER/scripts_CD-CT/datain/fixed
 ## Coordinates of mesh center
 lon=-30
 lat=50
