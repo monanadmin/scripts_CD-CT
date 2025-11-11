@@ -299,6 +299,14 @@ If the files are there, congratulations, you're ready to check the results!
 ## 7) Checking the results
 To check the results we can plot fields on the native MPAS mesh using 5.run_post_on_mpas_grid.bash.
 
+For that, make sure you have the geographical files needed for the plot:
+
+```
+mkdir -p "/home/$USER/.local/share" && cp -r /pesq/share/monan/curso_OMM_INPE_2025/.local/share/cartopy "/home/$USER/.local/share/"
+```
+
+Now we can proceed to the plotting.
+
 ### 7.1) Pressure field
 
 #### 7.1.1) Edit 5.run_post_on_mpas_grid.bash
