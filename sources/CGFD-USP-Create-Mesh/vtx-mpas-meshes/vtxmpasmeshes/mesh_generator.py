@@ -203,7 +203,7 @@ def variable_resolution_latlonmap(grid, do_region, **kwargs):
     highresolution = kwargs.get('highresolution', 10.)  # grid size in km
     print('\tResolution in km of lat/lon grid: %.1f' % highresolution)
 
-    dist_degrees = highresolution / 110.
+    dist_degrees = highresolution / 1000 #110.
 
     nlat = int(180. / dist_degrees) + 1
     nlon = int(360. / dist_degrees) + 1
@@ -272,6 +272,7 @@ def get_mesh_from_resolution(resolution_ds, basename='./mesh'):
 
     # jigsaw
     print('\n\t .- Jigsaw generation')
+
     mesh_file = jigsaw_gen_sph_grid(resolution_ds['resolution'].values,
                                     resolution_ds['lon'].values,
                                     resolution_ds['lat'].values,
@@ -599,6 +600,7 @@ def full_generation_process_gtm(mpas_grid_file, grid, redo=True,
 
     start_time = time.time()
     resolution_ds = variable_resolution_latlonmap(grid, do_region, **kwargs)
+    
     duration_resolution = time.time() - start_time
     print(' .. finished finding resolution map: %.3fs\n\n' % duration_resolution)
 
