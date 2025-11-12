@@ -108,7 +108,7 @@ def set_plot_kwargs(da=None, clip=False, list_darrays=None, **kwargs):
                    and v is not None}
 
     if 'cmap' not in plot_kwargs:
-        plot_kwargs['cmap'] = 'Spectral'
+        plot_kwargs['cmap'] = 'Spectral_r'
 
     vmin = plot_kwargs.get('vmin', None)
     if vmin is None:
