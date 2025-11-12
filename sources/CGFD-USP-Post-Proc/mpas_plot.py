@@ -174,7 +174,7 @@ def get_vim_vmax(da,clip=False):
 
     return minval, maxval
  
-def colorvalue(val, da, vmin=None, vmax=None, cmap='Spectral'):
+def colorvalue(val, da, vmin=None, vmax=None, cmap='Spectral_r'):
     """
     Given a value and the range max, min, it returns the associated
     color of the desired cmap.
