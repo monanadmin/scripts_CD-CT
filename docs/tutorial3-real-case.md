@@ -150,6 +150,10 @@ do_regional=n
 grid_type=doughnut
 ```
 
+If you'd like, you can change the mesh characteristics. **But: Since we are interested in simulating a particular cyclone, do not change the coordinates of the mesh center (`lat`,`lon`), and also please keep the size of the high-resolution cells `high_res` unchanged (this influences the time step that will be taken for the simulation, and also the computation time). Please leave also `do_regional` and `grid_type` as they are (as you have seen in tutorial 1, they control whether we want a global or regional mesh (we want global), and also whether we want a refinement (we do)).**
+
+You can change though the values for `inner_radius` and `outer_radius`, which will influence the size of the transition region where the cell size is changing from high to low resolution. Interesting could also be to change a bit `low_res`, which gives the size of the cells outside our region of interest.
+
 ### 4.4) Generate the mesh
 ```
 bash 2.create_mesh.bash
@@ -285,6 +289,42 @@ If all these files have been correctly generated, we are ready for running our g
 ## 6) Running the global simulation
 After all the configurations set in the previous step, running the global simulation is a matter of executing script 4.run_model.bash, which is done once more by editing and running `0.run_all.bash`.
 
+Here we will use the physical parametrizations standard for MONAN. If you'd like to change it to a parametrization you prefer, you just need to:
+
+1) Open the namelist for the atmosphere core of the model:
+```
+vi namelists/namelist.atmosphere.TEMPLATE
+```
+2) Find the physics section:
+```
+&physics
+    config_sst_update = false
+    config_sstdiurn_update = false
+    config_deepsoiltemp_update = false
+    config_radtlw_interval = '00:30:00'
+    config_radtsw_interval = '00:30:00'
+    config_conv_interval = '#CONFIG_CONV_INTERVAL#'
+    config_bucket_update = 'none'
+    config_physics_suite = 'convection_permitting_monan'
+    config_mynn_edmf = 0
+```
+3) Change the parametrization you'd like, for instance by changing the surface layer scheme:
+```
+&physics
+    config_sst_update = false
+    config_sstdiurn_update = false
+    config_deepsoiltemp_update = false
+    config_radtlw_interval = '00:30:00'
+    config_radtsw_interval = '00:30:00'
+    config_conv_interval = '#CONFIG_CONV_INTERVAL#'
+    config_bucket_update = 'none'
+    config_physics_suite = 'convection_permitting_monan'
+    config_mynn_edmf = 0
+    config_sfclayer_scheme = sf_monin_obukhov
+```
+
+To proceed with the standard MONAN configurations, go ahead to step 6.1.
+
 ### 6.1) Edit 0.run_all.bash
 
 ```
@@ -401,12 +441,12 @@ After that, you can finally check your plot by opening it in your local machine.
 
 The plot should look like this:
 
-![Alt text](surface_pressure_tut3_2007062300.png)
+![Alt text](figs/surface_pressure_tut3_2007062300.png)
 
 If you now repeat the procedure above, but choosing not date 2007062300 but date 2007062400 (FILENAME=MONAN_DIAG_G_MOD_ERA5_2007062200_2007062400.00.00.lat_-35_lon_-55_oradius_2800_iradius_2000_margin_800_hres_50_lres_250.regionL55):
 
-![Alt text](surface_pressure_tut3_2007062400.png)
+![Alt text](figs/surface_pressure_tut3_2007062400.png)
 
 And similarly for 2007062500:
 
-![Alt text](surface_pressure_tut3_2007062500.png)
+![Alt text](figs/surface_pressure_tut3_2007062500.png)

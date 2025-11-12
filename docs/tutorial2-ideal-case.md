@@ -398,15 +398,15 @@ The resulting pressure field should look like the following:
 
 ##### Group 1 - mesh generated in tutorial 1
 
-![Alt text](pressure_group1_tut1.png)
+![Alt text](figs/pressure_group1_tut1.png)
 
 ##### Group 1 - mesh downloaded from NCAR
 
-![Alt text](pressure_group1_ncar.png)
+![Alt text](figs/pressure_group1_ncar.png)
 
 ##### Group 2 - mesh generated in tutorial 1 (note the detailed structure in the region of refinement)
 
-![Alt text](pressure_group2.png)
+![Alt text](figs/pressure_group2.png)
 
 ### 7.2) Vorticity field
 
@@ -506,12 +506,17 @@ The resulting pressure field should look like the following:
 
 ##### Group 1 - mesh generated in tutorial 1
 
-![Alt text](vorticity_group1_tut1.png)
+![Alt text](figs/vorticity_group1_tut1.png)
 
 ##### Group 1 - mesh downloaded from NCAR
 
-![Alt text](vorticity_group1_ncar.png)
+![Alt text](figs/vorticity_group1_ncar.png)
 
 ##### Group 2 - mesh generated in tutorial 1 (note the detailed structure in the region of refinement)
 
-![Alt text](vorticity_group2.png)
+![Alt text](figs/vorticity_group2.png)
+
+
+```python
+
+```

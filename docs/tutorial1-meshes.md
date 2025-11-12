@@ -174,7 +174,7 @@ scp $USER@egeon.cptec.inpe.br:/mnt/beegfs/$USER/scripts_CD-CT/datain/fixed/$MESH
 where `$USER` is your username and `$MESH` the name of your mesh.
 
 The result should look like the following:
-![Alt text](lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_240_lres_240.region.grid_corrected.png)
+![Alt text](figs/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_240_lres_240.region.grid_corrected.png)
 
 
 ### 3.3) Refined global mesh
@@ -184,7 +184,7 @@ vi mesh_input_file.txt
 ```
 Now, the remaining parameters we ignored in the last section become important. A refined mesh looks something like this:
 
-![Alt text](mesh_params.png)
+![Alt text](figs/mesh_params.png)
 
 
 
@@ -263,7 +263,7 @@ where `$USER` is your username and `$MESH` the name of your mesh.
 
 The result should look like this:
 
-![Alt text](lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.grid.png)
+![Alt text](figs/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.grid.png)
 
 ### 3.4) Refined regional mesh
 We now proceed to the refined regional mesh. Open again `mesh_input_file.txt` with vi:
@@ -356,4 +356,9 @@ where `$USER` is your username and `$MESH` the name of your mesh.
 
 The result should look like this:
 
-![Alt text](lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.grid_cut.png)
+![Alt text](figs/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.grid_cut.png)
+
+
+```python
+
+```
