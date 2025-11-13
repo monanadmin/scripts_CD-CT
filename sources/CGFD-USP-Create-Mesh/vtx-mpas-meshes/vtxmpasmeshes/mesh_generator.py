@@ -202,8 +202,12 @@ def variable_resolution_latlonmap(grid, do_region, **kwargs):
 
     highresolution = kwargs.get('highresolution', 10.)  # grid size in km
     print('\tResolution in km of lat/lon grid: %.1f' % highresolution)
-
-    dist_degrees = highresolution / 1000 #110.
+    
+    if grid == 'constant':
+        dist_degrees = highresolution / 1000 #110.
+    elif grid == 'doughnut':
+        dist_degrees = highresolution / 200
+       
 
     nlat = int(180. / dist_degrees) + 1
     nlon = int(360. / dist_degrees) + 1
