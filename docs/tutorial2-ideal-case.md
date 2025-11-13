@@ -86,7 +86,7 @@ time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpa
 #time ${SCRIPTS}/2.create_mesh.bash
 #exit
 
-# STEP 3: Executing the pre-processing fase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH}
+# STEP 3: Executing the pre-processing phase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH}
 #time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
 #exit
 
@@ -206,7 +206,7 @@ Now, make sure all other code lines in STEP 1,2,3,4,5 are commented out:
 #time ${SCRIPTS}/2.create_mesh.bash
 #exit
 
-# STEP 3: Executing the pre-processing fase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH}
+# STEP 3: Executing the pre-processing phase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH}
 time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
 #exit
 
@@ -262,7 +262,7 @@ Make sure all other code lines in STEP 1,2,3,4,5 are commented out:
 #time ${SCRIPTS}/2.create_mesh.bash
 #exit
 
-# STEP 3: Executing the pre-processing fase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH}
+# STEP 3: Executing the pre-processing phase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH}
 #time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
 #exit
 
