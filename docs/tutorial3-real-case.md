@@ -324,7 +324,7 @@ vi namelists/namelist.atmosphere.TEMPLATE
     config_bucket_update = 'none'
     config_physics_suite = 'convection_permitting_monan'
     config_mynn_edmf = 0
-    config_sfclayer_scheme = sf_monin_obukhov
+    config_sfclayer_scheme = 'sf_monin_obukhov'
 ```
 
 To proceed with the standard MONAN configurations, go ahead to step 6.1.
