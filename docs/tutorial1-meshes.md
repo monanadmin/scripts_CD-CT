@@ -302,13 +302,13 @@ Save and exit the file (command :wq).
 Before you generate this mesh, make sure the previous mesh is not overwritten by doing
 
 ```
-mv ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.grid.nc ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.grid_GLOBAL.nc
+mv ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.grid.nc ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.global.grid.nc
 
-mv ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.graph.info ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.graph.info_GLOBAL.nc
+mv ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.graph.info ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.global.graph.info
 
-mv ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region_GLOBAL
+mv ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.global
 
-mv ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.grid.png ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.grid_GLOBAL.png
+mv ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.grid.png ../datain/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.global.grid.png
 ```
 
 Now, you can generate the mesh by executing
@@ -357,8 +357,3 @@ where `$USER` is your username and `$MESH` the name of your mesh.
 The result should look like this:
 
 ![Alt text](figs/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.grid_cut.png)
-
-
-```python
-
-```
