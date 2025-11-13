@@ -202,6 +202,10 @@ scp $USER@egeon.cptec.inpe.br:/mnt/beegfs/$USER/scripts_CD-CT/datain/fixed/lat_-
 ```
 where `$USER` is your username.
 
+You should see something like this:
+
+![Alt text](figs/grid3.png)
+
 ## 5) Preprocessing
 
 Now it's time for preparing your simulation. This is done by 1) generating a "static file", which contains static fields to be used in the simulation (e.g. terrain height, vegetation characteristics, albedo); 2) processing real datasets to be used as initial conditions; 3) interpolating the initial conditions on the mesh and generating also a vertical grid. All of this is accomplished by script `3.pre_processing.bash`, so our goal in this section is to run that script, which is done again via the general script `0.run_all.bash`.
