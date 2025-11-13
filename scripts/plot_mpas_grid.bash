@@ -28,12 +28,11 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 
 # Local variables------------------------------------------------------
 ## Grid file
-GFILEPATH=${DATAIN}/fixed/lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_hres_50_lres_250.region.grid.nc
+GFILEPATH=${DATAIN}/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.grid.nc
 ## Output directory and filename to save plot
-POSTFILEPATH=${DATAIN}/fixed/lat_-35_lon_-55_oradius_2600_iradius_2000_margin_600_hres_50_lres_250.region.grid.png
+POSTFILEPATH=${DATAIN}/fixed/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.region.grid.png
 #---------------------------------------------------------------------
 
-CONDA_PATH="$(conda info --root)"
-source "$CONDA_PATH/etc/profile.d/conda.sh"
+source ~/.bashrc
 conda activate vtx_env
 python3 ${SOURCES}/CGFD-USP-Post-Proc/mpas_plot_grid.py -g $GFILEPATH -o $POSTFILEPATH

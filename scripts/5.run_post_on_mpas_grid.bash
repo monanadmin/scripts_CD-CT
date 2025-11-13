@@ -25,7 +25,6 @@ SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
 EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 #----------------------------------------------------------------------
 
-
 # Local variables------------------------------------------------------
 ## Variable to plot
 VAR=vorticity
@@ -33,12 +32,12 @@ VAR=vorticity
 V_MIN=-0.000125
 V_MAX=0.000125
 # Input file from which variable should be extracted
-FILENAME=MONAN_HIST_G_MOD_IDEALIZED2_2025111800_2025120100.00.00.x1.10242L55
-FILEPATH=${DATAOUT}/2025111800_x1.10242L55/Model/${FILENAME}.nc
+FILENAME=MONAN_HIST_G_MOD_IDEALIZED2_2025111800_2025120100.00.00.lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.globalL55
+FILEPATH=${DATAOUT}/2025111800/Model/${FILENAME}.nc
 # File from which grid characteristics should be extracted
-GFILEPATH=${DATAOUT}/2025111800_x1.10242L55/Pre/x1.10242.init.nc
+GFILEPATH=${DATAOUT}/2025111800/Pre/lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_48_lres_240.global.init.nc
 # Output directory and filename to save plot
-POSTFILEDIR=${DATAOUT}/2025111800_x1.10242L55/Post
+POSTFILEDIR=${DATAOUT}/2025111800/Post
 POSTFILEPATH=${POSTFILEDIR}/${VAR}_${FILENAME}.png
 #---------------------------------------------------------------------
 
@@ -46,8 +45,7 @@ if [ ! -d "${POSTFILEDIR}" ]; then
   mkdir "${POSTFILEDIR}"
 fi
 
-CONDA_PATH="$(conda info --root)"
-source "$CONDA_PATH/etc/profile.d/conda.sh"
+source ~/.bashrc
 conda activate vtx_env
 
 if [[ $LAT_MIN == "" ]]; then
