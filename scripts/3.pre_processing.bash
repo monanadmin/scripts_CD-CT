@@ -17,7 +17,7 @@
 #
 #-----------------------------------------------------------------------------#
 
-if [ $# -ne 4 -a $# -ne 1 ]
+if [ $# -ne 5 -a $# -ne 1 ]
 then
    echo ""
    echo "Instructions: execute the command below"
@@ -63,6 +63,8 @@ EXP=${1};         #EXP=GFS
 MESH=${2};         #MESH=lat_40_lon_-8_oradius_300_iradius_100_margin_200_hres_3_lres_30.region
 YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
 FCST=${4};        #FCST=24
+REGIONAL=${5}     #REGIONAL=Y
+LBCINT=${6}       #LBCINT=3600
 #-------------------------------------------------------
 
 
@@ -147,6 +149,16 @@ else
 fi
 #----------------------------------------------------------------------------------
 
-
-
-
+# LBCs phase:------------------------------------------------------------
+if [[ $REGIONAL == "Y" ]]; then
+   echo -e  "${GREEN}==>${NC} Regional simulation: submitting Init Atmosphere to generate lateral boundary conditions...\n"
+   time ./make_lbcs.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${LBCINT}
+elif [[ $REGIONAL == "N" ]]; then
+   echo -e  "${GREEN}==>${NC} Global simulation: no need for lateral boundary conditions.\n"
+else
+   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+   echo -e  "${RED}==>${NC} LBCs phase fails! Please select REGIONAL=Y or REGIONAL=N.\n"
+   echo -e  "${RED}==>${NC} Exiting script. \n"
+   exit -1
+fi
+#----------------------------------------------------------------------------------

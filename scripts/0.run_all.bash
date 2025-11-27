@@ -47,6 +47,8 @@ YYYYMMDDHHi=2025111800
 FCST=360
 MESH=lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_240_lres_600.region
 RES=240 #3 # Minimum grid spacing (km)
+REGIONAL=N   # Whether to run reigonal simulation
+LBCSINT=3600 # Interval (seconds) for updating lateral boundary conditions (when regional)
 #----------------------------------------------------------------------
 
 
@@ -59,7 +61,7 @@ time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpa
 #exit
 
 # STEP 3: Executing the pre-processing phase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH} 
-#time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} 
+#time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL} ${LBCSINT}
 #exit
 
 # STEP 4: Executing the Model run:
