@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 
-if [ $# -ne 4 ]
+if [ $# -ne 5 ]
 then
    echo ""
    echo "Instructions: execute the command below"
@@ -43,6 +43,7 @@ EXP=${1};         #EXP=GFS
 MESH=${2};         #RES=1024002
 YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
 FCST=${4};        #FCST=24
+REGIONAL=${5}     #REGIONAL=Y
 #-------------------------------------------------------
 
 
@@ -89,8 +90,13 @@ do
   fi
 done
 
+if [[ $REGIONAL == "Y" ]]; then
+   BLEND_BDY_TERRAIN=true
+else
+   BLEND_BDY_TERRAIN=false
+fi
 
-sed -e "s,#LABELI#,${start_date},g;s,#GEODAT#,${GEODATA},g;s,#MESH#,${MESH},g;s,#EXP#,${EXP},g" \
+sed -e "s,#LABELI#,${start_date},g;s,#GEODAT#,${GEODATA},g;s,#MESH#,${MESH},g;s,#EXP#,${EXP},g;s,#BLEND_BDY_TERRAIN#,${BLEND_BDY_TERRAIN},g" \
 	 ${SCRIPTS}/namelists/namelist.init_atmosphere.TEMPLATE > ${DIRRUN}/namelist.init_atmosphere
 
 sed -e "s,#MESH#,${MESH},g" \

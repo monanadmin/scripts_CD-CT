@@ -42,18 +42,18 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 github_link="https://github.com/monanadmin/MONAN-Model.git"
 monan_branch=release/1.4.1-rc
 convertmpas_branch=release/1.2.0
-EXP=IDEALIZED2
-YYYYMMDDHHi=2025111800
-FCST=360
-MESH=lat_50_lon_-30_oradius_2800_iradius_2000_margin_800_hres_240_lres_600.region
-RES=240 #3 # Minimum grid spacing (km)
-REGIONAL=N   # Whether to run reigonal simulation
-LBCSINT=3600 # Interval (seconds) for updating lateral boundary conditions (when regional)
+EXP=ERA5
+YYYYMMDDHHi=2007062200
+FCST=72
+MESH=lat_-35_lon_-55_oradius_2800_iradius_2000_margin_800_hres_50_lres_250.region
+RES=50 #3 # Minimum grid spacing (km)
+REGIONAL=Y   # Whether to run reigonal simulation
+LBCINT=21600 # Interval (seconds) for updating lateral boundary conditions (when regional)
 #----------------------------------------------------------------------
 
 
 # STEP 1: Installing and compiling the A-MONAN model and utility programs:
-time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
+#time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
 #exit
 
 # STEP 2: Generating mesh. Preparing all CI/CC files needed:
@@ -61,11 +61,11 @@ time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpa
 #exit
 
 # STEP 3: Executing the pre-processing phase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH} 
-#time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL} ${LBCSINT}
+#time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL} ${LBCINT}
 #exit
 
 # STEP 4: Executing the Model run:
-#time ${SCRIPTS}/4.run_model.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES} 
+time ${SCRIPTS}/4.run_model.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES} ${REGIONAL}
 #exit
 
 # STEP 5: Executing the Post of Model run:

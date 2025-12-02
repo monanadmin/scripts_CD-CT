@@ -17,7 +17,7 @@
 #
 #-----------------------------------------------------------------------------#
 
-if [ $# -ne 5 -a $# -ne 1 ]
+if [ $# -ne 6 -a $# -ne 1 ]
 then
    echo ""
    echo "Instructions: execute the command below"
@@ -117,11 +117,11 @@ fi
 if [[ ${EXP} == "GFS" ]]
 then
    echo -e  "${GREEN}==>${NC} Submitting Degrib for GFS data...\n"
-   time ./make_degrib_GFS.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
+   time ./make_degrib_GFS.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL}
 elif [[ ${EXP} == "ERA5" ]]
 then
    echo -e  "${GREEN}==>${NC} Submitting Degrib for ERA5 data...\n"
-   time ./make_degrib_ERA5.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
+   time ./make_degrib_ERA5.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL}
 elif [[ ${EXP} == IDEALIZED* ]]
 then
    echo -e "${GREEN}==>${NC} Idealized case selected. No need for degrib.\n"
@@ -137,7 +137,7 @@ fi
 # Init Atmosphere phase:------------------------------------------------------------
 if [[ $EXP == "GFS" || $EXP == "ERA5" ]]; then   
    echo -e  "${GREEN}==>${NC} Submitting Init Atmosphere for real case...\n"
-   time ./make_initatmos.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
+   time ./make_initatmos.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL}
 elif [[ $EXP == IDEALIZED* ]]; then
    echo -e  "${GREEN}==>${NC} Submitting Init Atmosphere for idealized case...\n"
    time ./make_initatmos_idealized.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}

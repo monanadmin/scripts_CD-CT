@@ -2,7 +2,7 @@
  wrf_core = 'ARW',
  max_dom = 1,
  start_date = '#LABELI#',
- end_date   = '#LABELI#',
+ end_date   = '#LABELF#',
  interval_seconds = 10800,
  io_form_geogrid = 2,
  debug_level = 0,

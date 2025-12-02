@@ -54,6 +54,11 @@ export INITATMOS_nnodes=1
 export INITATMOS_jobname="Pre.InitAtmos"
 ### export INITATMOS_walltime="01:00:00" not used yet - using STATIC_walltime
 
+# PRE-LBCs phase:
+export LBCS_QUEUE="batch"
+export LBCS_ncores=64
+export LBCS_nnodes=1
+export LBCS_jobname="Pre.LBCS"
 
 # Model phase:
 export MODEL_QUEUE="batch"

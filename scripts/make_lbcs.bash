@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 
-if [ $# -ne 4 ]
+if [ $# -ne 5 ]
 then
    echo ""
    echo "Instructions: execute the command below"
@@ -50,7 +50,8 @@ source utils.bash
 
 # Local variables--------------------------------------
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
-final_date=$(add_hours "$YYYYMMDDHHi" "$FCST")
+YYYYMMDDHHf=$(add_hours "$YYYYMMDDHHi" "$FCST")
+final_date=${YYYYMMDDHHf:0:4}-${YYYYMMDDHHf:4:2}-${YYYYMMDDHHf:6:2}_${YYYYMMDDHHf:8:2}:00:00
 GEODATA=${DATAIN}/WPS_GEOG
 cores=${INITATMOS_ncores}
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
@@ -81,7 +82,7 @@ then
    fi
 fi
 
-files_needed=("${SCRIPTS}/namelists/namelist.init_atmosphere.LBCS" "${SCRIPTS}/namelists/streams.init_atmosphere.LBCS" "${DATAIN}/fixed/${MESH}.graph.info.part.${cores}" "${DATAIN}/fixed/${MESH}.init.nc" "${EXECS}/init_atmosphere_model")
+files_needed=("${SCRIPTS}/namelists/namelist.init_atmosphere.LBCS" "${SCRIPTS}/namelists/streams.init_atmosphere.LBCS" "${DATAIN}/fixed/${MESH}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/${MESH}.init.nc" "${EXECS}/init_atmosphere_model")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -101,13 +102,14 @@ sed -e "s,#MESH#,${MESH},g;s,#LBCINT#,${LBCINT},g" \
 
 
 cp -f ${DATAIN}/fixed/${MESH}.graph.info.part.${cores} ${DIRRUN}
-cp -f ${DATAIN}/fixed/${MESH}.init.nc ${DIRRUN}
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${MESH}.init.nc ${DIRRUN}
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:* ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
 
 
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 rm -f ${DIRRUN}/initatmos.bash 
-cat << EOF0 > ${DIRRUN}/initatmos.bash 
+cat << EOF0 > ${DIRRUN}/lbcs.bash 
 #!/bin/bash -x
 #SBATCH --job-name=${LBCS_jobname}
 #SBATCH --nodes=${LBCS_nnodes}                         # depends on how many boundary files are available
@@ -141,14 +143,15 @@ mv ${DIRRUN}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log
 mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.init_atmosphere.lbcs
 mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/streams.init_atmosphere.lbcs
 mv ${DIRRUN}/${MESH}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
+mv ${DIRRUN}/lbc*.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
 
 EOF0
-chmod a+x ${DIRRUN}/initatmos.bash
+chmod a+x ${DIRRUN}/lbcs.bash
 
-echo -e  "${GREEN}==>${NC} Executing sbatch initatmos.bash...\n"
+echo -e  "${GREEN}==>${NC} Executing sbatch lbcs.bash...\n"
 cd ${DIRRUN}
-sbatch --wait ${DIRRUN}/initatmos.bash
-mv ${DIRRUN}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+sbatch --wait ${DIRRUN}/lbcs.bash
+mv ${DIRRUN}/lbcs.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
 if [ -z "$(ls ${DATAOUT}/${YYYYMMDDHHi}/Pre/lbc* 2>/dev/null)" ]
 then

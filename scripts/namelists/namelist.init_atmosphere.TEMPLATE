@@ -27,6 +27,7 @@
     config_dzmin = 0.3
     config_nsm = 30
     config_tc_vertical_grid = true
+    config_blend_bdy_terrain = #BLEND_BDY_TERRAIN#
 /
 &interpolation_control
     config_extrap_airtemp = 'linear'
