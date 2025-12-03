@@ -42,4 +42,11 @@
                   packages="iau"
                   input_interval="initial_only" />
 
+<immutable_stream name="lbc_in"
+                  type="input"
+                  filename_template="lbc.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
+                  filename_interval="input_interval"
+                  packages="limited_area"
+                  input_interval="#LBCINT#" />
+
 </streams>
