@@ -187,7 +187,9 @@ cp -f ${DATAIN}/fixed/*DATA ${DIRRUN}
 cp -f ${DATAIN}/fixed/${MESH}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${MESH}.init.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.GFS ${DIRRUN}
-
+if [[ $REGIONAL == "Y" ]]; then
+   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/lbc*.nc ${DIRRUN}
+fi
 
 if [[ ${EXP} == "GFS" ||  ${EXP} == "ERA5" ]]
 then
