@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-if [ $# -ne 5 ]
+if [ $# -ne 6 ]
 then
    echo ""
    echo "Instructions: execute the command below"
@@ -44,6 +44,7 @@ MESH=${2};         #MESH
 YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
 FCST=${4};        #FCST=24
 REGIONAL=${5};    #REGIONAL=Y
+LBCINT=${6};
 #-------------------------------------------------------
 
 source utils.bash
@@ -133,7 +134,7 @@ ldd ungrib.exe
 rm -f GRIBFILE.* namelist.wps
 
 
-sed -e "s,#LABELI#,${start_date},g;s,#LABELF#,${final_date},g;s,#PREFIX#,ERA5,g" \
+sed -e "s,#LABELI#,${start_date},g;s,#LABELF#,${final_date},g;s,#LBCINT#,${LBCINT},g;s,#PREFIX#,ERA5,g" \
 	${DIRRUN}/namelist.wps.TEMPLATE > ${DIRRUN}/namelist.wps
 
 ./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/era5.*.grib
@@ -201,7 +202,7 @@ ldd ungrib.exe
 rm -f GRIBFILE.* namelist.wps
 
 
-sed -e "s,#LABELI#,${start_date},g;s,#LABELF#,${start_date},g;s,#PREFIX#,ERA5,g" \
+sed -e "s,#LABELI#,${start_date},g;s,#LABELF#,${start_date},g;s,#LBCINT#,${LBCINT},g;s,#PREFIX#,ERA5,g" \
 	${DIRRUN}/namelist.wps.TEMPLATE > ${DIRRUN}/namelist.wps
 
 ./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/era5.*.${YYYYMMDDHHi}.grib

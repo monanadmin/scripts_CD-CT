@@ -117,11 +117,11 @@ fi
 if [[ ${EXP} == "GFS" ]]
 then
    echo -e  "${GREEN}==>${NC} Submitting Degrib for GFS data...\n"
-   time ./make_degrib_GFS.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL}
+   time ./make_degrib_GFS.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL} ${LBCINT}
 elif [[ ${EXP} == "ERA5" ]]
 then
    echo -e  "${GREEN}==>${NC} Submitting Degrib for ERA5 data...\n"
-   time ./make_degrib_ERA5.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL}
+   time ./make_degrib_ERA5.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL} ${LBCINT}
 elif [[ ${EXP} == IDEALIZED* ]]
 then
    echo -e "${GREEN}==>${NC} Idealized case selected. No need for degrib.\n"

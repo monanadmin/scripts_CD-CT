@@ -108,7 +108,7 @@ cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
 
 
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
-rm -f ${DIRRUN}/initatmos.bash 
+rm -f ${DIRRUN}/lbcs.bash 
 cat << EOF0 > ${DIRRUN}/lbcs.bash 
 #!/bin/bash -x
 #SBATCH --job-name=${LBCS_jobname}
