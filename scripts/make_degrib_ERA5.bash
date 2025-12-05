@@ -44,7 +44,7 @@ MESH=${2};         #MESH
 YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
 FCST=${4};        #FCST=24
 REGIONAL=${5};    #REGIONAL=Y
-LBCINT=${6};
+LBCINT=${6};      #LBCINT=21600
 #-------------------------------------------------------
 
 source utils.bash
@@ -53,8 +53,10 @@ source utils.bash
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
 YYYYMMDDHHf=$(add_hours "$YYYYMMDDHHi" "$FCST")
 final_date=${YYYYMMDDHHf:0:4}-${YYYYMMDDHHf:4:2}-${YYYYMMDDHHf:6:2}_${YYYYMMDDHHf:8:2}:00:00
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ## !!!!!!!!!!! ATENCAO: AQUI ESTA SENDO ASSUMIDO QUE TODOS OS DADOS DO ERA5 NECESSARIOS PARA O !!!!!!!!!!!
 ## !!!!!!!!!!!          EXPERIMENTO ESTAO NO SEGUINTE DIRETORIO:                               !!!!!!!!!!!
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ERA5_DATA=/pesq/share/monan/curso_OMM_INPE_2025/CGFD-USP_Cases/MPAS-BR/met_data/ERA5/DATA
 ## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 BNDDIR=${ERA5_DATA}
@@ -77,8 +79,12 @@ then
    exit 1
 fi
 
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+## !!!!!!!!!!! ATENCAO: AQUI ESTA SENDO ASSUMIDO QUE A TABELA Vtable.ECMWF EXISTE NESSE DIRETORIO !!!!!!!!
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # Copiar Vtable do ERA5
 cp /pesq/share/monan/curso_OMM_INPE_2025/CGFD-USP_Cases/WPS/ungrib/Variable_Tables/Vtable.ECMWF ${DATAIN}/fixed
+## !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 files_needed=("${DATAIN}/fixed/${MESH}.static.nc" "${DATAIN}/fixed/Vtable.ECMWF" "${EXECS}/ungrib.exe" "${BNDDIR}/era5.pl.${YYYYMMDDHHi}.grib" "${BNDDIR}/era5.sl.${YYYYMMDDHHi}.grib")
 for file in "${files_needed[@]}"

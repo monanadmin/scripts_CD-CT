@@ -2,6 +2,7 @@
 
 # Function to add or subtract hours to a given date in YYYYMMDDHH format
 add_hours() {
+    # Built using duck.ai
     # Check if the correct number of arguments is provided
     if [ "$#" -ne 2 ]; then
         echo "Usage: add_hours YYYYMMDDHH HOURS"
@@ -29,4 +30,25 @@ add_hours() {
 
     # Output the new date and hour
     echo "$new_date"
+}
+
+# Subroutine to generate a list of forecast hour strings
+generate_hours_list() {
+    # Built using duck.ai
+    local start_hour="$1"
+    local dt="$2"
+    local max_hour="$3"  # Set a maximum limit for forecast hours
+    local hour_list=()  # Initialize an empty array for the forecast list
+
+    # Convert start_hour to an integer
+    local current_hour=$(printf '%d' "$start_hour")
+
+    # Loop to generate forecast hours
+    while [ "$current_hour" -lt "$max_hour" ]; do
+        hour_list+=($(printf '%02d' "$current_hour"))  # Format hour as two digits
+        current_hour=$((current_hour + dt))            # Increment by dt
+    done
+
+    # Return the array
+    echo "${hour_list[@]}"
 }

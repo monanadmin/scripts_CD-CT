@@ -1,7 +1,6 @@
 #!/bin/bash 
 
-
-if [ $# -ne 4 ]
+if [ $# -ne 6 ]
 then
    echo ""
    echo "Instructions: execute the command below"
@@ -44,11 +43,16 @@ EXP=${1};         #EXP=GFS
 MESH=${2};         #MESH
 YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
 FCST=${4};        #FCST=24
+REGIONAL=${5};    #REGIONAL=Y
+LBCINT=${6};      #LBCINT=21600
 #-------------------------------------------------------
 
+source utils.bash
 
 # Local variables--------------------------------------
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
+YYYYMMDDHHf=$(add_hours "$YYYYMMDDHHi" "$FCST")
+final_date=${YYYYMMDDHHf:0:4}-${YYYYMMDDHHf:4:2}-${YYYYMMDDHHf:6:2}_${YYYYMMDDHHf:8:2}:00:00
 OPERDIREXP=${OPERDIR}/${EXP}
 BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
 GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
@@ -97,7 +101,17 @@ cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib.bash 
-cat << EOF0 > ${DIRRUN}/degrib.bash 
+
+if [[ $REGIONAL == "Y" ]]; then
+   echo "REGIONAL=Y. Degribbing GFS data for both initial and lateral boundary conditions..."
+   dt=$((LBCINT / 3600))
+   hours=($(generate_fcst_list "00" "$dt" "$FCST"))
+   for hour in "${fcst_hours[@]}"; do
+      echo "Temporarily copying GFS data: gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f0${hour}.${YYYYMMDDHHi}.grib2"
+      cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f0${hour}.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
+   done
+
+   cat << EOF0 > ${DIRRUN}/degrib.bash 
 #!/bin/bash -x
 #SBATCH --job-name=${DEGRIB_jobname}
 #SBATCH --nodes=${DEGRIB_nnodes}
@@ -126,10 +140,10 @@ ldd ungrib.exe
 rm -f GRIBFILE.* namelist.wps
 
 
-sed -e "s,#LABELI#,${start_date},g;s,#PREFIX#,GFS,g" \
+sed -e "s,#LABELI#,${start_date},g;s,#LABELF#,${final_date},g;s,#LBCINT#,${LBCINT},g;s,#PREFIX#,GFS,g" \
 	${DIRRUN}/namelist.wps.TEMPLATE > ${DIRRUN}/namelist.wps
 
-./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
+./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.*.grib2
 
 date
 time mpirun -np 1 ./ungrib.exe
@@ -159,6 +173,80 @@ echo "End of degrib Job"
 
 
 EOF0
+
+elif [[ $REGIONAL == "N" ]]; then
+   echo "REGIONAL=N. Degribbing GFS data only for initial conditions..."
+   cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
+   cat << EOF0 > ${DIRRUN}/degrib.bash
+#!/bin/bash -x
+#SBATCH --job-name=${DEGRIB_jobname}
+#SBATCH --nodes=${DEGRIB_nnodes}
+#SBATCH --partition=${DEGRIB_QUEUE}
+#SBATCH --ntasks=${DEGRIB_ncores}
+#SBATCH --tasks-per-node=${DEGRIB_ncpn}                     # ic for benchmark
+#SBATCH --time=${STATIC_walltime}
+#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o%j    # File name for standard output
+#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e%j     # File name for standard error output
+#
+
+ulimit -s unlimited
+ulimit -c unlimited
+ulimit -v unlimited
+
+export PMIX_MCA_gds=hash
+
+
+export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${HOME}/local/lib64
+
+cd ${DIRRUN}
+. setenv.bash
+
+ldd ungrib.exe
+
+rm -f GRIBFILE.* namelist.wps
+
+
+sed -e "s,#LABELI#,${start_date},g;s,#LABELF#,${start_date},g;s,#LBCINT#,${LBCINT},g;s,#PREFIX#,GFS,g" \
+        ${DIRRUN}/namelist.wps.TEMPLATE > ${DIRRUN}/namelist.wps
+
+./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
+
+date
+time mpirun -np 1 ./ungrib.exe
+date
+
+grep "Successful completion of program ungrib.exe" ${DIRRUN}/ungrib.log >& /dev/null
+
+if [ \$? -ne 0 ]; then
+   echo "  BUMMER: Ungrib generation failed for some yet unknown reason."
+   echo " "
+   tail -10 ${DIRRUN}/ungrib.log
+   echo " "
+   exit 21
+fi
+
+#
+# clean up and remove links
+#
+   mv ungrib.log ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/ungrib.${start_date}.log
+   mv namelist.wps ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.${start_date}.wps
+   mv GFS\:${start_date:0:13} ${DATAOUT}/${YYYYMMDDHHi}/Pre
+
+   rm -fr ${DATAIN}/${YYYYMMDDHHi}
+
+echo "End of degrib Job"
+
+
+EOF0
+
+else
+   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+   echo -e  "${RED}==>${NC} LBCs phase fails during degrib! Please select REGIONAL=Y or REGIONAL=N so that degrib can be done appropriately.\n"
+   echo -e  "${RED}==>${NC} Exiting script. \n"
+   exit -1
+fi
+
+
 chmod a+x ${DIRRUN}/degrib.bash
 
 echo -e  "${GREEN}==>${NC} Executing sbatch degrib.bash...\n"
