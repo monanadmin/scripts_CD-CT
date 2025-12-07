@@ -205,7 +205,7 @@ then
 s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_CONV_INTERVAL#,${CONFIG_CONV_INTERVAL},g" \
    ${SCRIPTS}/namelists/namelist.atmosphere.TEMPLATE_IDEALIZED > ${DIRRUN}/namelist.atmosphere
 
-   sed -e "s,#MESH#,${MESH},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
+   sed -e "s,#MESH#,${MESH},g;s,#LBCINT#,${LBCINT},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
    ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE > ${DIRRUN}/streams.atmosphere
 fi
 cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.output ${DIRRUN}
