@@ -44,7 +44,7 @@ generate_hours_list() {
     local current_hour=$(printf '%d' "$start_hour")
 
     # Loop to generate forecast hours
-    while [ "$current_hour" -lt "$max_hour" ]; do
+    while [ "$current_hour" -le "$max_hour" ]; do
         hour_list+=($(printf '%02d' "$current_hour"))  # Format hour as two digits
         current_hour=$((current_hour + dt))            # Increment by dt
     done

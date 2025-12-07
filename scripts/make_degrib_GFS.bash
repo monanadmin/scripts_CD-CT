@@ -81,7 +81,7 @@ then
    fi
 fi
 
-files_needed=("${DATAIN}/fixed/${MESH}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ")
+files_needed=("${DATAIN}/fixed/${MESH}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -95,7 +95,6 @@ done
 cp -f ${DATAIN}/fixed/${MESH}.static.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}/Vtable
 cp -f ${EXECS}/ungrib.exe ${DIRRUN}
-cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
 cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
 
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
@@ -105,8 +104,8 @@ rm -f ${DIRRUN}/degrib.bash
 if [[ $REGIONAL == "Y" ]]; then
    echo "REGIONAL=Y. Degribbing GFS data for both initial and lateral boundary conditions..."
    dt=$((LBCINT / 3600))
-   hours=($(generate_fcst_list "00" "$dt" "$FCST"))
-   for hour in "${fcst_hours[@]}"; do
+   hours=($(generate_hours_list "00" "$dt" "$FCST"))
+   for hour in "${hours[@]}"; do
       echo "Temporarily copying GFS data: gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f0${hour}.${YYYYMMDDHHi}.grib2"
       cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f0${hour}.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
    done
@@ -165,7 +164,7 @@ fi
 #
    mv ungrib.log ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/ungrib.${start_date}.log
    mv namelist.wps ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.${start_date}.wps
-   mv GFS\:${start_date:0:13} ${DATAOUT}/${YYYYMMDDHHi}/Pre
+   mv GFS* ${DATAOUT}/${YYYYMMDDHHi}/Pre
 
    rm -fr ${DATAIN}/${YYYYMMDDHHi}
 
