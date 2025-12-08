@@ -86,7 +86,7 @@ time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpa
 #time ${SCRIPTS}/2.create_mesh.bash
 #exit
 
-# STEP 3: Executing the pre-processing phase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH}
+# STEP 3: Executing the pre-processing fase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH}
 #time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
 #exit
 
@@ -148,6 +148,7 @@ low_res=250
 do_regional=n
 ## Grid type (doughnut/constant)
 grid_type=doughnut
+# Automatic additions
 ```
 
 If you'd like, you can change the mesh characteristics. **But: Since we are interested in simulating a particular cyclone, do not change the coordinates of the mesh center (`lat`,`lon`), and also please keep the size of the high-resolution cells `high_res` unchanged (this influences the time step that will be taken for the simulation, and also the computation time). Please leave also `do_regional` and `grid_type` as they are (as you have seen in tutorial 1, they control whether we want a global or regional mesh (we want global), and also whether we want a refinement (we do)).**
@@ -227,6 +228,8 @@ YYYYMMDDHHi=2007062200
 FCST=72
 MESH=lat_-35_lon_-55_oradius_2800_iradius_2000_margin_800_hres_50_lres_250.region
 RES=50 #3 # Minimum grid spacing (km)
+REGIONAL=N   # Whether to run reigonal simulation
+LBCINT=21600 # Interval (seconds) for updating lateral boundary conditions (when regional)
 ```
 
 For us the relevant variables are the following, for which we enter already the values as examples:
@@ -235,6 +238,7 @@ For us the relevant variables are the following, for which we enter already the 
 - FCST=72, which is telling for how many hours we will run the simulation
 - MESH=lat_-35_lon_-55_oradius_2800_iradius_2000_margin_800_hres_50_lres_250.region, which is the name of the mesh that will be used for the simulation (that we've just generated in step 4)
 - RES=50, which is telling the minimum grid spacing used in this mesh (km)
+- REGIONAL=N, which is telling that we do not want a regional simulation (we want a global simulation)
 
 After setting these variables, just comment out the code line from STEP 1 in the code:
 ```
@@ -242,7 +246,7 @@ After setting these variables, just comment out the code line from STEP 1 in the
 ```
 Uncomment the code line from STEP 3:
 ```
-time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
+time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL} ${LBCINT}
 ```
 
 Now, make sure all other code lines in STEP 1,2,3,4,5 are commented out:
@@ -256,11 +260,11 @@ Now, make sure all other code lines in STEP 1,2,3,4,5 are commented out:
 #exit
 
 # STEP 3: Executing the pre-processing phase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH}
-time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
+time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL} ${LBCINT}
 #exit
 
 # STEP 4: Executing the Model run:
-#time ${SCRIPTS}/4.run_model.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES}
+#time ${SCRIPTS}/4.run_model.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES} ${REGIONAL} ${LBCINT}
 #exit
 
 # STEP 5: Executing the Post of Model run:
@@ -324,7 +328,7 @@ vi namelists/namelist.atmosphere.TEMPLATE
     config_bucket_update = 'none'
     config_physics_suite = 'convection_permitting_monan'
     config_mynn_edmf = 0
-    config_sfclayer_scheme = 'sf_monin_obukhov'
+    config_sfclayer_scheme = sf_monin_obukhov
 ```
 
 To proceed with the standard MONAN configurations, go ahead to step 6.1.
@@ -337,12 +341,12 @@ vi 0.run_all.bash
 
 Comment out code line in STEP 3:
 ```
-#time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
+#time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL} ${LBCINT}
 ```
 
 Uncomment code line in STEP 4:
 ```
-time ${SCRIPTS}/4.run_model.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES}
+time ${SCRIPTS}/4.run_model.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES} ${REGIONAL} ${LBCINT}
 ```
 
 Make sure all other code lines in STEP 1,2,3,4,5 are commented out:
@@ -356,11 +360,11 @@ Make sure all other code lines in STEP 1,2,3,4,5 are commented out:
 #exit
 
 # STEP 3: Executing the pre-processing phase. Preparing all CI/CC files needed:time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} ${MESH}
-#time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST}
+#time ${SCRIPTS}/3.pre_processing.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${REGIONAL} ${LBCINT}
 #exit
 
 # STEP 4: Executing the Model run:
-time ${SCRIPTS}/4.run_model.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES}
+time ${SCRIPTS}/4.run_model.bash ${EXP} ${MESH} ${YYYYMMDDHHi} ${FCST} ${RES} ${REGIONAL} ${LBCINT}
 #exit
 
 # STEP 5: Executing the Post of Model run:
