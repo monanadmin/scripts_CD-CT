@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Colors:
+export GREEN='\033[1;32m'   # Green
+export RED='\033[1;31m'     # Red
+export NC='\033[0m'         # No Color
+export BLUE='\033[01;34m'   # Blue
+export ORANGE='\033[01;91m' # Orange
+
+# Notify users that this script is being called.
+echo ""
+echo -e "${GREEN}==>${NC} Load MONAN settings (setenv.bash).\n"
+
 # Load modules:
 
 module purge
@@ -26,7 +37,7 @@ module list
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/mnt/beegfs/carlos.souza/issues/735-tag-convert-teste/scripts_CD-CT/sources/MONAN-Model_release/1.4.1-rc
+export MONANDIR=/mnt/beegfs/marcos.longo/MONAN_Simulations/20260105_SoilColour_Control/scripts_CD-CT/sources/MONAN-Model_release/1.4.1-rc
 
 # Submiting variables:
 
@@ -100,25 +111,19 @@ export PNETCDFDIR=${PNETCDF}
 export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v1.4.x
 export OPERDIR=/oper/dados/ioper/tempo
 
-# Colors:
-export GREEN='\033[1;32m'  # Green
-export RED='\033[1;31m'    # Red
-export NC='\033[0m'        # No Color
-export BLUE='\033[01;34m'  # Blue
-
 
 # Functions: ======================================================================================================
 
 how_many_nodes () { 
    nume=${1}   
    deno=${2}
-   num=$(echo "${nume}/${deno}" | bc -l)  
-   how_many_nodes_int=$(echo "${num}/1" | bc)
-   dif=$(echo "scale=0; (${num}-${how_many_nodes_int})*100/1" | bc)
-   rest=$(echo "scale=0; (((${num}-${how_many_nodes_int})*${deno})+0.5)/1" | bc -l)
+   num=`echo "${nume}/${deno}" | bc -l`
+   how_many_nodes_int=`echo "${num}/1" | bc`
+   dif=`echo "scale=0; (${num}-${how_many_nodes_int})*100/1" | bc`
+   rest=`echo "scale=0; (((${num}-${how_many_nodes_int})*${deno})+0.5)/1" | bc -l`
    if [ ${dif} -eq 0 ]; then how_many_nodes_left=0; else how_many_nodes_left=1; fi
    if [ ${how_many_nodes_int} -eq 0 ]; then how_many_nodes_int=1; how_many_nodes_left=0; rest=0; fi
-   how_many_nodes=$(echo "${how_many_nodes_int}+${how_many_nodes_left}" | bc )
+   how_many_nodes=`echo "${how_many_nodes_int}+${how_many_nodes_left}" | bc `
    #echo "INT number of nodes needed: \${how_many_nodes_int}  = ${how_many_nodes_int}"
    #echo "number of nodes left:       \${how_many_nodes_left} = ${how_many_nodes_left}"
    echo "The number of nodes needed: \${how_many_nodes}  = ${how_many_nodes}"
