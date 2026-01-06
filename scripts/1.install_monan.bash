@@ -26,14 +26,14 @@ function show_usage() {
    echo ""
    echo " List of **required** flags: "
    echo ""
-   echo " -gm GIT_MONAN   -- GitHub handle for MONAN. For example:"
-   echo "                    https://github.com/monanadmin/MONAN-Model.git"
+   echo " -bc TAG_CONVERT -- branch or tag name of the MONAN repository. For example:"
+   echo "                    \"develop\"."
    echo " -bm TAG_MONAN   -- branch or tag name of the MONAN repository. For example:"
    echo "                    \"develop\"."
-   echo " -gm GIT_CONVERT -- GitHub handle for MONAN. For example:"
+   echo " -gc GIT_CONVERT -- GitHub handle for MONAN. For example:"
    echo "                    https://github.com/monanadmin/MONAN-Model.git"
-   echo " -bm TAG_CONVERT -- branch or tag name of the MONAN repository. For example:"
-   echo "                    \"develop\"."
+   echo " -gm GIT_MONAN   -- GitHub handle for MONAN. For example:"
+   echo "                    https://github.com/monanadmin/MONAN-Model.git"
    echo ""
 }
 #---~---
@@ -300,7 +300,7 @@ echo ""
 
 # install convert_mpas
 echo ""
-echo -e  "${GREEN}==>${NC} Moduling environment for convert_mpas...\n"
+echo -e  "${GREEN}==>${NC} Loading modules needed by convert_mpas...\n"
 module purge
 module load gnu9/9.4.0
 module load ohpc

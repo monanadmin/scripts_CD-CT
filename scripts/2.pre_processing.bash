@@ -23,24 +23,24 @@
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} [-c] [-o] [-e EXP ] [-r RES] [-i YYYYMMDDHH] [-f FCST]"
+   echo " ${0} [-c] [-o] [-e EXP ] [-r RES] [-t YYYYMMDDHH] [-f FCST]"
    echo ""
    echo " List of optional flags: "
    echo ""
    echo " -c              -- Clean files from previous runs."
    echo " -o              -- Overwrite static files."
    echo ""
-   echo " List of required flags when -c is not set: "
+   echo " List of **required** flags when -c is not set: "
    echo ""
    echo " -e EXP          -- meteorological drivers. For example, GFS"
+   echo " -f FCST         -- Simulation length in hours, e.g., 24 or 48."
    echo " -r RES          -- grid resolution. Options are:"
    echo "                    5898242 (~ 10 km)"
    echo "                    2621442 (~ 15 km)"
    echo "                    1024002 (~ 24 km)"
    echo "                    40962   (~ 120 km)"
-   echo " -i YYYYMMDDHH   -- Initial time. For example if 22 Sept 2025 00 UTC, set it to:"
+   echo " -t YYYYMMDDHH   -- Initial time. For example if 22 Sept 2025 00 UTC, set it to:"
    echo "                    2025092200"
-   echo " -f FCST         -- Simulation length in hours, e.g., 24 or 48."
    echo ""
 }
 #---~---
@@ -80,16 +80,16 @@ do
       FCST="${2}"
       shift 2 # past flag and argument
       ;;
-   -i)
-      YYYYMMDDHHi="${2}"
-      shift 2 # past flag and argument
-      ;;
    -o)
       OVERWRITE=true
       shift 1 # past flag
       ;;
    -r)
       RES="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -t)
+      YYYYMMDDHHi="${2}"
       shift 2 # past flag and argument
       ;;
    *)
@@ -162,7 +162,7 @@ ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
 if ${OVERWRITE} || [[ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]]
 then
-   echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
+   echo -e "${GREEN}==>${NC} Creating static.bash for submitting init_atmosphere to create x1.${RES}.static.nc...\n"
    time ./make_static.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 else
    echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exists in ${DATAIN}/fixed.\n"
@@ -171,13 +171,13 @@ fi
 
 
 # Degrib phase:---------------------------------------------------------------------
-echo -e  "${GREEN}==>${NC} Submiting Degrib...\n"
+echo -e  "${GREEN}==>${NC} Submitting Degrib...\n"
 time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
 
 
 # Init Atmosphere phase:------------------------------------------------------------
-echo -e  "${GREEN}==>${NC} Submiting Init Atmosphere...\n"
+echo -e  "${GREEN}==>${NC} Submitting Init Atmosphere...\n"
 time ./make_initatmos.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
 

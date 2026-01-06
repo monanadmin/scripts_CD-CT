@@ -19,23 +19,30 @@
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} [-c] [-o] [-e EXP ] [-r RES] [-i YYYYMMDDHH] [-f FCST]"
+   echo " ${0} [-c] [-v VARTABLE] [-e EXP ] [-r RES] [-t YYYYMMDDHH] [-f FCST] \\"
+   echo "    [-l NLEV] [-ic CONFIG_CONV_INT] [-id OUTPUT_DIAG_INT]"
    echo ""
    echo " List of optional flags: "
    echo ""
-   echo " -c              -- Clean files from previous runs."
+   echo " -c                  -- Clean files from previous runs."
+   echo " -v VARTABLE         -- Suffix for defining which version of the"
+   echo "                        stream_list_atmosphere.diagnostics template to use."
+   echo "                        The default is to not use any suffix."
    echo ""
    echo " List of required flags when -c is not set: "
    echo ""
-   echo " -e EXP          -- meteorological drivers. For example, GFS"
-   echo " -r RES          -- grid resolution. Options are:"
-   echo "                    5898242 (~ 10 km)"
-   echo "                    2621442 (~ 15 km)"
-   echo "                    1024002 (~ 24 km)"
-   echo "                    40962   (~ 120 km)"
-   echo " -i YYYYMMDDHH   -- Initial time. For example if 22 Sept 2025 00 UTC, set it to:"
-   echo "                    2025092200"
-   echo " -f FCST         -- Simulation length in hours, e.g., 24 or 48."
+   echo " -d OUTPUT_DIAG_INT  -- Output interval for diagnostic. The format must be"
+   echo "                        \"HH:MM:SS\""
+   echo " -e EXP              -- meteorological drivers. For example, GFS"
+   echo " -f FCST             -- Simulation length in hours, e.g., 24 or 48."
+   echo " -l NLEV             -- Number of vertical levels for the output."
+   echo " -r RES              -- grid resolution. Options are:"
+   echo "                        5898242 (~ 10 km)"
+   echo "                        2621442 (~ 15 km)"
+   echo "                        1024002 (~ 24 km)"
+   echo "                        40962   (~ 120 km)"
+   echo " -t YYYYMMDDHH       -- Initial time. For example if 22 Sept 2025 00 UTC, set it to:"
+   echo "                        2025092200"
    echo ""
 }
 #---~---
@@ -54,6 +61,10 @@ EXP=""
 RES=""
 YYYYMMDDHHi=""
 FCST=""
+OUTPUT_DIAG_INT=""
+NLEV=""
+OUTPUT_DIAG_INTERVAL=""
+VARTABLE=""
 #---~---
 
 
@@ -66,6 +77,10 @@ do
       CLEAN=true
       shift 1 # Past flag
       ;;
+   -d)
+      OUTPUT_DIAG_INTERVAL="${2}"
+      shift 2 # Past flag and argument
+      ;;
    -e)
       EXP="${2}"
       shift 2 # past flag and argument
@@ -74,12 +89,24 @@ do
       FCST="${2}"
       shift 2 # past flag and argument
       ;;
-   -i)
-      YYYYMMDDHHi="${2}"
-      shift 2 # past flag and argument
+   -l)
+      NLEV="${2}"
+      shift 2 # Past flag and argument
       ;;
    -r)
       RES="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -t)
+      YYYYMMDDHHi="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -v)
+      VFIRST=$(echo ${2} | cut -c 1-1)
+      case "${VFIRST}" in
+         .) VARTABLE="${2}"  ;;
+         *) VARTABLE=".${2}" ;;
+      esac      
       shift 2 # past flag and argument
       ;;
    *)
@@ -100,8 +127,9 @@ if ${CLEAN}
 then
    clean_pre_tmp_files
    exit
-elif [[ "${EXP}"         == "" ]] || [[ "${RES}"         == "" ]] ||
-     [[ "${YYYYMMDDHHi}" == "" ]] || [[ "${FCST}"        == "" ]]
+elif [[ "${EXP}"                  == "" ]] || [[ "${RES}"                  == "" ]] ||
+     [[ "${YYYYMMDDHHi}"          == "" ]] || [[ "${FCST}"                 == "" ]] ||
+     [[ "${NLEV}"                 == "" ]] || [[ "${OUTPUT_DIAG_INTERVAL}" == "" ]]
 then
    echo " This script requires some arguments to be set through flags."
    show_usage
@@ -129,9 +157,7 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
 cores=${MODEL_ncores}
 hhi=${YYYYMMDDHHi:8:2}
-NLEV=55
 CONFIG_CONV_INTERVAL="00:30:00"
-VARTABLE=".OPER"
 #------------------------------------------------------------------------------------
 
 # Variables for flex outpout interval from streams.atmosphere------------------------
@@ -227,7 +253,8 @@ then
 s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_CONV_INTERVAL#,${CONFIG_CONV_INTERVAL},g" \
    ${SCRIPTS}/namelists/namelist.atmosphere.TEMPLATE > ${DIRRUN}/namelist.atmosphere
    
-   sed -e "s,#RES#,${RES},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
+   sed -e "s,#RES#,${RES},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g;
+s,#OUTPUT_DIAG_INTERVAL#,${OUTPUT_DIAG_INTERVAL},g" \
    ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE > ${DIRRUN}/streams.atmosphere
 fi
 cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.output ${DIRRUN}

@@ -39,7 +39,7 @@ export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
 export MONANDIR=/mnt/beegfs/marcos.longo/MONAN_Simulations/20260105_SoilColour_Control/scripts_CD-CT/sources/MONAN-Model_release/1.4.1-rc
 
-# Submiting variables:
+# Submission variables:
 
 # PRE-Static phase:
 export STATIC_QUEUE="batch"

@@ -19,23 +19,30 @@
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} [-c] [-o] [-e EXP ] [-r RES] [-i YYYYMMDDHH] [-f FCST]"
+   echo " ${0} [-c] [-v VARTABLE] [-o] [-e EXP ] [-r RES] [-t YYYYMMDDHH] [-f FCST] \\"
+   echo "    [-l NLEV]"
    echo ""
    echo " List of optional flags: "
    echo ""
    echo " -c              -- Clean files from previous runs."
+   echo " -v VARTABLE     -- Suffix for defining which version of the"
+   echo "                    stream_list_atmosphere.diagnostics template to use."
+   echo "                    The default is to not use any suffix."
    echo ""
    echo " List of required flags when -c is not set: "
    echo ""
+   echo " -d OUTPUT_DIAG_INT  -- Output interval for diagnostic. The format must be"
+   echo "                        \"HH:MM:SS\""
    echo " -e EXP          -- meteorological drivers. For example, GFS"
    echo " -r RES          -- grid resolution. Options are:"
    echo "                    5898242 (~ 10 km)"
    echo "                    2621442 (~ 15 km)"
    echo "                    1024002 (~ 24 km)"
    echo "                    40962   (~ 120 km)"
-   echo " -i YYYYMMDDHH   -- Initial time. For example if 22 Sept 2025 00 UTC, set it to:"
-   echo "                    2025092200"
    echo " -f FCST         -- Simulation length in hours, e.g., 24 or 48."
+   echo " -l NLEV         -- Number of vertical levels for the output."
+   echo " -t YYYYMMDDHH   -- Initial time. For example if 22 Sept 2025 00 UTC, set it to:"
+   echo "                    2025092200"
    echo ""
 }
 #---~---
@@ -54,6 +61,8 @@ EXP=""
 RES=""
 YYYYMMDDHHi=""
 FCST=""
+VARTABLE=""
+N_MODEL_LEV=""
 #---~---
 
 
@@ -74,12 +83,24 @@ do
       FCST="${2}"
       shift 2 # past flag and argument
       ;;
-   -i)
-      YYYYMMDDHHi="${2}"
-      shift 2 # past flag and argument
+   -l)
+      N_MODEL_LEV="${2}"
+      shift 2 # Past flag and argument
       ;;
    -r)
       RES="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -t)
+      YYYYMMDDHHi="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -v)
+      VFIRST=$(echo ${2} | cut -c 1-1)
+      case "${VFIRST}" in
+         .) VARTABLE="${2}"  ;;
+         *) VARTABLE=".${2}" ;;
+      esac      
       shift 2 # past flag and argument
       ;;
    *)
@@ -101,7 +122,8 @@ then
    clean_pre_tmp_files
    exit
 elif [[ "${EXP}"         == "" ]] || [[ "${RES}"         == "" ]] ||
-     [[ "${YYYYMMDDHHi}" == "" ]] || [[ "${FCST}"        == "" ]]
+     [[ "${YYYYMMDDHHi}" == "" ]] || [[ "${FCST}"        == "" ]] ||
+     [[ "${N_MODEL_LEV}" == "" ]]
 then
    echo " This script requires some arguments to be set through flags."
    show_usage
@@ -129,12 +151,10 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 START_DATE_YYYYMMDD="${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}"
 START_HH="${YYYYMMDDHHi:8:2}"
 maxpostpernode=30    # <------ qtde max de convert_mpas por no!
-VARTABLE=".OPER"
-N_MODEL_LEV=55
 #-------------------------------------------------------
 
-# Variables for flex outpout interval from streams.atmosphere------------------------
-t_strout=$(cat ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
+# Variables for flex output interval from streams.atmosphere------------------------
+t_strout=${OUTPUT_DIAG_INTERVAL}
 t_stroutsec=`echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}'`
 t_strouthor=`echo "scale=4; (${t_stroutsec}/60)/60" | bc`
 #------------------------------------------------------------------------------------
