@@ -62,7 +62,8 @@
     config_radtsw_interval = '00:30:00'
     config_conv_interval = '#CONFIG_CONV_INTERVAL#'
     config_bucket_update = 'none'
-    config_physics_suite = 'convection_permitting_monan'     
+    config_physics_suite = 'convection_permitting_monan'
+    config_lsm_scheme = 'noah'
     config_mynn_edmf = 0
 /
 &gf_monan
