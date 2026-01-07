@@ -19,8 +19,8 @@
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} [-c] [-v VARTABLE] [-e EXP ] [-r RES] [-t YYYYMMDDHH] [-f FCST] \\"
-   echo "    [-l NLEV] [-ic CONFIG_CONV_INT] [-id OUTPUT_DIAG_INT]"
+   echo " ${0} [-c] [-v VARTABLE] [-d OUTPUT_DIAG_INT] [-e EXP ] [-f FCST] [-l NLEV] \\"
+   echo "    [-r RES] [-t YYYYMMDDHH]"
    echo ""
    echo " List of optional flags: "
    echo ""
@@ -29,7 +29,7 @@ function show_usage() {
    echo "                        stream_list_atmosphere.diagnostics template to use."
    echo "                        The default is to not use any suffix."
    echo ""
-   echo " List of required flags when -c is not set: "
+   echo " List of **required** flags when -c is not set: "
    echo ""
    echo " -d OUTPUT_DIAG_INT  -- Output interval for diagnostic. The format must be"
    echo "                        \"HH:MM:SS\""
@@ -41,8 +41,8 @@ function show_usage() {
    echo "                        2621442 (~ 15 km)"
    echo "                        1024002 (~ 24 km)"
    echo "                        40962   (~ 120 km)"
-   echo " -t YYYYMMDDHH       -- Initial time. For example if 22 Sept 2025 00 UTC, set it to:"
-   echo "                        2025092200"
+   echo " -t YYYYMMDDHH       -- Initial time. For example if 22 Sept 2025 00 UTC,"
+   echo "                        set it to: 2025092200"
    echo ""
 }
 #---~---
@@ -61,7 +61,6 @@ EXP=""
 RES=""
 YYYYMMDDHHi=""
 FCST=""
-OUTPUT_DIAG_INT=""
 NLEV=""
 OUTPUT_DIAG_INTERVAL=""
 VARTABLE=""
@@ -160,8 +159,8 @@ hhi=${YYYYMMDDHHi:8:2}
 CONFIG_CONV_INTERVAL="00:30:00"
 #------------------------------------------------------------------------------------
 
-# Variables for flex outpout interval from streams.atmosphere------------------------
-t_strout=$(cat ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
+# Variables for flex outpout interval ------------------------
+t_strout=${OUTPUT_DIAG_INTERVAL}
 t_stroutsec=$(echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
 t_strouthor=`echo "scale=4; (${t_stroutsec}/60)/60" | bc`
 #------------------------------------------------------------------------------------

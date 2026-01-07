@@ -21,8 +21,7 @@
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} -gm GIT_MONAN -bm TAG_MONAN \\"
-   echo "    -gc GIT_CONVERT_MPAS -bc TAG_CONVERT_MPAS"
+   echo " ${0} -bc TAG_CONVERT_MPAS -bm TAG_MONAN -gm GIT_MONAN -gc GIT_CONVERT_MPAS"
    echo ""
    echo " List of **required** flags: "
    echo ""

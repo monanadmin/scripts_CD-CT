@@ -23,7 +23,7 @@
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} [-c] [-o] [-e EXP ] [-r RES] [-t YYYYMMDDHH] [-f FCST]"
+   echo " ${0} [-c] [-o] [-e EXP ] [-f FCST] [-r RES] [-t YYYYMMDDHH]"
    echo ""
    echo " List of optional flags: "
    echo ""

@@ -19,30 +19,30 @@
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} [-c] [-v VARTABLE] [-o] [-e EXP ] [-r RES] [-t YYYYMMDDHH] [-f FCST] \\"
-   echo "    [-l NLEV]"
+   echo " ${0} [-c] [-v VARTABLE] [-d OUTPUT_DIAG_INT] [-e EXP ] [-f FCST] [-l NLEV] \\"
+   echo "    [-r RES] [-t YYYYMMDDHH]"
    echo ""
    echo " List of optional flags: "
    echo ""
-   echo " -c              -- Clean files from previous runs."
-   echo " -v VARTABLE     -- Suffix for defining which version of the"
-   echo "                    stream_list_atmosphere.diagnostics template to use."
-   echo "                    The default is to not use any suffix."
+   echo " -c                  -- Clean files from previous runs."
+   echo " -v VARTABLE         -- Suffix for defining which version of the"
+   echo "                        stream_list_atmosphere.diagnostics template to use."
+   echo "                        The default is to not use any suffix."
    echo ""
-   echo " List of required flags when -c is not set: "
+   echo " List of **required** flags when -c is not set: "
    echo ""
    echo " -d OUTPUT_DIAG_INT  -- Output interval for diagnostic. The format must be"
    echo "                        \"HH:MM:SS\""
-   echo " -e EXP          -- meteorological drivers. For example, GFS"
-   echo " -r RES          -- grid resolution. Options are:"
-   echo "                    5898242 (~ 10 km)"
-   echo "                    2621442 (~ 15 km)"
-   echo "                    1024002 (~ 24 km)"
-   echo "                    40962   (~ 120 km)"
-   echo " -f FCST         -- Simulation length in hours, e.g., 24 or 48."
-   echo " -l NLEV         -- Number of vertical levels for the output."
-   echo " -t YYYYMMDDHH   -- Initial time. For example if 22 Sept 2025 00 UTC, set it to:"
-   echo "                    2025092200"
+   echo " -e EXP              -- meteorological drivers. For example, GFS"
+   echo " -f FCST             -- Simulation length in hours, e.g., 24 or 48."
+   echo " -l NLEV             -- Number of vertical levels for the output."
+   echo " -r RES              -- grid resolution. Options are:"
+   echo "                        5898242 (~ 10 km)"
+   echo "                        2621442 (~ 15 km)"
+   echo "                        1024002 (~ 24 km)"
+   echo "                        40962   (~ 120 km)"
+   echo " -t YYYYMMDDHH       -- Initial time. For example if 22 Sept 2025 00 UTC,"
+   echo "                        set it to: 2025092200"
    echo ""
 }
 #---~---
@@ -153,7 +153,7 @@ START_HH="${YYYYMMDDHHi:8:2}"
 maxpostpernode=30    # <------ qtde max de convert_mpas por no!
 #-------------------------------------------------------
 
-# Variables for flex output interval from streams.atmosphere------------------------
+# Variables for flex output interval ------------------------
 t_strout=${OUTPUT_DIAG_INTERVAL}
 t_stroutsec=`echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}'`
 t_strouthor=`echo "scale=4; (${t_stroutsec}/60)/60" | bc`
