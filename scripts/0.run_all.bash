@@ -8,8 +8,8 @@ function show_usage() {
    echo " Usage: "
    echo ""
    echo " ${0} [-c] [-o] [-bc TAG_CONVERT_MPAS] [ -bm TAG_MONAN ] [-d OUTPUT_DIAG_INT] \\"
-   echo "    [-e EXP ] [-f FCST] [-gc GIT_CONVERT_MPAS] [-gm GIT_MONAN ] [-l NLEV] \\"
-   echo "    [-r RES] [-s STEP] [-t YYYYMMDDHH] [-v VARTABLE]"
+   echo "    [-e EXP ] [-f FCST] [-gc GIT_CONVERT_MPAS] [-gm GIT_MONAN ] [-i INPUT_PATH] \\"
+   echo "    [-l NLEV] [-r RES] [-s STEP] [-t YYYYMMDDHH] [-v VARTABLE]"
    echo ""
    echo " List of optional flags: "
    echo ""
@@ -29,6 +29,8 @@ function show_usage() {
    echo " -gm GIT_MONAN       -- GitHub handle for MONAN. For example:"
    echo "                        https://github.com/monanadmin/MONAN-Model.git"
    echo "                        This is used only by step 1."
+   echo " -i INPUT_PATH       -- Path containing input data for MONAN. If left empty, the"
+   echo "                        default path defined in setenv.bash will be used"
    echo " -l NLEV             -- Number of vertical levels for the output. This is used"
    echo "                        by steps 3 and 4."
    echo " -o                  -- Overwrite static files. This is used only by step 2."
@@ -73,6 +75,7 @@ tag_or_branch_name_MONAN="release/1.4.1-rc"
 github_link_CONVERT_MPAS="https://github.com/monanadmin/convert_mpas.git"
 tag_or_branch_name_CONVERT_MPAS="release/1.2.0"
 EXP="GFS"
+INPUT_PATH=""
 RES=1024002
 YYYYMMDDHHi=2024010100
 FCST=24
@@ -118,6 +121,10 @@ do
    -gm)
       github_link_MONAN="${2}"
       shift 2 # past flag and argument
+      ;;
+   -i)
+      INPUT_PATH="${2}"
+      shift 2 # Past flag and argument
       ;;
    -l)
       NLEV="${2}"
@@ -199,6 +206,15 @@ then
    dv_VARTABLE=""
 else
    dv_VARTABLE="-v ${VARTABLE}"
+fi
+#---~---
+
+
+#--- If INPUT_PATH is provided, replace the path in setenv.bash
+if [[ "${INPUT_PATH}" != "" ]] && [[ -d "${INPUT_PATH}" ]]
+then
+   sed -i.bck "s,^export DIRDADOS=.*,export DIRDADOS=${INPUT_PATH},g" ${SCRIPTS}/setenv.bash
+   /bin/rm -f ${SCRIPTS}/setenv.bash.bck
 fi
 #---~---
 
