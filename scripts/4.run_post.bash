@@ -61,8 +61,9 @@ EXP=""
 RES=""
 YYYYMMDDHHi=""
 FCST=""
-VARTABLE=""
 N_MODEL_LEV=""
+OUTPUT_DIAG_INTERVAL=""
+VARTABLE=""
 #---~---
 
 
@@ -74,6 +75,10 @@ do
    -c)
       CLEAN=true
       shift 1 # Past flag
+      ;;
+   -d)
+      OUTPUT_DIAG_INTERVAL="${2}"
+      shift 2 # Past flag and argument
       ;;
    -e)
       EXP="${2}"
