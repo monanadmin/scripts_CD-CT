@@ -7,7 +7,7 @@
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} [-c] [-o] [-bc TAG_CONVERT_MPAS] [ -bm TAG_MONAN ] [-d OUTPUT_DIAG_INT] \\"
+   echo " ${0} [-o] [-bc TAG_CONVERT_MPAS] [ -bm TAG_MONAN ] [-d OUTPUT_DIAG_INT] \\"
    echo "    [-e EXP ] [-f FCST] [-gc GIT_CONVERT_MPAS] [-gm GIT_MONAN ] [-i INPUT_PATH] \\"
    echo "    [-l NLEV] [-r RES] [-s STEP] [-t YYYYMMDDHH] [-v VARTABLE]"
    echo ""
@@ -17,8 +17,6 @@ function show_usage() {
    echo "                        \"develop\". This is used only by step 1."
    echo " -bm TAG_MONAN       -- branch or tag name of the MONAN repository. For example:"
    echo "                        \"develop\". This is used only by step 1."
-   echo " -c                  -- Clean files from previous runs. This is used by steps" 
-   echo "                        2 and 3."
    echo " -d OUTPUT_DIAG_INT  -- Output interval for diagnostic. The format must be"
    echo "                        \"HH:MM:SS\". This is used by steps 3 and 4."
    echo " -e EXP              -- Meteorological drivers. For example, GFS"
@@ -68,7 +66,6 @@ function show_usage() {
 
 #--- Default input variables:
 STEP=1
-CLEAN=""
 OVERWRITE=""
 github_link_MONAN="https://github.com/monanadmin/MONAN-Model.git"
 tag_or_branch_name_MONAN="release/1.4.1-rc"
@@ -97,10 +94,6 @@ do
    -bm)
       tag_or_branch_name_MONAN="${2}"
       shift 2 # past flag and argument
-      ;;
-   -c)
-      CLEAN="-c"
-      shift 1 # Past flag
       ;;
    -d)
       OUTPUT_DIAG_INTERVAL="${2}"
@@ -236,7 +229,7 @@ case ${STEP} in
 
 
       #--- Run step
-      time ${0} ${CLEAN} ${OVERWRITE} ${dv_VARTABLE}                                       \
+      time ${0} ${OVERWRITE} ${dv_VARTABLE}                                                \
          -bc ${tag_or_branch_name_CONVERT_MPAS} -bm ${tag_or_branch_name_MONAN}            \
          -d ${OUTPUT_DIAG_INTERVAL} -e ${EXP} -f ${FCST} -gc ${github_link_CONVERT_MPAS}   \
          -gm ${github_link_MONAN} -l ${NLEV} -r ${RES} -s ${step_now} -t ${YYYYMMDDHHi}
@@ -257,16 +250,15 @@ case ${STEP} in
    #---~---
    #   STEP 2: Run the pre-processing step, and make initial/boundary conditions if needed.
    #---~---
-   time 2.pre_processing.bash ${CLEAN} ${OVERWRITE} -e ${EXP} -f ${FCST} -r ${RES}         \
-      -t ${YYYYMMDDHHi}
+   time 2.pre_processing.bash ${OVERWRITE} -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
    #---~---
    ;;
 3)
    #---~---
    #   STEP 3: Run the model.
    #---~---
-   time 3.run_model.bash ${CLEAN} ${dv_VARTABLE} -d ${OUTPUT_DIAG_INTERVAL} -e ${EXP}      \
-      -f ${FCST} -l ${NLEV} -r ${RES} -t ${YYYYMMDDHHi}
+   time 3.run_model.bash ${dv_VARTABLE} -d ${OUTPUT_DIAG_INTERVAL} -e ${EXP} -f ${FCST}    \
+      -l ${NLEV} -r ${RES} -t ${YYYYMMDDHHi}
    #---~---
    ;;
 4)

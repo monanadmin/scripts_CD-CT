@@ -19,12 +19,11 @@
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} [-c] [-v VARTABLE] [-d OUTPUT_DIAG_INT] [-e EXP ] [-f FCST] [-l NLEV] \\"
+   echo " ${0} [-v VARTABLE] [-d OUTPUT_DIAG_INT] [-e EXP ] [-f FCST] [-l NLEV] \\"
    echo "    [-r RES] [-t YYYYMMDDHH]"
    echo ""
    echo " List of optional flags: "
    echo ""
-   echo " -c                  -- Clean files from previous runs."
    echo " -v VARTABLE         -- Suffix for defining which version of the"
    echo "                        stream_list_atmosphere.diagnostics template to use."
    echo "                        The default is to not use any suffix."
@@ -56,7 +55,6 @@ function show_usage() {
 
 
 #--- Default input variables:
-CLEAN=false
 EXP=""
 RES=""
 YYYYMMDDHHi=""
@@ -72,10 +70,6 @@ while [[ ${#} > 0 ]]
 do
    key="${1}"
    case ${key} in
-   -c)
-      CLEAN=true
-      shift 1 # Past flag
-      ;;
    -d)
       OUTPUT_DIAG_INTERVAL="${2}"
       shift 2 # Past flag and argument
@@ -122,13 +116,9 @@ done
 #---~---
 #   Make sure all settings were provided (unless this will be to clean up runs).
 #---~---
-if ${CLEAN}
-then
-   clean_pre_tmp_files
-   exit
-elif [[ "${EXP}"                  == "" ]] || [[ "${RES}"                  == "" ]] ||
-     [[ "${YYYYMMDDHHi}"          == "" ]] || [[ "${FCST}"                 == "" ]] ||
-     [[ "${NLEV}"                 == "" ]] || [[ "${OUTPUT_DIAG_INTERVAL}" == "" ]]
+if [[ "${EXP}"                  == "" ]] || [[ "${RES}"                  == "" ]] ||
+   [[ "${YYYYMMDDHHi}"          == "" ]] || [[ "${FCST}"                 == "" ]] ||
+   [[ "${NLEV}"                 == "" ]] || [[ "${OUTPUT_DIAG_INTERVAL}" == "" ]]
 then
    echo " This script requires some arguments to be set through flags."
    show_usage

@@ -23,11 +23,10 @@
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} [-c] [-o] [-e EXP ] [-f FCST] [-r RES] [-t YYYYMMDDHH]"
+   echo " ${0} [-o] [-e EXP ] [-f FCST] [-r RES] [-t YYYYMMDDHH]"
    echo ""
    echo " List of optional flags: "
    echo ""
-   echo " -c              -- Clean files from previous runs."
    echo " -o              -- Overwrite static files."
    echo ""
    echo " List of **required** flags when -c is not set: "
@@ -54,7 +53,6 @@ function show_usage() {
 
 
 #--- Default input variables:
-CLEAN=false
 OVERWRITE=true
 EXP=""
 RES=""
@@ -68,10 +66,6 @@ while [[ ${#} > 0 ]]
 do
    key="${1}"
    case ${key} in
-   -c)
-      CLEAN=true
-      shift 1 # Past flag
-      ;;
    -e)
       EXP="${2}"
       shift 2 # past flag and argument
@@ -104,14 +98,10 @@ done
 
 
 #---~---
-#   Make sure all settings were provided (unless this will be to clean up runs).
+#   Make sure all settings were provided.
 #---~---
-if ${CLEAN}
-then
-   clean_pre_tmp_files
-   exit
-elif [[ "${EXP}"         == "" ]] || [[ "${RES}"         == "" ]] ||
-     [[ "${YYYYMMDDHHi}" == "" ]] || [[ "${FCST}"        == "" ]]
+if [[ "${EXP}"         == "" ]] || [[ "${RES}"         == "" ]] ||
+   [[ "${YYYYMMDDHHi}" == "" ]] || [[ "${FCST}"        == "" ]]
 then
    echo " This script requires some arguments to be set through flags."
    show_usage
