@@ -1,28 +1,86 @@
 #!/bin/bash 
 
 
-if [ $# -ne 4 ]
-then
-   echo ""
-   echo "Instructions: execute the command below"
-   echo ""
-   echo "${0} EXP_NAME RESOLUTION LABELI FCST"
-   echo ""
-   echo "EXP_NAME    :: Forcing: GFS"
-   echo "            :: Others options to be added later..."
-   echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
-   echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
-   echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
-   echo ""
-   echo "24 hour forcast example:"
-   echo "${0} GFS 1024002 2024010100 24"
-   echo ""
 
-   exit
-fi
+
+#--- Function that shows usage.
+function show_usage() {
+   echo " Usage: "
+   echo ""
+   echo " ${0} [-e EXP ] [-f FCST] [-r RES] [-t YYYYMMDDHH]"
+   echo ""
+   echo " List of **required** flags: "
+   echo ""
+   echo " -e EXP          -- meteorological drivers. For example, GFS"
+   echo " -f FCST         -- Simulation length in hours, e.g., 24 or 48."
+   echo " -r RES          -- grid resolution. Options are:"
+   echo "                    5898242 (~ 10 km)"
+   echo "                    2621442 (~ 15 km)"
+   echo "                    1024002 (~ 24 km)"
+   echo "                    40962   (~ 120 km)"
+   echo " -t YYYYMMDDHH   -- Initial time. For example if 22 Sept 2025 00 UTC, set it to:"
+   echo "                    2025092200"
+   echo ""
+}
+#---~---
 
 # Set environment variables exports:
 . setenv.bash
+
+
+
+
+#--- Default input variables:
+EXP=""
+RES=""
+YYYYMMDDHHi=""
+FCST=""
+#---~---
+
+
+#--- Parse arguments.
+while [[ ${#} > 0 ]]
+do
+   key="${1}"
+   case ${key} in
+   -e)
+      EXP="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -f)
+      FCST="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -r)
+      RES="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -t)
+      YYYYMMDDHHi="${2}"
+      shift 2 # past flag and argument
+      ;;
+   *)
+      echo "Unknown key-value argument pair."
+      show_usage
+      exit 2
+      ;;
+   esac
+done
+#---~---
+
+
+
+#---~---
+#   Make sure all settings were provided (unless this will be to clean up runs).
+#---~---
+if [[ "${EXP}"         == "" ]] || [[ "${RES}"         == "" ]] ||
+   [[ "${YYYYMMDDHHi}" == "" ]] || [[ "${FCST}"        == "" ]]
+then
+   echo " This script requires some arguments to be set through flags."
+   show_usage
+   exit 2
+fi
+#---~---
 
 
 # Standart directories variables:---------------------------------------
@@ -34,14 +92,6 @@ DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
 SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
 EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 #----------------------------------------------------------------------
-
-
-# Input variables:--------------------------------------
-EXP=${1};         #EXP=GFS
-RES=${2};         #RES=1024002
-YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
-FCST=${4};        #FCST=24
-#-------------------------------------------------------
 
 
 # Local variables--------------------------------------

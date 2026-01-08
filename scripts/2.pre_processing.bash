@@ -163,7 +163,7 @@ ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
 if ${OVERWRITE} || [[ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]]
 then
    echo -e "${GREEN}==>${NC} Creating static.bash for submitting init_atmosphere to create x1.${RES}.static.nc...\n"
-   time ./make_static.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+   time ./make_static.bash -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
 else
    echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exists in ${DATAIN}/fixed.\n"
 fi
@@ -172,13 +172,13 @@ fi
 
 # Degrib phase:---------------------------------------------------------------------
 echo -e  "${GREEN}==>${NC} Submitting Degrib...\n"
-time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+time ./make_degrib.bash -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
 #----------------------------------------------------------------------------------
 
 
 # Init Atmosphere phase:------------------------------------------------------------
 echo -e  "${GREEN}==>${NC} Submitting Init Atmosphere...\n"
-time ./make_initatmos.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+time ./make_initatmos.bash -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
 #----------------------------------------------------------------------------------
 
 

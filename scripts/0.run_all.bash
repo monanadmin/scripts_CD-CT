@@ -200,21 +200,21 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 #---~---
 
 
+#--- If INPUT_PATH is provided, replace the path in setenv.bash
+if [[ "${INPUT_PATH}" != "" ]] && [[ -d "${INPUT_PATH}" ]]
+then
+   sed -i.bck "s,^export DIRDADOS=.*,export DIRDADOS=${INPUT_PATH},g" ${SCRIPTS}/setenv.bash
+   /bin/rm -f ${SCRIPTS}/setenv.bash.bck
+fi
+#---~---
+
+
 #--- Make sure VARTABLE has the leading "-v" if not empty.
 if [[ "${VARTABLE}" == "" ]]
 then
    dv_VARTABLE=""
 else
    dv_VARTABLE="-v ${VARTABLE}"
-fi
-#---~---
-
-
-#--- If INPUT_PATH is provided, replace the path in setenv.bash
-if [[ "${INPUT_PATH}" != "" ]] && [[ -d "${INPUT_PATH}" ]]
-then
-   sed -i.bck "s,^export DIRDADOS=.*,export DIRDADOS=${INPUT_PATH},g" ${SCRIPTS}/setenv.bash
-   /bin/rm -f ${SCRIPTS}/setenv.bash.bck
 fi
 #---~---
 

@@ -19,8 +19,8 @@
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} [-c] [-v VARTABLE] [-d OUTPUT_DIAG_INT] [-e EXP ] [-f FCST] [-l NLEV] \\"
-   echo "    [-r RES] [-t YYYYMMDDHH]"
+   echo " ${0} [-c] [-v VARTABLE] [-d OUTPUT_DIAG_INT] [-e EXP ] [-f FCST] \\"
+   echo "    [-l N_MODEL_LEV] [-r RES] [-t YYYYMMDDHH]"
    echo ""
    echo " List of optional flags: "
    echo ""
@@ -35,7 +35,7 @@ function show_usage() {
    echo "                        \"HH:MM:SS\""
    echo " -e EXP              -- meteorological drivers. For example, GFS"
    echo " -f FCST             -- Simulation length in hours, e.g., 24 or 48."
-   echo " -l NLEV             -- Number of vertical levels for the output."
+   echo " -l N_MODEL_LEV      -- Number of vertical levels for the output."
    echo " -r RES              -- grid resolution. Options are:"
    echo "                        5898242 (~ 10 km)"
    echo "                        2621442 (~ 15 km)"
@@ -126,9 +126,9 @@ if ${CLEAN}
 then
    clean_pre_tmp_files
    exit
-elif [[ "${EXP}"         == "" ]] || [[ "${RES}"         == "" ]] ||
-     [[ "${YYYYMMDDHHi}" == "" ]] || [[ "${FCST}"        == "" ]] ||
-     [[ "${N_MODEL_LEV}" == "" ]]
+elif [[ "${EXP}"                  == "" ]] || [[ "${RES}"                  == "" ]] ||
+     [[ "${YYYYMMDDHHi}"          == "" ]] || [[ "${FCST}"                 == "" ]] ||
+     [[ "${N_MODEL_LEV}"          == "" ]] || [[ "${OUTPUT_DIAG_INTERVAL}" == "" ]]
 then
    echo " This script requires some arguments to be set through flags."
    show_usage
@@ -168,7 +168,9 @@ t_strouthor=`echo "scale=4; (${t_stroutsec}/60)/60" | bc`
 IFS=":" read -r h m s <<< "${t_strout}"
 printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 
-# Calculating default parameters for different resolutions
+# Calculate default parameters for different resolutions
+# ML: This assumes 1deg ~ 100 km, which is making the post-processed output coarser 
+#     than it needs to be...
 case ${RES} in
 5898242) #10km
    NLAT=1801 #180/0.10 (+1)
@@ -203,19 +205,20 @@ case ${RES} in
    ENDLON=360.0
    ;;
 *)
-   echo -e "${ORANGE}****** WARNING ******${NC} \n"
-   echo -e "${ORANGE}==>${NC} Provided grid resolution (${RES}) is not recognised.\n"
-   echo -e "${ORANGE}==>${NC} We cannot guarantee that MONAN will run fine.\n"
+   echo -e "${RED}****** FATAL ERROR ******${NC} \n"
+   echo -e "${RED}==>${NC} Provided grid resolution (${RES}) is not recognised.\n"
+   echo -e "${RED}==>${NC} ${0} cannot post-process this MONAN simulation.\n"
+   exit -1
    ;;
 esac
 #-------------------------------------------------------
 
-# NLEVS get from t_iso_levels in Registry_isobaric.xml:
+# Retrieve N_ISOBARIC_LEV from t_iso_levels in Registry_isobaric.xml:
 if [ -s ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml ]
 then
-   NLEV=$(grep "t_iso_levels" ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml | grep definition | cut -d\" -f4)
+   N_ISOBARIC_LEV=$(grep "t_iso_levels" ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml | grep definition | cut -d\" -f4)
 else
-   NLEV=18
+   N_ISOBARIC_LEV=18
 fi
 
 
@@ -230,8 +233,8 @@ do
   fi
 done
 
-# Captura quantos arquivos do modelo tiverem para serem pos-processados e
-# quando nos serao necessarios para executar ${maxpostpernode} convert_mpas por no:
+# Tally the number of model output files to be postprocessed, and find out how
+# many nodes are needed to process ${maxpostpernode} convert_mpas runs per node:
 #nfiles=$(ls -l ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN*nc | wc -l)
 # from streams.atmosphere.TEMPLATE in diagnostics the output_interval is flexible
 output_interval=${t_strouthor}
@@ -241,7 +244,7 @@ echo "${nfiles} post to submit."
 echo "Max ${maxpostpernode} submits per nodes."
 how_many_nodes ${nfiles} ${maxpostpernode}
 
-# Cria os diretorios e arquivos/links para cada saida do convert_mpas:
+# Make paths and create files/links for each convert_mpas output:
 cd ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 for ii in $(seq 1 ${nfiles})
@@ -251,7 +254,7 @@ do
    cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}/dir.${i}
    cp -f ${SCRIPTS}/namelists/include_fields.diag${VARTABLE}  ${DIRRUN}/dir.${i}/include_fields.diag${VARTABLE}
    cp -f ${DIRRUN}/dir.${i}/include_fields.diag${VARTABLE} ${DIRRUN}/dir.${i}/include_fields
-   sed -e "s,#NISOLEV#,${NLEV},g;s,#NMODELLEV#,${N_MODEL_LEV},g" \
+   sed -e "s,#NISOLEV#,${N_ISOBARIC_LEV},g;s,#NMODELLEV#,${N_MODEL_LEV},g" \
       ${SCRIPTS}/namelists/convert_mpas.nml > ${DIRRUN}/dir.${i}/convert_mpas.nml
    sed -e "s,#NLAT#,${NLAT},g;s,#NLON#,${NLON},g;s,#STARTLAT#,${STARTLAT},g;s,#ENDLAT#,${ENDLAT},g;s,#STARTLON#,${STARTLON},g;s,#ENDLON#,${ENDLON},g;" \
       ${SCRIPTS}/namelists/target_domain.TEMPLATE > ${DIRRUN}/dir.${i}/target_domain
@@ -260,7 +263,7 @@ done
 
 cd ${DIRRUN}
 
-# Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
+# Loop that generates submission files that distributes chunks of convertmpas runs to each node:
 node=1
 inicio=1   
 fim=$((maxpostpernode <= nfiles ? maxpostpernode : nfiles))
@@ -305,15 +308,15 @@ do
    echo "./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name} > convert_mpas.output"
 done
 
-# necessario aguardar as rodadas em background
+# This is needed to ensure that the job remains active whilst convert_mpas runs in the background
 wait
 
 for ii in \$(seq  ${inicio} ${fim})
 do
    i=\$(printf "%04d" \${ii})
    hh=${YYYYMMDDHHi:8:2}
-   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
-   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L${NLEV}.nc
+   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
+   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L${N_ISOBARIC_LEV}.nc
    
    cd ${DIRRUN}/dir.\${i}
    cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post} >> convert_mpas.output & 
@@ -340,7 +343,7 @@ done
 
 
 
-# Dependencias JobId:
+# JobId dependencies:
 dependency="afterok"
 for job_id in "${jobid[@]}"
 do
@@ -348,7 +351,7 @@ do
 done
 
 
-# Script final , para conferir todos os arquivos, criar o template final  e apagar o diretorio DIRRUN
+# Final script, which will check every file, make the final template and remove directory ${DIRRUN}
 node=0
 rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
 cat > ${DIRRUN}/PostAtmos_node.${node}.sh <<EOSH
@@ -363,7 +366,7 @@ cat > ${DIRRUN}/PostAtmos_node.${node}.sh <<EOSH
 . ${DIRRUN}/setenv.bash
 
 
-# Saving important files to the logs directory:
+# Save important files to the logs directory:
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DIRRUN}/dir.0001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
@@ -383,6 +386,19 @@ EOSH
 chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
 sbatch --wait --dependency=${dependency} ${DIRRUN}/PostAtmos_node.${node}.sh 
 
-#CR: passar este scriptpara dentro do script PostAtmos_node.0.sh, submetido.
+
+#--- Make sure VARTABLE has the leading "-v" if not empty.
+if [[ "${VARTABLE}" == "" ]]
+then
+   dv_VARTABLE=""
+else
+   dv_VARTABLE="-v ${VARTABLE}"
+fi
+#---~---
+
+
+
+#CR: Append this script to script PostAtmos_node.0.sh, which has been submitted.
 cd ${SCRIPTS}
-time ${SCRIPTS}/make_template.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+time ${SCRIPTS}/make_template.bash ${dv_VARTABLE} -d ${OUTPUT_DIAG_INTERVAL} -e ${EXP}     \
+   -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
