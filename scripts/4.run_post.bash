@@ -158,50 +158,77 @@ t_strouthor=`echo "scale=4; (${t_stroutsec}/60)/60" | bc`
 IFS=":" read -r h m s <<< "${t_strout}"
 printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 
-# Calculate default parameters for different resolutions
-# ML: This assumes 1deg ~ 100 km, which is making the post-processed output coarser 
-#     than it needs to be...
+# Calculate default parameters for different resolutions.
+# ML: The original numbers assumed 1 degree ~ 100 km. Across latitude and near the 
+#     Equator, 1 degree ~ 111.2 km, so the regridded data ended up being slightly coarser 
+#     than it needed to be. To ensure an average grid mesh in regular lon/lat that is 
+#     close to the original resolution, I now calculate the average resolution based on 
+#     the number of points in a full sphere (4*pi steradians), and pick the nearest 
+#     integer number of points per degree.
+#     delta_xy = sqrt( 4*pi * (180/pi)^2 / NumberOfPoints)
+#     PointsPerDegree = round(1/delta_xy)
+#     NLON = 360 * PointsPerDegree + 1
+#     NLAT = 180 * PointsPerDegree + 1
 case ${RES} in
-5898242) #10km
-   NLAT=1801 #180/0.10 (+1)
-   NLON=3601 #360/0.10 (+1)
+5898242)
+   #---~---
+   #   10 km, use 12 points per degree
+   #---~---
+   NLAT=2161
+   NLON=4321
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
+   #---~---
    ;;
-2621442)  #15Km
-   NLAT=1200 #180/0.15
-   NLON=2400 #360/0.15
+2621442)
+   #---~---
+   #   15 km, use 8 points per degree
+   #---~---
+   NLAT=1441
+   NLON=2881
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
+   #---~---
    ;;
-1024002)  #24Km
-   NLAT=720  #180/0.25
-   NLON=1440 #360/0.25
+1024002)
+   #---~---
+   #   24 km, use 5 points per degree
+   #---~---
+   NLAT=901
+   NLON=1801
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
+   #---~---
    ;;
-40962)  #120Km
-   NLAT=150 #180/1.2
-   NLON=300 #360/1.2
+40962)
+   #---~---
+   #   120 km, use 1 points per degree
+   #---~---
+   NLAT=181
+   NLON=361
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
+   #---~---
    ;;
 *)
+   #---~---
+   #   Unrecognised resolution
+   #---~---
    echo -e "${RED}****** FATAL ERROR ******${NC} \n"
    echo -e "${RED}==>${NC} Provided grid resolution (${RES}) is not recognised.\n"
    echo -e "${RED}==>${NC} ${0} cannot post-process this MONAN simulation.\n"
    exit -1
    ;;
 esac
-#-------------------------------------------------------
+#---~---
 
 # Retrieve N_ISOBARIC_LEV from t_iso_levels in Registry_isobaric.xml:
 if [ -s ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml ]
