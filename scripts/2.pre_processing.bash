@@ -18,33 +18,97 @@ umask 022
 #
 #-----------------------------------------------------------------------------#
 
-if [ $# -ne 4 -a $# -ne 1 ]
-then
-   echo ""
-   echo "Instructions: execute the command below"
-   echo ""
-   echo "${0} EXP_NAME/OP RESOLUTION LABELI FCST"
-   echo ""
-   echo "EXP_NAME    :: Forcing: GFS"
-   echo "            :: Others options to be added later..."
-   echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
-   echo "                                                                 40962  (120 km)"
-   echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
-   echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
-   echo ""
-   echo "24 hour forecast example for 24km:"
-   echo "${0} GFS 1024002 2024010100 24"
-   echo "48 hour forecast example for 120km:"
-   echo "${0} GFS   40962 2024010100 48"
-   echo ""
 
-   exit
-fi
 
-# Set environment variables exports:
-echo ""
-echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
+#--- Function that shows usage.
+function show_usage() {
+   echo " Usage: "
+   echo ""
+   echo " ${0} [-o] [-e EXP ] [-f FCST] [-r RES] [-t YYYYMMDDHH]"
+   echo ""
+   echo " List of optional flags: "
+   echo ""
+   echo " -o              -- Overwrite static files."
+   echo ""
+   echo " List of **required** flags when -c is not set: "
+   echo ""
+   echo " -e EXP          -- meteorological drivers. For example, GFS"
+   echo " -f FCST         -- Simulation length in hours, e.g., 24 or 48."
+   echo " -r RES          -- grid resolution. Options are:"
+   echo "                    5898242 (~ 10 km)"
+   echo "                    2621442 (~ 15 km)"
+   echo "                    1024002 (~ 24 km)"
+   echo "                    40962   (~ 120 km)"
+   echo " -t YYYYMMDDHH   -- Initial time. For example if 22 Sept 2025 00 UTC, set it to:"
+   echo "                    2025092200"
+   echo ""
+}
+#---~---
+
+
+#--- Set environment variables exports:
 . setenv.bash
+#---~---
+
+
+
+
+#--- Default input variables:
+OVERWRITE=true
+EXP=""
+RES=""
+YYYYMMDDHHi=""
+FCST=""
+#---~---
+
+
+#--- Parse arguments.
+while [[ ${#} > 0 ]]
+do
+   key="${1}"
+   case ${key} in
+   -e)
+      EXP="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -f)
+      FCST="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -o)
+      OVERWRITE=true
+      shift 1 # past flag
+      ;;
+   -r)
+      RES="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -t)
+      YYYYMMDDHHi="${2}"
+      shift 2 # past flag and argument
+      ;;
+   *)
+      echo "Unknown key-value argument pair."
+      show_usage
+      exit 2
+      ;;
+   esac
+done
+#---~---
+
+
+
+#---~---
+#   Make sure all settings were provided.
+#---~---
+if [[ "${EXP}"         == "" ]] || [[ "${RES}"         == "" ]] ||
+   [[ "${YYYYMMDDHHi}" == "" ]] || [[ "${FCST}"        == "" ]]
+then
+   echo " This script requires some arguments to be set through flags."
+   show_usage
+   exit 2
+fi
+#---~---
 
 
 echo ""
@@ -52,7 +116,7 @@ echo "---- Pre Processing ----"
 echo ""
 
 
-# Standart directories variables:---------------------------------------
+#--- Set and create standard directories
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}    
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
@@ -60,15 +124,7 @@ DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
 DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
 SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
 EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
-#----------------------------------------------------------------------
-
-
-# Input variables:--------------------------------------
-EXP=${1};         #EXP=GFS
-RES=${2};         #RES=1024002
-YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
-FCST=${4};        #FCST=24
-#-------------------------------------------------------
+#---~---
 
 
 # Local variables--------------------------------------
@@ -86,7 +142,7 @@ echo -e  "${GREEN}==>${NC} Scripts_CD-CT last commit: \n"
 git log | head -1
 
 
-if [ ! -d ${DATAIN}/fixed ]
+if [[ ! -d ${DATAIN}/fixed ]]
 then
 	echo -e  "${GREEN}==>${NC} copying and linking fixed input data ${SYSTEM_KEYC}... \n"
 	mkdir -p ${DATAIN}
@@ -96,29 +152,31 @@ then
 fi
 
 
-# Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
-if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
+#---~---
+#   Create the x1.${RES}.static.nc file. This is normally needed only once, when the file
+# does not exist. However, if the files must be recreated for whichever reason, option 
+# OVERWRITE forces creation.
+#---~---
+if ${OVERWRITE} || [[ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]]
 then
    echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
-   time ./make_static.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+   time ./make_static.bash -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
 else
    echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
 fi
-#----------------------------------------------------------------------------------
+#---~---
 
 
-# Degrib phase:---------------------------------------------------------------------
-echo -e  "${GREEN}==>${NC} Running Degrib:\n"
-time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
-#----------------------------------------------------------------------------------
+#--- Run the degrib step.
+echo -e  "${GREEN}==>${NC} Submitting Degrib...\n"
+time ./make_degrib.bash -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
+#---~---
 
 
-
-
-# Init Atmosphere phase:------------------------------------------------------------
-echo -e  "${GREEN}==>${NC} Running Init Atmosphere...\n"
-time ./make_initatmos.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
-#----------------------------------------------------------------------------------
+#--- Run the atmosphere initialisation step.
+echo -e  "${GREEN}==>${NC} Submitting Init Atmosphere...\n"
+time ./make_initatmos.bash -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
+#---~---
 
 
 

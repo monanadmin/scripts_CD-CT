@@ -1,6 +1,25 @@
 #!/bin/bash
 umask 022
 
+#---~----
+#   Colors. Please refrain from changing these variables.
+#---~----
+export GREEN='\033[1;32m'   # Green
+export RED='\033[1;31m'     # Red
+export NC='\033[0m'         # No Color
+export BLUE='\033[01;34m'   # Blue
+export ORANGE='\033[01;91m' # Orange
+#---~----
+
+#---~----
+#   Notify users that this script is being called.
+# Please refrain from changing these commands.
+#---~----
+echo ""
+echo -e "${GREEN}==>${NC} Load MONAN settings (setenv.bash).\n"
+#---~----
+
+
 # Choose your compiler here (only on Jaci; on Egeon the compiler is fixed to ‘gnu’):
 export COMPILER=intel
 #export COMPILER=gnu
@@ -24,24 +43,45 @@ fi
 # Detect hostname
 THOSTNAME=$(hostname -s)
 
-# Identifying several names of the egeon:
+#---~---
+#   Identify which machine is being used based on the host name. Most HPC systems have
+# multiple login nodes, but they share a common configuration system. 
+#---~---
 case ${THOSTNAME} in
-   egeon-login|headnode|n[0-9]|n[1-2][0-9]|n3[0-3])
-      export HOSTNAME="egeon"
-      export MAKE_TARG=gfortran
-      export MAKE_TARG2=gfortran
-      COMPILER=gnu
+egeon-login|headnode|n[0-9]|n[1-2][0-9]|n3[0-3])
+   #---~---
+   #   Egeon. Use gnu
+   #---~---
+   export HOSTNAME="egeon"
+   export MAKE_TARG=gfortran
+   export MAKE_TARG2=gfortran
+   COMPILER=gnu
+   #---~---
+   ;;
+ian[0-9]*|cn-0[0-9][0-9][0-9])
+   #---~---
+   #   Jaci. Decide which compiler to use based on variable COMPILER
+   #---~---
+   export HOSTNAME="ian"
+   case "${COMPILER}" in
+   intel)
+      export MAKE_TARG=intel-xd2000
+      export MAKE_TARG2=intel2-xd2000
       ;;
-   ian[0-9]*|cn-0[0-9][0-9][0-9])
-      export HOSTNAME="ian"
-      if [ "$COMPILER" == "intel" ]; then
-         export MAKE_TARG=intel-xd2000
-         export MAKE_TARG2=intel2-xd2000
-      elif [ "$COMPILER" == "gnu" ]; then
-         export MAKE_TARG=gfortran-xd2000
-         export MAKE_TARG2=gfortran-xd2000
-      fi
+   gnu)
+      export MAKE_TARG=gfortran-xd2000
+      export MAKE_TARG2=gfortran-xd2000
       ;;
+   esac
+   #---~---
+   ;;
+*)
+   #---~---
+   #   Generic variable, use the hostname and hope for the best.
+   #---~---
+   export HOSTNAME="${THOSTNAME}"
+   ;;
+   #---~---
 esac
 # Make the same for other machines/systems...
 echo "Host detected: $HOSTNAME"
@@ -77,13 +117,6 @@ export MONANDIR=$MONANDIR
 # Others variables:
 
 
-# Colors:
-#
-export GREEN='\033[1;32m'  # Green
-export RED='\033[1;31m'    # Red
-export NC='\033[0m'        # No Color
-export BLUE='\033[01;34m'  # Blue
-
 
 # Functions: ======================================================================================================
 
@@ -92,11 +125,11 @@ how_many_nodes () {
    deno=${2}
    num=$(echo "${nume}/${deno}" | bc -l)  
    how_many_nodes_int=$(echo "${num}/1" | bc)
-   dif=$(echo "scale=0; (${num}-${how_many_nodes_int})*100/1" | bc)
-   rest=$(echo "scale=0; (((${num}-${how_many_nodes_int})*${deno})+0.5)/1" | bc -l)
-   if [ ${dif} -eq 0 ]; then how_many_nodes_left=0; else how_many_nodes_left=1; fi
-   if [ ${how_many_nodes_int} -eq 0 ]; then how_many_nodes_int=1; how_many_nodes_left=0; rest=0; fi
-   how_many_nodes=$(echo "${how_many_nodes_int}+${how_many_nodes_left}" | bc )
+   dif=`echo "scale=0; (${num}-${how_many_nodes_int})*100/1" | bc`
+   rest=`echo "scale=0; (((${num}-${how_many_nodes_int})*${deno})+0.5)/1" | bc -l`
+   if [[ ${dif} -eq 0 ]]; then how_many_nodes_left=0; else how_many_nodes_left=1; fi
+   if [[ ${how_many_nodes_int} -eq 0 ]]; then how_many_nodes_int=1; how_many_nodes_left=0; rest=0; fi
+   how_many_nodes=`echo "${how_many_nodes_int}+${how_many_nodes_left}" | bc `
    #echo "INT number of nodes needed: \${how_many_nodes_int}  = ${how_many_nodes_int}"
    #echo "number of nodes left:       \${how_many_nodes_left} = ${how_many_nodes_left}"
    echo "The number of nodes needed: \${how_many_nodes}  = ${how_many_nodes}"

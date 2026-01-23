@@ -2,37 +2,92 @@
 umask 022
 
 
-if [ $# -ne 4 ]
-then
+#--- Function that shows usage.
+function show_usage() {
+   echo " Usage: "
    echo ""
-   echo "Instructions: execute the command below"
+   echo " ${0} [-e EXP ] [-f FCST] [-r RES] [-t YYYYMMDDHH]"
    echo ""
-   echo "${0} EXP_NAME RESOLUTION LABELI FCST"
+   echo " List of **required** flags: "
    echo ""
-   echo "EXP_NAME    :: Forcing: GFS"
-   echo "            :: Others options to be added later..."
-   echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
-   echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
-   echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
+   echo " -e EXP          -- meteorological drivers. For example, GFS"
+   echo " -f FCST         -- Simulation length in hours, e.g., 24 or 48."
+   echo " -r RES          -- grid resolution. Options are:"
+   echo "                    5898242 (~ 10 km)"
+   echo "                    2621442 (~ 15 km)"
+   echo "                    1024002 (~ 24 km)"
+   echo "                    40962   (~ 120 km)"
+   echo " -t YYYYMMDDHH   -- Initial time. For example if 22 Sept 2025 00 UTC, set it to:"
+   echo "                    2025092200"
    echo ""
-   echo "24 hour forcast example:"
-   echo "${0} GFS 1024002 2024010100 24"
-   echo "${0} GFS   40962 2024010100 48"
-   echo ""
+}
+#---~---
 
-   exit
-fi
 
-# Set environment variables exports:
-echo ""
-echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
+#--- Set environment variables exports:
 . setenv.bash
+#---~---
+
+
+
+
+#--- Default input variables:
+EXP=""
+RES=""
+YYYYMMDDHHi=""
+FCST=""
+#---~---
+
+
+#--- Parse arguments.
+while [[ ${#} > 0 ]]
+do
+   key="${1}"
+   case ${key} in
+   -e)
+      EXP="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -f)
+      FCST="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -r)
+      RES="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -t)
+      YYYYMMDDHHi="${2}"
+      shift 2 # past flag and argument
+      ;;
+   *)
+      echo "Unknown key-value argument pair."
+      show_usage
+      exit 2
+      ;;
+   esac
+done
+#---~---
+
+
+
+#---~---
+#   Make sure all settings were provided (unless this will be to clean up runs).
+#---~---
+if [[ "${EXP}"         == "" ]] || [[ "${RES}"         == "" ]] ||
+   [[ "${YYYYMMDDHHi}" == "" ]] || [[ "${FCST}"        == "" ]]
+then
+   echo " This script requires some arguments to be set through flags."
+   show_usage
+   exit 2
+fi
+#---~---
 
 echo ""
 echo "---- Make Degrib ----"
 echo ""
 
-# Standart directories variables:---------------------------------------
+#--- Set and create standard directories
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;            mkdir -p ${SCRIPTS}
@@ -40,15 +95,7 @@ DATAIN=${DIRHOMED}/datain;              mkdir -p ${DATAIN}
 DATAOUT=${DIRHOMED}/dataout;            mkdir -p ${DATAOUT}
 SOURCES=${DIRHOMES}/sources;            mkdir -p ${SOURCES}
 EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
-#----------------------------------------------------------------------
-
-
-# Input variables:--------------------------------------
-EXP=${1};         #EXP=GFS
-RES=${2};         #RES=1024002
-YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
-FCST=${4};        #FCST=24
-#-------------------------------------------------------
+#---~---
 
 
 
@@ -60,30 +107,35 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 mkdir -p ${DATAIN}/${YYYYMMDDHHi}
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
-if [ "$HOSTNAME" = "egeon" ]; then
-    mkdir -p ${HOME}/local/lib64
-    cp -f /usr/lib64/libjasper.so* ${HOME}/local/lib64
-    cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
-fi
+#---~---
+#   Machine-specific configurations.
+#---~---
+case "${HOSTNAME}" in
+egeon)
+   mkdir -p ${HOME}/local/lib64
+   cp -f /usr/lib64/libjasper.so* ${HOME}/local/lib64
+   cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
+   ;;
+esac
+#---~---
 
-#Se nao existir CI no diretorio do IO, 
-# busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
-#CR: BNDDIR should be setted just for EGEON machine
-#CR: some local variables were mobed into the SLURM section, particularly for egeon
-
+#--- Set path for potential location of boundary conditions.
 OPERDIREXP=${OPERDIR}/${EXP}
 BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
+#---~---
 
 
-# Se nao existir CI no diretorio do IO, 
-# busca no nosso dir /beegfs/monan/CIs (Egeon) , /p/monan/CIs (xd2000) se nao existir tbm, aborta!
-#CR: maybe this if should belong to the SLURM kind of running...
-if [ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+#---~---
+#   Retrieve boundary conditions, starting with the I/O path. If not found, look for them
+# at default paths, /beegfs/monan/CIs (Egeon), /p/monan/CIs (Jaci).
+# If files are not found at these locations, abort the run.
+#---~---
+if [[ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]]
 then
-   if [ ! -s ${GCCCIS}/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+   if [[ ! -s ${GCCCIS}/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]]
    then
-      echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
-      echo -e "${RED}==>${NC}Check ${BNDDIR} or." 
+      echo -e "${RED}==>${NC}Failed to find boundary conditions!"
+      echo -e "${RED}==>${NC}Check ${BNDDIR} or" 
       echo -e "${RED}==>${NC}Check ${GCCCIS}/${EXP}"
       exit 1            
    else
@@ -98,9 +150,9 @@ files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EX
 
 for file in "${files_needed[@]}"
 do
-  if [ ! -s "${file}" ]
+  if [[ ! -s "${file}" ]]
   then
-    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
+    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"  
     echo -e  "${RED}==>${NC} [${0}] At least the file ${file} was not generated. \n"
     exit -1
   fi
@@ -117,7 +169,7 @@ cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib.bash 
 
 
-if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
+if [[ ${SCHEDULER_SYSTEM} != "GENERIC" ]]
 then
    sed -e "s,#JOBNAME#,${DEGRIB_jobname},g;
    s,#NNODES#,${DEGRIB_nnodes},g;
@@ -172,7 +224,7 @@ date
 
 grep "Successful completion of program ungrib.exe" ${DIRRUN}/ungrib.log >& /dev/null
 
-if [ \$? -ne 0 ]; then
+if [[ \$? -ne 0 ]]; then
    echo "  BUMMER: Ungrib generation failed for some yet unknown reason."
    echo " "
    tail -10 ${DIRRUN}/ungrib.log
@@ -217,9 +269,9 @@ esac
 files_ungrib=("${EXP}:${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}")
 for file in "${files_ungrib[@]}"
 do
-  if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/${file} ] 
+  if [[ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/${file} ]]
   then
-    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
+    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"  
     echo -e  "${RED}==>${NC} Degrib fails! At least the file ${file} was not generated at ${DATAIN}/${YYYYMMDDHHi}. \n"
     echo -e  "${RED}==>${NC} Check logs at ${DATAOUT}/logs/degrib.* .\n"
     echo -e  "${RED}==>${NC} Exiting script. \n"

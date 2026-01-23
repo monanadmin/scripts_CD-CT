@@ -17,21 +17,41 @@ umask 022
 #
 #-----------------------------------------------------------------------------#
 
-#Fixed parameters ------------------------------------------------------------#
-github_link_CONVERT_MPAS="https://github.com/monanadmin/convert_mpas.git"
-#-----------------------------------------------------------------------------#
+
+#--- Function that shows usage.
+function show_usage() {
+   echo " Usage: "
+   echo ""
+   echo " ${0} -bc TAG_CONVERT_MPAS -bm TAG_MONAN -gm GIT_MONAN -gc GIT_CONVERT_MPAS"
+   echo ""
+   echo " List of **required** flags: "
+   echo ""
+   echo " -bc TAG_CONVERT -- branch or tag name of the MONAN repository. For example:"
+   echo "                    \"develop\"."
+   echo " -bm TAG_MONAN   -- branch or tag name of the MONAN repository. For example:"
+   echo "                    \"develop\"."
+   echo " -gc GIT_CONVERT -- GitHub handle for MONAN. For example:"
+   echo "                    https://github.com/monanadmin/MONAN-Model.git"
+   echo " -gm GIT_MONAN   -- GitHub handle for MONAN. For example:"
+   echo "                    https://github.com/monanadmin/MONAN-Model.git"
+   echo ""
+}
+#---~---
+
+
+
 
 #Functions -------------------------------------------------------------------#
 function checkout_system() {
   local source_dir=$1
   local github_link=$2
   local tag_or_branch_name=$3
-  if [ -d "${source_dir}" ]; then
+  if [[ -d "${source_dir}" ]]; then
       echo -e  "${GREEN}==>${NC} Source dir already exists, updating it ...\n"
   else
       echo -e  "${GREEN}==>${NC} Cloning your fork repository...\n"
       git clone ${github_link} ${source_dir}
-      if [ ! -d "${source_dir}" ]; then
+      if [[ ! -d "${source_dir}" ]]; then
           echo -e "${RED}==>${NC} An error occurred while cloning your fork. Possible causes:  wrong URL, user or password.\n"
           exit -1
       fi
@@ -51,30 +71,74 @@ function checkout_system() {
 #-----------------------------------------------------------------------------#
 
 
-if [ $# -lt 1 ]
+#---~---
+#   Retrieve configuration.
+#---~---
+#--- Default settings (all empty)
+github_link_MONAN=""
+tag_or_branch_name_MONAN=""
+github_link_CONVERT_MPAS=""
+tag_or_branch_name_CONVERT_MPAS=""
+#---~---
+
+
+#---~---
+#   Parse arguments
+#---~---
+while [[ ${#} > 0 ]]
+do
+   key="${1}"
+   case ${key} in
+   -bc)
+      tag_or_branch_name_CONVERT_MPAS="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -bm)
+      tag_or_branch_name_MONAN="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -gc)
+      github_link_CONVERT_MPAS="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -gm)
+      github_link_MONAN="${2}"
+      shift 2 # past flag and argument
+      ;;
+   *)
+      echo "Unknown key-value argument pair."
+      show_usage
+      exit 2
+      ;;
+   esac
+done
+#---~---
+
+#---~---
+#   Stop if any variable remains unset
+#---~---
+if [[ "${tag_or_branch_name_CONVERT_MPAS}" == "" ]] ||
+   [[ "${tag_or_branch_name_MONAN}"        == "" ]] ||
+   [[ "${github_link_CONVERT_MPAS}"        == "" ]] ||
+   [[ "${github_link_MONAN}"               == "" ]]
 then
-   echo ""
-   echo "Instructions: execute the command below"
-   echo ""
-   echo "${0} [G] [M] [C]"
-   echo ""
-   echo "G   :: MONAN GitHub link of your personal fork, eg: https://github.com/MYUSER/MONAN-Model.git"
-   echo "M   :: MONAN tag or branch name of your personal fork. (will be used 'develop' if not informed)" 
-   echo "C   :: Convert_MPAS tag from ${github_link_CONVERT_MPAS} (will be used 'develop' if not informed)"
-   echo ""
-   exit
+   echo " This script requires arguments to be set through flags."
+   show_usage
+   exit 2
 fi
+#---~---
 
 
-# Set environment variables exports:
-echo ""
-echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
+#--- Set environment variables exports:
 . setenv.bash
+#---~---
+
 echo ""
 echo "---- Installing the Model ----"
 echo ""
 
-# Standart directories variables:---------------------------------------
+
+#--- Set and create standard directories
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;            mkdir -p ${SCRIPTS}
@@ -86,13 +150,9 @@ EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
 
 
 # Input variables:-----------------------------------------------------
-github_link_MONAN=${1};   #github_link=https://github.com/monanadmin/MONAN-Model.git
-tag_or_branch_name_MONAN=${2}
-tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="1.4.3-rc"}
+tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="release/1.4.3-rc"}
+tag_or_branch_name_CONVERT_MPAS=${tag_or_branch_name_CONVERT_MPAS:="release/1.2.0"}
 echo "MONAN branch name in use: ${tag_or_branch_name_MONAN}"
-
-tag_or_branch_name_CONVERT_MPAS=${3}
-tag_or_branch_name_CONVERT_MPAS=${tag_or_branch_name_CONVERT_MPAS:="1.2.0"}
 echo "convert_mpas branch name in use: ${tag_or_branch_name_CONVERT_MPAS}"
 #----------------------------------------------------------------------
 
@@ -244,7 +304,7 @@ mv ${MONANDIR}/init_atmosphere_model ${EXECS}
 make clean CORE=init_atmosphere
 
 
-if [ -s "${EXECS}/init_atmosphere_model" ] && [ -e "${EXECS}/atmosphere_model" ]; then
+if [[ -s "${EXECS}/init_atmosphere_model" ]] && [[ -e "${EXECS}/atmosphere_model" ]]; then
     echo ""
     echo -e "${GREEN}==>${NC} Files init_atmosphere_model and atmosphere_model generated Successfully in ${EXECS} !"
     echo
@@ -261,14 +321,14 @@ echo -e  "${GREEN}==>${NC} Installing init_atmosphere_model and atmosphere_model
 echo ""
 . ${MONANDIR}/make-all.sh
 
-if [ "$HOSTNAME" == "ian" ]; then
+if [[ "$HOSTNAME" == "ian" ]]; then
 #   echo "hostname=$HOSTNAME"
    export PATH=$NETCDF/bin:$PATH
 fi
 
 # install convert_mpas
 echo ""
-echo -e  "${GREEN}==>${NC} Moduling environment for convert_mpas...\n"
+echo -e  "${GREEN}==>${NC} Loading modules needed by convert_mpas...\n"
 
 cd ${CONVERT_MPAS_DIR}
 make clean
@@ -279,7 +339,7 @@ mv ${CONVERT_MPAS_DIR}/convert_mpas ${EXECS}/
 cp ${CONVERT_MPAS_DIR}/VERSION.txt ${EXECS}/CONVMPAS-VERSION.txt
 
 
-if [ -s "${EXECS}/convert_mpas" ] ; then
+if [[ -s "${EXECS}/convert_mpas" ]] ; then
     echo ""
     echo -e "${GREEN}==>${NC} File convert_mpas generated Sucessfully in ${CONVERT_MPAS_DIR} and copied to ${EXECS} !"
     echo

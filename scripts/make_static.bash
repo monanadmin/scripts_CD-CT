@@ -2,36 +2,92 @@
 umask 022
 
 
-if [ $# -ne 4 ]
-then
+#--- Function that shows usage.
+function show_usage() {
+   echo " Usage: "
    echo ""
-   echo "Instructions: execute the command below"
+   echo " ${0} [-e EXP ] [-f FCST] [-r RES] [-t YYYYMMDDHH]"
    echo ""
-   echo "${0} EXP_NAME RESOLUTION LABELI FCST"
+   echo " List of **required** flags: "
    echo ""
-   echo "EXP_NAME    :: Forcing: GFS"
-   echo "            :: Others options to be added later..."
-   echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
-   echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
-   echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
+   echo " -e EXP          -- meteorological drivers. For example, GFS"
+   echo " -f FCST         -- Simulation length in hours, e.g., 24 or 48."
+   echo " -r RES          -- grid resolution. Options are:"
+   echo "                    5898242 (~ 10 km)"
+   echo "                    2621442 (~ 15 km)"
+   echo "                    1024002 (~ 24 km)"
+   echo "                    40962   (~ 120 km)"
+   echo " -t YYYYMMDDHH   -- Initial time. For example if 22 Sept 2025 00 UTC, set it to:"
+   echo "                    2025092200"
    echo ""
-   echo "24 hour forcast example:"
-   echo "${0} GFS 1024002 2024010100 24"
-   echo ""
+}
+#---~---
 
-   exit
-fi
 
-# Set environment variables exports:
-echo ""
-echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
+
+#--- Set environment variables exports:
 . setenv.bash
+#---~---
+
+
+
+#--- Default input variables:
+EXP=""
+RES=""
+YYYYMMDDHHi=""
+FCST=""
+#---~---
+
+
+#--- Parse arguments.
+while [[ ${#} > 0 ]]
+do
+   key="${1}"
+   case ${key} in
+   -e)
+      EXP="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -f)
+      FCST="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -r)
+      RES="${2}"
+      shift 2 # past flag and argument
+      ;;
+   -t)
+      YYYYMMDDHHi="${2}"
+      shift 2 # past flag and argument
+      ;;
+   *)
+      echo "Unknown key-value argument pair."
+      show_usage
+      exit 2
+      ;;
+   esac
+done
+#---~---
+
+
+
+#---~---
+#   Make sure all settings were provided (unless this will be to clean up runs).
+#---~---
+if [[ "${EXP}"         == "" ]] || [[ "${RES}"         == "" ]] ||
+   [[ "${YYYYMMDDHHi}" == "" ]] || [[ "${FCST}"        == "" ]]
+then
+   echo " This script requires some arguments to be set through flags."
+   show_usage
+   exit 2
+fi
+#---~---
 
 echo ""
 echo "---- Make Static ----"
 echo ""
 
-# Standart directories variables:---------------------------------------
+#--- Set and create standard directories
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
@@ -39,15 +95,7 @@ DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
 DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
 SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
 EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
-#----------------------------------------------------------------------
-
-
-# Input variables:--------------------------------------
-EXP=${1};         #EXP=GFS
-RES=${2};         #RES=1024002
-YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
-FCST=${4};        #FCST=24
-#-------------------------------------------------------
+#---~---
 
 
 # Local variables--------------------------------------
@@ -59,9 +107,9 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 
 
 
-if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
+if [[ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]]
 then
-   if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info ]
+   if [[ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info ]]
    then
       mkdir -p ${DATAIN}/fixed   
       cd ${DATAIN}/fixed
@@ -82,9 +130,9 @@ fi
 files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
 for file in "${files_needed[@]}"
 do
-  if [ ! -s "${file}" ]
+  if [[ ! -s "${file}" ]]
   then
-    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
+    echo -e  "\n${RED}==>${NC} ***** FATAL ERROR *****\n"	  
     echo -e  "${RED}==>${NC} [${0}] At least the file ${file} was not generated. \n"
     exit -1
   fi
@@ -109,7 +157,7 @@ cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 mkdir -p ${DATAOUT}/logs
 rm -f ${DIRRUN}/static.bash 
 
-if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
+if [[ ${SCHEDULER_SYSTEM} != "GENERIC" ]]
 then
    sed -e "s,#JOBNAME#,${STATIC_jobname},g;
    s,#NNODES#,${STATIC_nnodes},g;
@@ -145,13 +193,21 @@ chmod 755 *
 date
 beg_secs=\`date +"%s"\`
 
-if [ "$HOSTNAME" = "egeon" ]; then
+#ML: Replace HOSTNAME with SCHEDULER_SYSTEM so this can be expanded to other HPC environments more easily.
+case "${SCHEDULER_SYSTEM}" in
+SLURM)
    echo "-- SLURM_JOB_ID: \$SLURM_JOB_ID"
    time mpirun -np ${STATIC_ncores} ./\${executable}
-else
+   ;;
+PBS)
    echo "-- PBS_JOBID: \$PBS_JOBID"
    time mpirun --ppn ${STATIC_ncpn} -np ${STATIC_ncores} --depth=${STATIC_nthreads} --cpu-bind depth ./\${executable}
-fi
+   ;;
+#*)
+#   echo "-- GENERIC: "
+#   time mpirun -np ${STATIC_ncores} ./\${executable}
+#   ;;
+esac
 
 date
 end_secs=\`date +"%s"\`
@@ -161,7 +217,7 @@ echo "STATIC time taken by run in seconds is " \$wallsecs
 
 
 grep "Finished running" log.init_atmosphere.0000.out >& /dev/null
-if [ \$? -ne 0 ]; then
+if [[ \$? -ne 0 ]]; then
    echo "  BUMMER: Static generation failed for some yet unknown reason."
    echo " "
    tail -10 ${STATICPATH}/log.init_atmosphere.0000.out
@@ -181,21 +237,21 @@ rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
 
 
 case "${SCHEDULER_SYSTEM}" in
-   SLURM)
-      echo -e  "${GREEN}==>${NC} Sbatch static.bash...\n"
-      cd ${DIRRUN}
-      sbatch --wait ${DIRRUN}/static.bash
-      ;;
-    PBS)
-      echo -e  "${GREEN}==>${NC} qsub static.bash...\n"
-      cd ${DIRRUN}
-      qsub -W block=true ${DIRRUN}/static.bash
-      ;;
-#    GENERIC)
-#      echo "Nenhum gerenciador detectado"
-#      cd ${DIRRUN}
-#      ${DIRRUN}/model.bash
-#      ;;
+SLURM)
+   echo -e  "${GREEN}==>${NC} Sbatch static.bash...\n"
+   cd ${DIRRUN}
+   sbatch --wait ${DIRRUN}/static.bash
+   ;;
+PBS)
+   echo -e  "${GREEN}==>${NC} qsub static.bash...\n"
+   cd ${DIRRUN}
+   qsub -W block=true ${DIRRUN}/static.bash
+   ;;
+#GENERIC)
+#  echo "No job manager found"
+#  cd ${DIRRUN}
+#  ${DIRRUN}/model.bash
+#  ;;
 esac
 
 mv ${DIRRUN}/static.bash ${DATAOUT}/logs/
@@ -204,7 +260,7 @@ mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/logs/
 mv log.init_atmosphere.* ${DATAOUT}/logs/
 
 
-if [ -s ${DIRRUN}/x1.${RES}.static.nc ]
+if [[ -s ${DIRRUN}/x1.${RES}.static.nc ]]
 then
    mv ${DIRRUN}/x1.${RES}.static.nc ${DATAIN}/fixed
    chmod 755 ${DATAIN}/fixed/*
