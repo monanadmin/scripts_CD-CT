@@ -22,7 +22,17 @@ umask 022
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} -bc TAG_CONVERT_MPAS -bm TAG_MONAN -gm GIT_MONAN -gc GIT_CONVERT_MPAS"
+   echo " ${0} [-h] [-m12] [-bc TAG_CONVERT_MPAS] [-bm TAG_MONAN] [-gm GIT_MONAN] \\"
+   echo "    [-gc GIT_CONVERT_MPAS]"
+   echo ""
+   echo " List of optional flags: "
+   echo ""
+   echo " -h              -- Shows this message."
+   echo " -m12            -- Is this a MONAN run based on 1.2.0-rc and branches derived"
+   echo "                    from this version (e.g., feature/monan-757-NF)? This is a"
+   echo "                    temporary flag that will be removed once the versions"
+   echo "                    containing Noah-MP are merged into the new release. This"
+   echo "                    allows the script to manage older code and still run on jaci."
    echo ""
    echo " List of **required** flags: "
    echo ""
@@ -75,6 +85,7 @@ function checkout_system() {
 #   Retrieve configuration.
 #---~---
 #--- Default settings (all empty)
+MONAN_ONETWO=""
 github_link_MONAN=""
 tag_or_branch_name_MONAN=""
 github_link_CONVERT_MPAS=""
@@ -105,6 +116,14 @@ do
       github_link_MONAN="${2}"
       shift 2 # past flag and argument
       ;;
+   -h)
+      show_usage
+      exit 0
+      ;;
+   -m12)
+      MONAN_ONETWO="${key}"
+      shift 1 # past flag
+      ;;
    *)
       echo "Unknown key-value argument pair."
       show_usage
@@ -115,7 +134,7 @@ done
 #---~---
 
 #---~---
-#   Stop if any variable remains unset
+#   Make sure all required settings were provided.
 #---~---
 if [[ "${tag_or_branch_name_CONVERT_MPAS}" == "" ]] ||
    [[ "${tag_or_branch_name_MONAN}"        == "" ]] ||
@@ -130,7 +149,7 @@ fi
 
 
 #--- Set environment variables exports:
-. setenv.bash
+. setenv.bash ${MONAN_ONETWO}
 #---~---
 
 echo ""

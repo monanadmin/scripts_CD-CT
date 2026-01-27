@@ -24,21 +24,30 @@ umask 022
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} [-o] [-e EXP ] [-f FCST] [-r RES] [-t YYYYMMDDHH]"
+   echo " ${0} [-h] [-m12] [-o] [-e EXP ] [-f FCST] [-r RES] [-t YYYYMMDDHH]"
    echo ""
    echo " List of optional flags: "
    echo ""
+   echo " -h              -- Shows this message."
+   echo " -m12            -- Is this a MONAN run based on 1.2.0-rc and branches derived"
+   echo "                    from this version (e.g., feature/monan-757-NF)? This is a"
+   echo "                    temporary flag that will be removed once the versions"
+   echo "                    containing Noah-MP are merged into the new release. This"
+   echo "                    allows the script to manage older code and still run on jaci."
    echo " -o              -- Overwrite static files."
    echo ""
    echo " List of **required** flags when -c is not set: "
    echo ""
    echo " -e EXP          -- meteorological drivers. For example, GFS"
    echo " -f FCST         -- Simulation length in hours, e.g., 24 or 48."
-   echo " -r RES          -- grid resolution. Options are:"
-   echo "                    5898242 (~ 10 km)"
-   echo "                    2621442 (~ 15 km)"
-   echo "                    1024002 (~ 24 km)"
-   echo "                    40962   (~ 120 km)"
+   echo " -r RES          -- grid resolution. Supported options are:"
+   echo "                    65536002 (~ 3 km)"
+   echo "                    5898242  (~ 10 km)"
+   echo "                    2621442  (~ 15 km)"
+   echo "                    1024002  (~ 24 km)"
+   echo "                    655362   (~ 30 km)"
+   echo "                    163842   (~ 60 km)"
+   echo "                    40962    (~ 120 km)"
    echo " -t YYYYMMDDHH   -- Initial time. For example if 22 Sept 2025 00 UTC, set it to:"
    echo "                    2025092200"
    echo ""
@@ -46,15 +55,11 @@ function show_usage() {
 #---~---
 
 
-#--- Set environment variables exports:
-. setenv.bash
-#---~---
-
-
 
 
 #--- Default input variables:
-OVERWRITE=true
+OVERWRITE=false
+MONAN_ONETWO=""
 EXP=""
 RES=""
 YYYYMMDDHHi=""
@@ -74,6 +79,14 @@ do
    -f)
       FCST="${2}"
       shift 2 # past flag and argument
+      ;;
+   -h)
+      show_usage
+      exit 0
+      ;;
+   -m12)
+      MONAN_ONETWO="${key}"
+      shift 1 # past flag
       ;;
    -o)
       OVERWRITE=true
@@ -99,7 +112,7 @@ done
 
 
 #---~---
-#   Make sure all settings were provided.
+#   Make sure all required settings were provided.
 #---~---
 if [[ "${EXP}"         == "" ]] || [[ "${RES}"         == "" ]] ||
    [[ "${YYYYMMDDHHi}" == "" ]] || [[ "${FCST}"        == "" ]]
@@ -108,6 +121,11 @@ then
    show_usage
    exit 2
 fi
+#---~---
+
+
+#--- Set environment variables exports:
+. setenv.bash ${MONAN_ONETWO}
 #---~---
 
 
@@ -160,7 +178,7 @@ fi
 if ${OVERWRITE} || [[ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]]
 then
    echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
-   time ./make_static.bash -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
+   time ./make_static.bash ${MONAN_ONETWO} -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
 else
    echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
 fi
@@ -169,13 +187,13 @@ fi
 
 #--- Run the degrib step.
 echo -e  "${GREEN}==>${NC} Submitting Degrib...\n"
-time ./make_degrib.bash -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
+time ./make_degrib.bash ${MONAN_ONETWO} -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
 #---~---
 
 
 #--- Run the atmosphere initialisation step.
 echo -e  "${GREEN}==>${NC} Submitting Init Atmosphere...\n"
-time ./make_initatmos.bash -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
+time ./make_initatmos.bash ${MONAN_ONETWO} -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
 #---~---
 
 

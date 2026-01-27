@@ -7,9 +7,10 @@
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} [-o] [-z] [-bc TAG_CONVERT_MPAS] [ -bm TAG_MONAN ] [-d OUTPUT_DIAG_INT] \\"
-   echo "    [-e EXP ] [-f FCST] [-gc GIT_CONVERT_MPAS] [-gm GIT_MONAN ] [-i INPUT_PATH] \\"
-   echo "    [-l NLEV] [-r RES] [-s STEP] [-t YYYYMMDDHH] [-v VARTABLE]"
+   echo " ${0} [-h] [-m12] [-o] [-z] [-bc TAG_CONVERT_MPAS] [ -bm TAG_MONAN ] \\"
+   echo "    [-d OUTPUT_DIAG_INT] [-e EXP ] [-f FCST] [-gc GIT_CONVERT_MPAS] \\"
+   echo "    [-gm GIT_MONAN ] [-i INPUT_PATH] [-l NLEV] [-r RES] [-s STEP] \\"
+   echo "    [-t YYYYMMDDHH] [-v VARTABLE]"
    echo ""
    echo " List of optional flags: "
    echo ""
@@ -27,10 +28,17 @@ function show_usage() {
    echo " -gm GIT_MONAN       -- GitHub handle for MONAN. For example:"
    echo "                        https://github.com/monanadmin/MONAN-Model.git"
    echo "                        This is used only by step 1."
+   echo " -h                  -- Shows this message."
    echo " -i INPUT_PATH       -- Path containing input data for MONAN. If left empty, the"
    echo "                        default path defined in setenv.bash will be used"
    echo " -l NLEV             -- Number of vertical levels for the output. This is used"
    echo "                        by steps 3 and 4."
+   echo " -m12                -- Is this a MONAN run based on 1.2.0-rc and branches"
+   echo "                        derived from this version (e.g., feature/monan-757-NF)?"
+   echo "                        This is a temporary flag that will be removed once"
+   echo "                        the versions containing Noah-MP are merged into the new"
+   echo "                        release. This allows the script to manage older code and"
+   echo "                        still run on jaci."
    echo " -o                  -- Overwrite static files. This is used only by step 2."
    echo " -r RES              -- grid resolution. Supported options are:"
    echo "                        65536002 (~ 3 km)"
@@ -63,16 +71,12 @@ function show_usage() {
 #---~---
 
 
-#--- Set environment variables exports:
-. setenv.bash
-#---~---
-
-
 
 
 #--- Default input variables:
 STEP=1
 OVERWRITE=""
+MONAN_ONETWO=""
 github_link_MONAN="https://github.com/monanadmin/MONAN-Model.git"
 tag_or_branch_name_MONAN="release/1.4.3-rc"
 github_link_CONVERT_MPAS="https://github.com/monanadmin/convert_mpas.git"
@@ -122,6 +126,10 @@ do
       github_link_MONAN="${2}"
       shift 2 # past flag and argument
       ;;
+   -h)
+      show_usage
+      exit 0
+      ;;
    -i)
       INPUT_PATH="${2}"
       shift 2 # Past flag and argument
@@ -130,8 +138,12 @@ do
       NLEV="${2}"
       shift 2 # Past flag and argument
       ;;
+   -m12)
+      MONAN_ONETWO="${key}"
+      shift 1 # past flag
+      ;;
    -o)
-      OVERWRITE="-o"
+      OVERWRITE="${key}"
       shift 1 # past flag
       ;;
    -r)
@@ -159,12 +171,20 @@ do
       shift 1 # past flag
       ;;
    *)
-      echo "Unknown key-value argument pair."
+      echo " *** FATAL ERROR! ***"
+      echo ""
+      echo " Unknown key-value argument pair."
+      echo ""
       show_usage
       exit 2
       ;;
    esac
 done
+#---~---
+
+
+#--- Set environment variables exports:
+. setenv.bash ${MONAN_ONETWO}
 #---~---
 
 
@@ -306,10 +326,10 @@ case ${STEP} in
 
 
       #--- Run step
-      time ${0} ${OVERWRITE} ${dv_VARTABLE} -bc ${tag_or_branch_name_CONVERT_MPAS}         \
-         -bm ${tag_or_branch_name_MONAN} -d ${OUTPUT_DIAG_INTERVAL} -e ${EXP} -f ${FCST}   \
-         -gc ${github_link_CONVERT_MPAS} -gm ${github_link_MONAN} -l ${NLEV} -r ${RES}     \
-         -s ${step_now} -t ${YYYYMMDDHHi}
+      time ${0} ${OVERWRITE} ${dv_VARTABLE} ${MONAN_ONETWO}                                \
+         -bc ${tag_or_branch_name_CONVERT_MPAS} -bm ${tag_or_branch_name_MONAN}            \
+         -d ${OUTPUT_DIAG_INTERVAL} -e ${EXP} -f ${FCST} -gc ${github_link_CONVERT_MPAS}   \
+         -gm ${github_link_MONAN} -l ${NLEV} -r ${RES} -s ${step_now} -t ${YYYYMMDDHHi}
       #---~---
    done
    #---~---
@@ -318,7 +338,7 @@ case ${STEP} in
    #---~---
    #   STEP 1: Install and compile MONAN and its utility programs.
    #---~---
-   time 1.install_monan.bash -bc ${tag_or_branch_name_CONVERT_MPAS}                        \
+   time 1.install_monan.bash ${MONAN_ONETWO} -bc ${tag_or_branch_name_CONVERT_MPAS}        \
       -bm ${tag_or_branch_name_MONAN} -gc ${github_link_CONVERT_MPAS}                      \
       -gm ${github_link_MONAN}
    #---~---
@@ -327,23 +347,24 @@ case ${STEP} in
    #---~---
    #   STEP 2: Run the pre-processing step, and make initial/boundary conditions if needed.
    #---~---
-   time 2.pre_processing.bash ${OVERWRITE} -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
+   time 2.pre_processing.bash ${OVERWRITE} ${MONAN_ONETWO} -e ${EXP} -f ${FCST} -r ${RES}  \
+      -t ${YYYYMMDDHHi}
    #---~---
    ;;
 3)
    #---~---
    #   STEP 3: Run the model.
    #---~---
-   time 3.run_model.bash ${dv_VARTABLE} -d ${OUTPUT_DIAG_INTERVAL} -e ${EXP} -f ${FCST}    \
-      -l ${NLEV} -r ${RES} -t ${YYYYMMDDHHi}
+   time 3.run_model.bash ${dv_VARTABLE} ${MONAN_ONETWO} -d ${OUTPUT_DIAG_INTERVAL}         \
+      -e ${EXP} -f ${FCST} -l ${NLEV} -r ${RES} -t ${YYYYMMDDHHi}
    #---~---
    ;;
 4)
    #---~---
    # STEP 4: Run the post-processing step.
    #---~---
-   time 4.run_post.bash ${dv_VARTABLE} -d ${OUTPUT_DIAG_INTERVAL} -e ${EXP} -f ${FCST}     \
-      -l ${NLEV} -r ${RES} -t ${YYYYMMDDHHi}
+   time 4.run_post.bash ${dv_VARTABLE} ${MONAN_ONETWO} -d ${OUTPUT_DIAG_INTERVAL}          \
+      -e ${EXP} -f ${FCST} -l ${NLEV} -r ${RES} -t ${YYYYMMDDHHi}
    #---~---
    ;;
 esac

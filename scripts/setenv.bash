@@ -11,6 +11,7 @@ export BLUE='\033[01;34m'   # Blue
 export ORANGE='\033[01;91m' # Orange
 #---~----
 
+
 #---~----
 #   Notify users that this script is being called.
 # Please refrain from changing these commands.
@@ -18,6 +19,39 @@ export ORANGE='\033[01;91m' # Orange
 echo ""
 echo -e "${GREEN}==>${NC} Load MONAN settings (setenv.bash).\n"
 #---~----
+
+
+#--- Parse arguments.
+MONAN_ONETWO=false
+while [[ ${#} > 0 ]]
+do
+   key="${1}"
+   case ${key} in
+   -m12)
+      MONAN_ONETWO=true
+      shift 1 # past flag
+      ;;
+   *)
+      echo ""
+      echo " Unknown key-value argument pair."
+      echo " Usage: "
+      echo ""
+      echo " . ${BASH_SOURCE[0]} [-m12]"
+      echo ""
+      echo " List of optional flags: "
+      echo ""
+      echo " -m12             -- Is this a MONAN run based on 1.2.0-rc and branches"
+      echo "                     derived from this version (e.g., feature/monan-757-NF)?"
+      echo "                     This is a temporary flag that will be removed once the"
+      echo "                     versions containing Noah-MP are merged into the new"
+      echo "                     release. This allows the script to manage older code and"
+      echo "                     still run on jaci."
+      echo ""
+      return
+      ;;
+   esac
+done
+#---~---
 
 
 # Choose your compiler here (only on Jaci; on Egeon the compiler is fixed to ‘gnu’):
@@ -60,19 +94,34 @@ egeon-login|headnode|n[0-9]|n[1-2][0-9]|n3[0-3])
    ;;
 ian[0-9]*|cn-0[0-9][0-9][0-9])
    #---~---
-   #   Jaci. Decide which compiler to use based on variable COMPILER
+   #   Jaci. Decide which compiler to use based on variable COMPILER and the MONAN
+   # version we are running.
    #---~---
    export HOSTNAME="ian"
-   case "${COMPILER}" in
-   intel)
-      export MAKE_TARG=intel-xd2000
-      export MAKE_TARG2=intel2-xd2000
-      ;;
-   gnu)
-      export MAKE_TARG=gfortran-xd2000
-      export MAKE_TARG2=gfortran-xd2000
-      ;;
-   esac
+   if ${MONAN_ONETWO}
+   then
+      case "${COMPILER}" in
+      intel)
+         export MAKE_TARG=intel
+         export MAKE_TARG2=intel
+         ;;
+      gnu)
+         export MAKE_TARG=gfortran
+         export MAKE_TARG2=gfortran
+         ;;
+      esac
+   else
+      case "${COMPILER}" in
+      intel)
+         export MAKE_TARG=intel-xd2000
+         export MAKE_TARG2=intel2-xd2000
+         ;;
+      gnu)
+         export MAKE_TARG=gfortran-xd2000
+         export MAKE_TARG2=gfortran-xd2000
+         ;;
+      esac
+   fi
    #---~---
    ;;
 *)

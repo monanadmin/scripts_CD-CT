@@ -20,11 +20,18 @@ umask 022
 function show_usage() {
    echo " Usage: "
    echo ""
-   echo " ${0} [-v VARTABLE] [-d OUTPUT_DIAG_INT] [-e EXP ] [-f FCST] \\"
+   echo " ${0} [-h] [-m12] [-v VARTABLE] [-d OUTPUT_DIAG_INT] [-e EXP ] [-f FCST] \\"
    echo "    [-r RES] [-t YYYYMMDDHH]"
    echo ""
    echo " List of optional flags: "
    echo ""
+   echo " -h                  -- Shows this message."
+   echo " -m12                -- Is this a MONAN run based on 1.2.0-rc and branches"
+   echo "                        derived from this version (e.g., feature/monan-757-NF)?"
+   echo "                        This is a temporary flag that will be removed once the"
+   echo "                        versions containing Noah-MP are merged into the new"
+   echo "                        release. This allows the script to manage older code and"
+   echo "                        still run on jaci."
    echo " -v VARTABLE         -- Suffix for defining which version of the"
    echo "                        stream_list_atmosphere.diagnostics template to use."
    echo "                        The default is to not use any suffix."
@@ -35,25 +42,25 @@ function show_usage() {
    echo "                        \"HH:MM:SS\""
    echo " -e EXP              -- meteorological drivers. For example, GFS"
    echo " -f FCST             -- Simulation length in hours, e.g., 24 or 48."
-   echo " -r RES              -- grid resolution. Options are:"
-   echo "                        5898242 (~ 10 km)"
-   echo "                        2621442 (~ 15 km)"
-   echo "                        1024002 (~ 24 km)"
-   echo "                        40962   (~ 120 km)"
+   echo " -r RES              -- grid resolution. Supported options are:"
+   echo "                        65536002 (~ 3 km)"
+   echo "                        5898242  (~ 10 km)"
+   echo "                        2621442  (~ 15 km)"
+   echo "                        1024002  (~ 24 km)"
+   echo "                        655362   (~ 30 km)"
+   echo "                        163842   (~ 60 km)"
+   echo "                        40962    (~ 120 km)"
    echo " -t YYYYMMDDHH       -- Initial time. For example if 22 Sept 2025 00 UTC,"
    echo "                        set it to: 2025092200"
    echo ""
 }
 #---~---
 
-# Set environment variables exports:
-. setenv.bash
-
 
 
 
 #--- Default input variables:
-CLEAN=false
+MONAN_ONETWO=""
 EXP=""
 RES=""
 YYYYMMDDHHi=""
@@ -68,10 +75,6 @@ while [[ ${#} > 0 ]]
 do
    key="${1}"
    case ${key} in
-   -c)
-      CLEAN=true
-      shift 1 # Past flag
-      ;;
    -d)
       OUTPUT_DIAG_INTERVAL="${2}"
       shift 2 # Past flag and argument
@@ -83,6 +86,14 @@ do
    -f)
       FCST="${2}"
       shift 2 # past flag and argument
+      ;;
+   -h)
+      show_usage
+      exit 0
+      ;;
+   -m12)
+      MONAN_ONETWO="${key}"
+      shift 1 # past flag
       ;;
    -r)
       RES="${2}"
@@ -112,7 +123,7 @@ done
 
 
 #---~---
-#   Make sure all settings were provided (unless this will be to clean up runs).
+#   Make sure all required settings were provided.
 #---~---
 if [[ "${EXP}"                  == "" ]] || [[ "${RES}"                  == "" ]] ||
    [[ "${YYYYMMDDHHi}"          == "" ]] || [[ "${FCST}"                 == "" ]] ||
@@ -122,6 +133,11 @@ then
    show_usage
    exit 2
 fi
+#---~---
+
+
+#--- Set environment variables exports:
+. setenv.bash ${MONAN_ONETWO}
 #---~---
 
 echo ""
