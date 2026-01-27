@@ -171,11 +171,14 @@ do
       shift 1 # past flag
       ;;
    *)
-      echo " *** FATAL ERROR! ***"
       echo ""
-      echo " Unknown key-value argument pair."
+      echo " Option \"${key}\" is not valid."
       echo ""
       show_usage
+      echo ""
+      echo " *** FATAL ERROR! ***"
+      echo " Unknown key or key-value argument pair."
+      echo ""
       exit 2
       ;;
    esac
