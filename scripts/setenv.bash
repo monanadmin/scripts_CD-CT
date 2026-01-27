@@ -22,13 +22,13 @@ echo -e "${GREEN}==>${NC} Load MONAN settings (setenv.bash).\n"
 
 
 #--- Parse arguments.
-MONAN_ONETWO=false
+USE_ONETWO=false
 while [[ ${#} > 0 ]]
 do
    key="${1}"
    case ${key} in
    -m12)
-      MONAN_ONETWO=true
+      USE_ONETWO=true
       shift 1 # past flag
       ;;
    *)
@@ -98,7 +98,7 @@ ian[0-9]*|cn-0[0-9][0-9][0-9])
    # version we are running.
    #---~---
    export HOSTNAME="ian"
-   if ${MONAN_ONETWO}
+   if ${USE_ONETWO}
    then
       case "${COMPILER}" in
       intel)

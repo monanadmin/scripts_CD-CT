@@ -393,7 +393,7 @@ do
 cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh 
 
 cd ${DIRRUN}
-. ${SCRIPTS}/setenv.bash
+. ${SCRIPTS}/setenv.bash ${MONAN_ONETWO}
 chmod 755 ${DIRRUN}/*
 
 echo "Submitting posts ${inicio} to ${fim} to node Node ${node}."
@@ -514,7 +514,7 @@ esac
 cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh 
 
 cd ${DIRRUN}
-. ${SCRIPTS}/setenv.bash
+. ${SCRIPTS}/setenv.bash ${MONAN_ONETWO}
 
 # Saving important files to the logs directory:
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post

@@ -150,7 +150,7 @@ fi
 
 
 #--- Set environment variables exports:
-. setenv.bash ${LEGACY}
+. setenv.bash ${MONAN_ONETWO}
 #---~---
 
 echo ""
@@ -329,7 +329,7 @@ ulimit -v unlimited
 ulimit -s unlimited
 
 cd ${DIRRUN}
-. ${SCRIPTS}/setenv.bash
+. ${SCRIPTS}/setenv.bash ${MONAN_ONETWO}
 
 date
 beg_secs=\`date +"%s"\`

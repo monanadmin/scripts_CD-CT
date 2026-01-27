@@ -211,7 +211,7 @@ ulimit -c unlimited
 ulimit -v unlimited
 
 
-. ${SCRIPTS}/setenv.bash
+. ${SCRIPTS}/setenv.bash ${MONAN_ONETWO}
 
 cd ${DIRRUN}
 chmod 755 *

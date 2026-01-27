@@ -292,7 +292,7 @@ EOGS
 
 cd ${DIRRUN}
 
-. ${SCRIPTS}/setenv.bash
+. ${SCRIPTS}/setenv.bash ${MONAN_ONETWO}
 chmod 755 *
 
 

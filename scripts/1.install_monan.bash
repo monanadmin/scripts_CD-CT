@@ -190,7 +190,7 @@ CONVERT_MPAS_DIR=${SOURCES}/convert_mpas_${tag_or_branch_name_CONVERT_MPAS}
 #$(sed -i "s;DIR_DADOS=.*$;DIR_DADOS=$(dirname $(dirname $(pwd)));" setenv.bash)
 $(sed -i "s;MONANDIR=.*$;MONANDIR=$MONANDIR;" setenv.bash)
 chmod 755 ${SCRIPTS}/setenv.bash
-. ${SCRIPTS}/setenv.bash
+. ${SCRIPTS}/setenv.bash ${MONAN_ONETWO}
 
 #----------------------------------------------------------------------
 
@@ -285,7 +285,7 @@ cat << EOF > make-all.sh
 #    SHAREDLIB=true - generate position-independent code suitable for use in a shared library. Default is false.
 
 cd ${SCRIPTS}
-. ${SCRIPTS}/setenv.bash
+. ${SCRIPTS}/setenv.bash ${MONAN_ONETWO}
 cd $MONANDIR
 
 rm -rf $MONANDIR/default_inputs/ $MONANDIR/src/core_atmosphere/physics/physics_wrf/files
