@@ -157,7 +157,7 @@ for file in "${files_needed[@]}"
 do
   if [[ ! -s "${file}" ]]
   then
-    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
+    echo -e  "\n${RED}==>${NC} ***** FATAL ERROR *****\n"	  
     echo -e  "${RED}==>${NC} [${0}] At least the file ${file} was not generated. \n"
     exit -1
   fi
@@ -270,7 +270,7 @@ mv ${DIRRUN}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
 if [[ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ]]
 then
-  echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	
+  echo -e  "\n${RED}==>${NC} ***** FATAL ERROR *****\n"	
   echo -e  "${RED}==>${NC} Init Atmosphere phase fails! Check logs at ${DATAOUT}/logs/initatmos.* .\n"
   echo -e  "${RED}==>${NC} Exiting script. \n"
   exit -1

@@ -264,7 +264,7 @@ rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
 
 case "${SCHEDULER_SYSTEM}" in
 SLURM)
-   echo -e  "${GREEN}==>${NC} Sbatch static.bash...\n"
+   echo -e  "${GREEN}==>${NC} sbatch static.bash...\n"
    cd ${DIRRUN}
    sbatch --wait ${DIRRUN}/static.bash
    ;;
@@ -291,6 +291,7 @@ then
    mv ${DIRRUN}/x1.${RES}.static.nc ${DATAIN}/fixed
    chmod 755 ${DATAIN}/fixed/*
 else
+   echo -e  "${RED}==>${NC} ****** FATAL ERROR ******\n"
    echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.static.nc was not created. \n"
    exit -1
 fi

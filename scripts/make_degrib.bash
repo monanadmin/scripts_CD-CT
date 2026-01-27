@@ -178,7 +178,7 @@ for file in "${files_needed[@]}"
 do
   if [[ ! -s "${file}" ]]
   then
-    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"  
+    echo -e  "\n${RED}==>${NC} ***** FATAL ERROR *****\n"  
     echo -e  "${RED}==>${NC} [${0}] At least the file ${file} was not generated. \n"
     exit -1
   fi
@@ -297,7 +297,7 @@ for file in "${files_ungrib[@]}"
 do
   if [[ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/${file} ]]
   then
-    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"  
+    echo -e  "\n${RED}==>${NC} ***** FATAL ERROR *****\n"  
     echo -e  "${RED}==>${NC} Degrib fails! At least the file ${file} was not generated at ${DATAIN}/${YYYYMMDDHHi}. \n"
     echo -e  "${RED}==>${NC} Check logs at ${DATAOUT}/logs/degrib.* .\n"
     echo -e  "${RED}==>${NC} Exiting script. \n"

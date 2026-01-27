@@ -132,7 +132,9 @@ export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 
 # MONAN-suite install root directories:
 # Put your directories:
-export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
+#ML slightly edited the logic in here, somehow using pwd was leading to errors on Jaci.
+export THIS_PATH=`(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)`
+export DIR_SCRIPTS=$(dirname $(dirname ${THIS_PATH}))
 export DIR_DADOS=${DIR_SCRIPTS}
 export MONANDIR=$MONANDIR
 

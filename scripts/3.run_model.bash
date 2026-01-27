@@ -267,7 +267,7 @@ for file in "${files_needed[@]}"
 do
   if [[ ! -s "${file}" ]]
   then
-    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"   
+    echo -e  "\n${RED}==>${NC} ***** FATAL ERROR *****\n"   
     echo -e  "${RED}==>${NC} [${0}] At least the file ${file} was not generated. \n"
     exit -1
   fi
