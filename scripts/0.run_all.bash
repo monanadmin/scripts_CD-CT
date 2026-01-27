@@ -262,8 +262,9 @@ fi
 #--- If INPUT_PATH is provided, replace the path in setenv.bash
 if [[ "${INPUT_PATH}" != "" ]] && [[ -d "${INPUT_PATH}" ]]
 then
-   sed -i.bck "s,^export DIRDADOS=.*,export DIRDADOS=${INPUT_PATH},g" ${SCRIPTS}/setenv.bash
-   /bin/rm -f ${SCRIPTS}/setenv.bash.bck
+   SYSTEM_SETENV="${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEYC}.bash"
+   sed -i.bck "s,^export DIRDADOS=.*,export DIRDADOS=${INPUT_PATH},g" ${SYSTEM_SETENV}
+   /bin/rm -f ${SYSTEM_SETENV}.bck
 fi
 #---~---
 
