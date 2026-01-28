@@ -177,7 +177,6 @@ EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
 # Input variables:-----------------------------------------------------
 tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="release/1.4.3-rc"}
 tag_or_branch_name_CONVERT_MPAS=${tag_or_branch_name_CONVERT_MPAS:="release/1.2.0"}
-echo "MONAN branch name in use: ${tag_or_branch_name_MONAN}"
 echo "convert_mpas branch name in use: ${tag_or_branch_name_CONVERT_MPAS}"
 #----------------------------------------------------------------------
 
@@ -219,22 +218,23 @@ echo "*"
 echo "********************************************************************************"
 
 echo ""
+echo -e "${GREEN}==>${NC} github_link_MONAN        = ${github_link_MONAN}"
 echo -e "${GREEN}==>${NC} tag_or_branch_name_MONAN = ${tag_or_branch_name_MONAN}"
 echo ""
 read -p "Are you sure you are installing the right versions scripts x MONAN-Model ? [Y/n]" confirma
-confirma=${confirma:-Y}
-
-if [[ "${confirma}" =~ ^[Yy]$ ]]
-then
+confirma=$(echo ${confirma:-Y} | tr [:upper:] [:lower:])
+case "${confirma}" in
+y|yes)
    echo ""
-   echo -e "${GREEN}==>${NC} OK, so keep going."
+   echo -e "${GREEN}==>${NC} OK, proceeding to installation."
    echo ""
-else
+   ;;
+*)
    echo ""
    echo -e "    ${RED}==>${NC} Please, make the right versions and try again."
    exit
    echo ""
-fi
+esac
 
 
 checkout_system ${MONANDIR} ${github_link_MONAN} ${tag_or_branch_name_MONAN}

@@ -183,7 +183,7 @@ fi
 #---~---
 if ${OVERWRITE} || [[ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]]
 then
-   echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
+   echo -e "${GREEN}==>${NC} Creating static.bash for submitting init_atmosphere to create x1.${RES}.static.nc...\n"
    time ./make_static.bash ${MONAN_ONETWO} -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
 else
    echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
