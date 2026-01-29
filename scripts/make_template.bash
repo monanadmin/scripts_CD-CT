@@ -152,13 +152,6 @@ echo ""
 
 
 #--- Set and create standard directories
-DIRHOMES=`dirname "$(pwd)"`;           mkdir -p ${DIRHOMES}  
-DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
-export SCRIPTS=${DIRHOMES}/scripts;    mkdir -p ${SCRIPTS}
-DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
-DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
-SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
-EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 #---~---
 

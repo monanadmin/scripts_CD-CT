@@ -163,17 +163,6 @@ echo "---- Installing the Model ----"
 echo ""
 
 
-#--- Set and create standard directories
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  
-DIRHOMED=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
-SCRIPTS=${DIRHOMES}/scripts;            mkdir -p ${SCRIPTS}
-DATAIN=${DIRHOMED}/datain;              mkdir -p ${DATAIN}
-DATAOUT=${DIRHOMED}/dataout;            mkdir -p ${DATAOUT}
-SOURCES=${DIRHOMES}/sources;            mkdir -p ${SOURCES}
-EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
-#----------------------------------------------------------------------
-
-
 # Input variables:-----------------------------------------------------
 tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="release/1.4.3-rc"}
 tag_or_branch_name_CONVERT_MPAS=${tag_or_branch_name_CONVERT_MPAS:="release/1.2.0"}

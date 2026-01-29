@@ -111,17 +111,6 @@ fi
 #---~---
 
 
-#--- Set and create standard directories
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
-DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
-SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
-DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
-DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
-SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
-EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
-#---~---
-
-
 # Local variables--------------------------------------
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
 GEODATA=${DATAIN}/WPS_GEOG

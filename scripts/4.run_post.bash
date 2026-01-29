@@ -158,13 +158,6 @@ echo ""
 
 
 #--- Set and create standard directories
-DIRHOMES=`dirname "$(pwd)"`;           mkdir -p ${DIRHOMES}  
-DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
-export SCRIPTS=${DIRHOMES}/scripts;    mkdir -p ${SCRIPTS}
-DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
-DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
-SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
-EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #---~---
@@ -174,7 +167,7 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 # Local variables--------------------------------------
 START_DATE_YYYYMMDD="${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}"
 START_HH="${YYYYMMDDHHi:8:2}"
-maxpostpernode=30    # <------ qtde max de convert_mpas por no!
+maxpostpernode=30    # <------ maximum number of convert_mpas processes per node!
 #-------------------------------------------------------
 
 # Variables for flex output interval ------------------------
@@ -313,7 +306,7 @@ for file in "${files_needed[@]}"
 do
   if [[ ! -s "${file}" ]]
   then
-    echo -e  "\n${RED}==>${NC} ***** FATAL ERROR *****\n"	  
+    echo -e  "\n${RED}==>${NC} ***** FATAL ERROR *****\n"  
     echo -e  "${RED}==>${NC} [${0}] At least the file ${file} was not generated. \n"
     exit -1
   fi
@@ -332,6 +325,14 @@ echo "${nfiles} post to submit."
 echo "Max ${maxpostpernode} submits per nodes."
 how_many_nodes ${nfiles} ${maxpostpernode}
 #---~---
+
+#--- Set the python environment
+case "${MONAN_ONETWO}" in
+-m12)
+   . ${SCRIPTS}/setenv_python.bash
+   ;;
+esac
+
 
 #---~---
 #   Make paths and create files/links for each convert_mpas output:
@@ -352,6 +353,7 @@ do
 
 done
 #---~---
+
 
 cd ${DIRRUN}
 chmod -R 755 ${DIRRUN}/*
@@ -418,14 +420,52 @@ do
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
    diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L${N_MODEL_LEV}.nc
    echo ""
-   echo "executando convert mpas"
+   echo " = Running convert_mpas"
    chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Model/*
    time  ./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
    echo "./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name} > convert_mpas.output"
 done
 
-# necessario aguardar as rodadas em background
+# Make sure that the job remains active whilst convert_mpas runs in the background
 wait
+
+#---~---
+#   For the older MONAN versions, we must group variables by levels. This code is being
+# temporarily added back here until Noah-MP is fully integrated to a stable MONAN release.
+#---~---
+case "${MONAN_ONETWO}" in
+-m12)
+
+   . ${SCRIPTS}/../.venv/bin/activate
+
+   #---~---
+   #   Group vertical levels.
+   #---~---
+   for ii in \$(seq  ${inicio} ${fim})
+   do
+      i=\$(printf "%04d" \${ii})
+      cd ${DIRRUN}/dir.\${i}
+      python ${SCRIPTS}/group_levels.py ${DIRRUN}/dir.\${i} latlon.nc latlon_\${i}.nc \
+         1> ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/out_group_levels_\${i}.log 2>&1 &
+
+      #--- Move file to the default latlon.nc
+      /bin/rm latlon.nc
+      /bin/mv latlon_\${i}.nc latlon.nc
+      #---~---
+
+   done
+   #---~---
+
+   #--- Make sure that the job remains active whilst convert_mpas runs in the background.
+   wait
+   #---~---
+
+   #--- Unload python.
+   deactivate
+   #---~---
+   ;;
+esac
+#---~---
 
 for ii in \$(seq  ${inicio} ${fim})
 do
@@ -479,15 +519,18 @@ done
 
 
 
-# Dependencias JobId:
+#--- Set JobId dependencies:
 dependency="afterok"
 for job_id in "${jobid[@]}"
 do
    dependency="${dependency}:${job_id}"
 done
+#---~---
 
-
-# Script final , para conferir todos os arquivos, criar o template final  e apagar o diretorio DIRRUN
+#---~---
+#   Final script, which will check every file, make the final template and remove 
+# directory ${DIRRUN}
+#---~---
 node=0
 rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
 
@@ -516,6 +559,39 @@ cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh
 cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash ${MONAN_ONETWO}
 
+#---~---
+#   For older versions, we group data into a single file, fix the time units and shift the
+# bounding box so it goes from 180W to 180E (as opposed to 0-360).
+#---~---
+case "${MONAN_ONETWO}" in
+-m12)
+   #--- Merge all files.
+   cdo mergetime \
+      ${DATAOUT}/${YYYYMMDDHHi}/Post/MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_??????????.??.??.x${RES}L${N_ISOBARIC_LEV}.nc \
+      ${DATAOUT}/${YYYYMMDDHHi}/Post/mergetime.nc
+   sleep 5
+   #---~---
+
+   #--- Fix time increment so it is consistent with the output.
+   cdo settunits,seconds -settaxis,${START_DATE_YYYYMMDD},${START_HH}:00,${t_stroutsec}second \
+      ${DATAOUT}/${YYYYMMDDHHi}/Post/mergetime.nc \
+      ${DATAOUT}/${YYYYMMDDHHi}/Post/timeunits.nc
+   sleep 5
+   #---~---
+
+   #--- Shift the bounding box to -180:180.
+   cdo sellonlatbox,-180,180,-90,90 ${DATAOUT}/${YYYYMMDDHHi}/Post/timeunits.nc \
+      ${DATAOUT}/${YYYYMMDDHHi}/Post/MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_AllTimes.x${RES}L${N_ISOBARIC_LEV}.nc
+   sleep 5
+   #---~---
+
+   #--- Delete temporary files.
+   /bin/rm -f ${DATAOUT}/${YYYYMMDDHHi}/Post/mergetime.nc
+   /bin/rm -f ${DATAOUT}/${YYYYMMDDHHi}/Post/timeunits.nc
+   #---~---
+   ;;
+esac
+
 # Saving important files to the logs directory:
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
@@ -542,7 +618,7 @@ SLURM)
    sbatch --wait --dependency=${dependency} ${DIRRUN}/PostAtmos_node.${node}.sh 
    ;;
 PBS)
-   echo "Rodando em PBS"
+   echo "Qsub PostAtmos_node.${node}.sh"
    echo -e  "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
    cd ${DIRRUN}
    qsub -W depend=${dependency} -W block=true ${DIRRUN}/PostAtmos_node.${node}.sh

@@ -119,7 +119,7 @@ ian[0-9]*|cn-0[0-9][0-9][0-9])
    #---~---
 esac
 # Make the same for other machines/systems...
-echo "Host detected: $HOSTNAME"
+echo "Host detected: ${HOSTNAME}"
 echo "Compiler to be used: ${COMPILER}"
 
 # Set unique key: scheduler + host:
@@ -152,6 +152,18 @@ export MONANDIR=$MONANDIR
 # We discourage changing the variables below:
 
 # Others variables:
+
+
+#--- Set and create standard directories
+export DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  
+export DIRHOMED=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
+export SCRIPTS=${DIRHOMES}/scripts;            mkdir -p ${SCRIPTS}
+export DATAIN=${DIRHOMED}/datain;              mkdir -p ${DATAIN}
+export DATAOUT=${DIRHOMED}/dataout;            mkdir -p ${DATAOUT}
+export SOURCES=${DIRHOMES}/sources;            mkdir -p ${SOURCES}
+export EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
+#---~---
+
 
 
 
