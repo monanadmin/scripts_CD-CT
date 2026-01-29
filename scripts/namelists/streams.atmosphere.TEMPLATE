@@ -24,7 +24,7 @@
         type="output"
         io_type="pnetcdf,cdf5"
         filename_template="MONAN_DIAG_G_MOD_#CIORIG#_#LABELI#_$Y$M$D$h.$m.$s.x#RES#L#NLEV#.nc"
-        output_interval="3:00:00" >
+        output_interval="#OUTPUT_DIAG_INTERVAL#" >
 
 	<file name="stream_list.atmosphere.diagnostics"/>
 </stream>

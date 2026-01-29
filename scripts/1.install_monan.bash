@@ -210,7 +210,7 @@ echo ""
 echo -e "${GREEN}==>${NC} github_link_MONAN        = ${github_link_MONAN}"
 echo -e "${GREEN}==>${NC} tag_or_branch_name_MONAN = ${tag_or_branch_name_MONAN}"
 echo ""
-read -p "Are you sure you are installing the right versions scripts x MONAN-Model ? [Y/n]" confirma
+read -p "Are you sure you are installing the right versions scripts x MONAN-Model ? [Y/n] " confirma
 confirma=$(echo ${confirma:-Y} | tr [:upper:] [:lower:])
 case "${confirma}" in
 y|yes)
