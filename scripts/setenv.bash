@@ -162,6 +162,18 @@ export DATAIN=${DIRHOMED}/datain;              mkdir -p ${DATAIN}
 export DATAOUT=${DIRHOMED}/dataout;            mkdir -p ${DATAOUT}
 export SOURCES=${DIRHOMES}/sources;            mkdir -p ${SOURCES}
 export EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
+
+echo -e ""
+echo -e "${GREEN}==>${NC}*** List of paths: ***"
+echo -e ""
+echo -e "${GREEN}==>${NC} DIRHOMES = \"${DIRHOMES}\""
+echo -e "${GREEN}==>${NC} DIRHOMED = \"${DIRHOMED}\""
+echo -e "${GREEN}==>${NC} SCRIPTS  = \"${SCRIPTS}\""
+echo -e "${GREEN}==>${NC} DATAIN   = \"${DATAIN}\""
+echo -e "${GREEN}==>${NC} DATAOUT  = \"${DATAOUT}\""
+echo -e "${GREEN}==>${NC} SOURCES  = \"${SOURCES}\""
+echo -e "${GREEN}==>${NC} EXECS    = \"${EXECS}\""
+echo -e ""
 #---~---
 
 
