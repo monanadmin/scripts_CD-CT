@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import netCDF4 as nc
 import numpy as np
@@ -34,7 +34,7 @@ def main(data_dir, file_in, file_out, levels=[1000, 975, 950, 925, 900, 875, 850
     for name, variable in reversed(list(nc_file_in.variables.items())):  # reverse to be consistent to levels
         # if 'hPa' in name or name in dimensions_4D:
         if 'hPa' in name:
-            variable_type = re.split('_.\d*hPa', name)[0]  # Extract the variable type (e.g., '15hPa', '20hPa')
+            variable_type = re.split(r'_.\d*hPa', name)[0]  # Extract the variable type (e.g., '15hPa', '20hPa')
             first_hpa_variable = variable_type if first_hpa_variable == '' else first_hpa_variable  
         else:
             variable_type = name.lower()
@@ -45,7 +45,7 @@ def main(data_dir, file_in, file_out, levels=[1000, 975, 950, 925, 900, 875, 850
 
     # if there isn't any hPa variable - set default 22 levels
     if not first_hpa_variable:
-        print("Nenhuma variável com nível isobárico ('hPa') foi encontrada no arquivo.")
+        print("No isobaric variable ('hPa') found in file. Using a dummy level count.")
         level_dimension_size = 22
     else:
         level_dimension_size = len(variable_groups[first_hpa_variable]) 
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) != 4:
-        print(f"Usage: python {sys.argv[0]} <workdir> <filein> <fileout>")
+        print(f"Usage: python3 {sys.argv[0]} <workdir> <filein> <fileout>")
         sys.exit(1)
 
     main(sys.argv[1], sys.argv[2], sys.argv[3])

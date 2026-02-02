@@ -320,7 +320,7 @@ done
 #---~---
 output_interval=${t_strouthor}
 #nfiles=FCST/output_interval + 1(time zero file)
-nfiles=$(echo "$FCST/$output_interval + 1" | bc)
+nfiles=$(echo "${FCST}/${output_interval} + 1" | bc)
 echo "${nfiles} post to submit."
 echo "Max ${maxpostpernode} submits per nodes."
 how_many_nodes ${nfiles} ${maxpostpernode}
@@ -394,9 +394,13 @@ do
    
 cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh 
 
-cd ${DIRRUN}
+MONAN_ONETWO="${MONAN_ONETWO}"
+DIRRUN="${DIRRUN}"
+
 . ${SCRIPTS}/setenv.bash ${MONAN_ONETWO}
-chmod 755 ${DIRRUN}/*
+chmod 755 \${DIRRUN}/*
+
+cd \${DIRRUN}
 
 echo "Submitting posts ${inicio} to ${fim} to node Node ${node}."
 
@@ -404,8 +408,8 @@ for ii in \$(seq  ${inicio} ${fim})
 do
    i=\$(printf "%04d" \${ii})
    echo "Preparing post files \${i}"
-   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}/dir.\${i} &
-   cp -f ${EXECS}/convert_mpas ${DIRRUN}/dir.\${i} &
+   cp -f \${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc \${DIRRUN}/dir.\${i} &
+   cp -f \${EXECS}/convert_mpas \${DIRRUN}/dir.\${i} &
 done
 
 wait
@@ -421,7 +425,7 @@ do
    diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L${N_MODEL_LEV}.nc
    echo ""
    echo " = Running convert_mpas"
-   chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Model/*
+   chmod 755 \${DATAOUT}/${YYYYMMDDHHi}/Model/*
    time  ./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
    echo "./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name} > convert_mpas.output"
 done
@@ -433,10 +437,14 @@ wait
 #   For the older MONAN versions, we must group variables by levels. This code is being
 # temporarily added back here until Noah-MP is fully integrated to a stable MONAN release.
 #---~---
-case "${MONAN_ONETWO}" in
+case "\${MONAN_ONETWO}" in
 -m12)
 
-   . ${PYTHON_ENV_PATH}/bin/activate
+   # Load python configuration on node
+   . \${SCRIPTS}/setenv_python.bash
+
+
+   . \${PYTHON_ENV_PATH}/bin/activate
 
    #---~---
    #   Group vertical levels.
@@ -444,20 +452,37 @@ case "${MONAN_ONETWO}" in
    for ii in \$(seq  ${inicio} ${fim})
    do
       i=\$(printf "%04d" \${ii})
-      cd ${DIRRUN}/dir.\${i}
-      python ${SCRIPTS}/group_levels.py ${DIRRUN}/dir.\${i} latlon.nc latlon_\${i}.nc \
-         1> ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/out_group_levels_\${i}.log 2>&1 &
-
-      #--- Move file to the default latlon.nc
-      /bin/rm latlon.nc
-      /bin/mv latlon_\${i}.nc latlon.nc
-      #---~---
-
+      cd \${DIRRUN}/dir.\${i}
+      ${PYTHON_EXEC} \${SCRIPTS}/group_levels.py \${DIRRUN}/dir.\${i} latlon.nc latlon_\${i}.nc \
+         1> \${DATAOUT}/${YYYYMMDDHHi}/Post/logs/out_group_levels_${node}.log 2>&1 &
+      echo "${PYTHON_EXEC} \${SCRIPTS}/group_levels.py \${DIRRUN}/dir.\${i} latlon.nc latlon_\${i}.nc"
    done
    #---~---
 
    #--- Make sure that the job remains active whilst convert_mpas runs in the background.
    wait
+   #---~---
+
+   #---~---
+   #   Rename files so the subsequent steps are not dependent upon the MONAN/convertmpas version.
+   #---~---
+   for ii in \$(seq  ${inicio} ${fim})
+   do
+      i=\$(printf "%04d" \${ii})
+      cd \${DIRRUN}/dir.\${i}
+      #--- Move file to the default latlon.nc
+      if [[ -s latlon_\${i}.nc ]]
+      then
+         /bin/rm latlon.nc
+         /bin/mv latlon_\${i}.nc latlon.nc
+      else
+         echo -e "\${RED}==>\${NC} *** FATAL ERROR ***"
+         echo -e "\${RED}==>\${NC} Script group_levels.py failed"
+         exit -1
+      fi
+      #---~---
+
+   done
    #---~---
 
    #--- Unload python.
@@ -492,17 +517,17 @@ EOSH
    chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
    case "${SCHEDULER_SYSTEM}" in
    SLURM)
-      echo "Sbatch PostAtmos_node.${node}.sh"
+      echo "sbatch PostAtmos_node.${node}.sh"
       jobid[${node}]=$(sbatch --parsable ${DIRRUN}/PostAtmos_node.${node}.sh)
       echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
       echo ""
       ;;
    PBS)
-      echo "Running with PBS"
+      echo "qsub PostAtmos_node.${node}.sh"
       echo -e  "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
       cd ${DIRRUN}
-		jobid[${node}]=$(qsub ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
-       ;;
+      jobid[${node}]=$(qsub ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
+      ;;
 #  GENERIC)
 #     echo "Nenhum gerenciador detectado"
 #     ${DIRRUN}/PostAtmos_node.${node}.sh
@@ -556,56 +581,64 @@ esac
 
 cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh 
 
-cd ${DIRRUN}
-. ${SCRIPTS}/setenv.bash ${MONAN_ONETWO}
+MONAN_ONETWO="${MONAN_ONETWO}"
+DIRRUN="${DIRRUN}"
+
+. ${SCRIPTS}/setenv.bash \${MONAN_ONETWO}
+
+cd \${DIRRUN}
 
 #---~---
 #   For older versions, we group data into a single file, fix the time units and shift the
 # bounding box so it goes from 180W to 180E (as opposed to 0-360).
 #---~---
-case "${MONAN_ONETWO}" in
+case "\${MONAN_ONETWO}" in
 -m12)
+   #--- Delete temporary files.
+   echo " - Remove existing files"
+   /bin/rm -f \${DATAOUT}/${YYYYMMDDHHi}/Post/mergetime.nc
+   /bin/rm -f \${DATAOUT}/${YYYYMMDDHHi}/Post/timeunits.nc
+   /bin/rm -f \${DATAOUT}/${YYYYMMDDHHi}/Post/MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_AllTimes.x${RES}L${N_ISOBARIC_LEV}.nc
+   #---~---
+
    #--- Merge all files.
-   cdo mergetime \
-      ${DATAOUT}/${YYYYMMDDHHi}/Post/MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_??????????.??.??.x${RES}L${N_ISOBARIC_LEV}.nc \
-      ${DATAOUT}/${YYYYMMDDHHi}/Post/mergetime.nc
+   echo " - Merge single-time files:"
+   cdo mergetime \${DATAOUT}/${YYYYMMDDHHi}/Post/MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_??????????.??.??.x${RES}L${N_ISOBARIC_LEV}.nc \${DATAOUT}/${YYYYMMDDHHi}/Post/mergetime.nc
    sleep 5
    #---~---
 
    #--- Fix time increment so it is consistent with the output.
-   cdo settunits,seconds -settaxis,${START_DATE_YYYYMMDD},${START_HH}:00,${t_stroutsec}second \
-      ${DATAOUT}/${YYYYMMDDHHi}/Post/mergetime.nc \
-      ${DATAOUT}/${YYYYMMDDHHi}/Post/timeunits.nc
+   echo " - Fix time interval so it matches the actual output:"
+   cdo settaxis,${START_DATE_YYYYMMDD},${START_HH}:00,${t_stroutsec}seconds \${DATAOUT}/${YYYYMMDDHHi}/Post/mergetime.nc \${DATAOUT}/${YYYYMMDDHHi}/Post/timeunits.nc
    sleep 5
    #---~---
 
-   #--- Shift the bounding box to -180:180.
-   cdo sellonlatbox,-180,180,-90,90 ${DATAOUT}/${YYYYMMDDHHi}/Post/timeunits.nc \
-      ${DATAOUT}/${YYYYMMDDHHi}/Post/MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_AllTimes.x${RES}L${N_ISOBARIC_LEV}.nc
+   #--- Shift the bounding box to 180W:180E (as opposed to 0:360).
+   echo " - Set the bounding box to 180W:180E:"
+   cdo sellonlatbox,-180,180,-90,90 \${DATAOUT}/${YYYYMMDDHHi}/Post/timeunits.nc \${DATAOUT}/${YYYYMMDDHHi}/Post/MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_AllTimes.x${RES}L${N_ISOBARIC_LEV}.nc
    sleep 5
    #---~---
 
    #--- Delete temporary files.
-   /bin/rm -f ${DATAOUT}/${YYYYMMDDHHi}/Post/mergetime.nc
-   /bin/rm -f ${DATAOUT}/${YYYYMMDDHHi}/Post/timeunits.nc
+   echo " - Delete temporary files"
+   /bin/rm -f \${DATAOUT}/${YYYYMMDDHHi}/Post/mergetime.nc
+   /bin/rm -f \${DATAOUT}/${YYYYMMDDHHi}/Post/timeunits.nc
    #---~---
    ;;
 esac
 
 # Saving important files to the logs directory:
-cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
-cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/dir.0001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/dir.0001/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/dir.0001/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/dir.0001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/PostAtmos_node.*.sh ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+echo " - Save relevant files to permanent locations:"
+cp -f \${EXECS}/CONVMPAS-VERSION.txt \${DATAOUT}/${YYYYMMDDHHi}/Post
+cp -f \${EXECS}/CONVMPAS-VERSION.txt \${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f \${DIRRUN}/dir.0001/target_domain \${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f \${DIRRUN}/dir.0001/convert_mpas.nml \${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f \${DIRRUN}/dir.0001/include_fields \${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f \${DIRRUN}/dir.0001/convert_mpas.output \${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f \${DIRRUN}/PostAtmos_node.*.sh \${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f \${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* \${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f \${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN-VERSION.txt \${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
-
-cd ${DIRRUN}/..
-rm -fr ${DIRRUN}
 
 
 EOSH
@@ -644,3 +677,6 @@ cd ${SCRIPTS}
 chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
 time ${SCRIPTS}/make_template.bash ${MONAN_ONETWO} ${dv_VARTABLE}                          \
    -d ${OUTPUT_DIAG_INTERVAL} -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
+
+cd ${DIRRUN}/..
+rm -fr ${DIRRUN}

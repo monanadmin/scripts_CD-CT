@@ -9,7 +9,7 @@ module load cray-netcdf/4.9.0.15
 module load cray-parallel-netcdf/1.12.3.15
 module load xpmem/0.2.119-1.3_gef379be13330
 module load grads/2.2.1.oga.1
-module load cdo/2.4.2
+module load cdo/2.5.4
 module load METIS/5.1.0
 module load cray-pals
 module list
