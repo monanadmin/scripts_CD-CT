@@ -159,8 +159,7 @@ mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 # Local variables--------------------------------------
 START_DATE_YYYYMMDD="${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}"
 START_HH="${YYYYMMDDHHi:8:2}"
-maxpostpernode=20    # <------ qtde max de convert_mpas por no!
-export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
+export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 
 #--- Variables for flexible output intervals.
@@ -300,4 +299,3 @@ sed -i "/dset/c\dset ^${diag_name_templ}" ${DIRRUN}/qctlinfo.ctl
 
 chmod 755 ${DIRRUN}/*
 mv ${DIRRUN}/qctlinfo.ctl ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}.template.ctl
-rm -fr ${DIRRUN}

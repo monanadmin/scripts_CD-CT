@@ -657,7 +657,7 @@ PBS)
    qsub -W depend=${dependency} -W block=true ${DIRRUN}/PostAtmos_node.${node}.sh
    ;;
 #GENERIC)
-#   echo "Nenhum gerenciador detectado"
+#   echo "No job manager detected."
 #   ${DIRRUN}/PostAtmos_node.${node}.sh
 #   ;;
 esac
@@ -678,5 +678,5 @@ chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
 time ${SCRIPTS}/make_template.bash ${MONAN_ONETWO} ${dv_VARTABLE}                          \
    -d ${OUTPUT_DIAG_INTERVAL} -e ${EXP} -f ${FCST} -r ${RES} -t ${YYYYMMDDHHi}
 
-cd ${DIRRUN}/..
+cd ${DIRHOMES}
 rm -fr ${DIRRUN}
