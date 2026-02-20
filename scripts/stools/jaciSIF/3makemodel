@@ -4,7 +4,8 @@ cat << EOF0 > ${DIRRUN}/model.bash
 #!/bin/bash -x
 #PBS -N ${MODEL_jobname}
 #PBS -q ${MODEL_QUEUE}
-#PBS -l select=${MODEL_nnodes}:ncpus=${MODEL_ncpn}:mpiprocs=${MODEL_ncpn}
+##PBS -l select=${MODEL_nnodes}:ncpus=${MODEL_ncpn}:mpiprocs=${MODEL_ncpn}
+#PBS -l select=${MODEL_nnodes}:ncpus=${MODEL_ncpn}
 #PBS -l place=scatter
 #PBS -l place=excl
 #PBS -l walltime=${MODEL_walltime}
@@ -22,6 +23,7 @@ ulimit -s unlimited
 . ${SCRIPTS}/setenv.bash
 
 cd ${DIRRUN}
+chmod 775 *
 
 
 export CURRENT_HOST=\$(cat \$PBS_NODEFILE)
@@ -29,7 +31,8 @@ export HOSTFILE=${DIRRUN}/hostfile
 echo "\${CURRENT_HOST}" | sed "s,\..*$,," > \${HOSTFILE}
 
 date
-time singularity exec --bind ${SCRIPTS}/.. --bind $HOME ${SINGULARITY} bash -c "
+which singularity
+time singularity exec --bind ${SCRIPTS}/.. ${SINGULARITY} bash -c "
    mpirun -np ${MODEL_ncores} --hostfile \${HOSTFILE} ./\${executable}
 "
 date
