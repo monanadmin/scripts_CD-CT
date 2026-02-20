@@ -34,7 +34,7 @@ sed -e "s,#LABELI#,${start_date},g;s,#PREFIX#,GFS,g" \
 	${DIRRUN}/namelist.wps.TEMPLATE > ${DIRRUN}/namelist.wps
 
 date
-${CMD_SINGULARITY} exec --bind ${SCRIPTS}/.. --bind /home ${SINGULARITY} bash -c '
+singularity exec --bind ${SCRIPTS}/.. --bind /home ${SINGULARITY} bash -c '
    ./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
    time ungrib.exe
 '

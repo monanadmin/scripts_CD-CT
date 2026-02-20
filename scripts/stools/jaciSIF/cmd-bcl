@@ -1,0 +1,3 @@
+#!/bin/bash
+
+singularity exec ${SINGULARITY} bash -c "bc -l"

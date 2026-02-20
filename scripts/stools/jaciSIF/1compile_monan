@@ -1,0 +1,5 @@
+#!/bin/bash
+
+singularity exec --bind ${SCRIPTS}/.. --bind /home ${SINGULARITY} bash -l -c '
+   . ${MONANDIR}/make-all.sh
+'

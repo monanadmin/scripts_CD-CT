@@ -1,5 +1,5 @@
 #!/bin/bash
 
-${CMD_SINGULARITY} exec --bind ${SCRIPTS}/.. --bind /home ${SINGULARITY} bash -c '
+singularity exec --bind ${SCRIPTS}/.. --bind /home ${SINGULARITY} bash -c '
    grads -blc "run ${DIRRUN}/qctlinfo.gs" | awk "/dset/,/endvars/" > ${DIRRUN}/qctlinfo.ctl
 '

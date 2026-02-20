@@ -30,7 +30,7 @@ export HOSTFILE=${DIRRUN}/hostfile
 echo "\${CURRENT_HOST}" | sed "s,\..*$,," > \${HOSTFILE}
 
 date
-time ${CMD_SINGULARITY} exec --bind ${SCRIPTS}/.. --bind /home ${SINGULARITY} bash -c "
+time singularity exec --bind ${SCRIPTS}/.. --bind /home ${SINGULARITY} bash -c "
    mpirun -np ${INITATMOS_ncores} --hostfile \${HOSTFILE} ./\${executable}
 "
 date

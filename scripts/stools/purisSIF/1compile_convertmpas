@@ -1,6 +1,0 @@
-#!/bin/bash
-
-${CMD_SINGULARITY} exec --bind ${SCRIPTS}/.. --bind /home ${SINGULARITY} bash -l -c '
-   make clean
-   make  2>&1 | tee make.convert.output
-'

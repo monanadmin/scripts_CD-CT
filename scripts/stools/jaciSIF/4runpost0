@@ -1,0 +1,4 @@
+#!/bin/bash
+
+jobid[${node}]=$(qsub -W block=true ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
+

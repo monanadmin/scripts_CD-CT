@@ -1,5 +1,5 @@
 #!/bin/bash
 
-${CMD_SINGULARITY} exec --bind ${SCRIPTS}/.. --bind /home ${SINGULARITY} bash -c "
+singularity exec --bind ${SCRIPTS}/.. --bind /home ${SINGULARITY} bash -c "
     gpmetis -minconn -contig -niter=200 x1.${RES}.graph.info ${cores}
 "

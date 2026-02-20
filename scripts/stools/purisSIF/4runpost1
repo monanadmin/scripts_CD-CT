@@ -1,3 +1,0 @@
-#!/bin/bash
-
-jobid[${node}]=$(qsub ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d. -f1)
