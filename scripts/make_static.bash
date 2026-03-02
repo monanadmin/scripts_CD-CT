@@ -136,8 +136,7 @@ ulimit -s unlimited
 ulimit -c unlimited
 ulimit -v unlimited
 
-
-. ${SCRIPTS}/setenv.bash
+#. ${SCRIPTS}/setenv.bash
 
 cd ${DIRRUN}
 chmod 755 *
