@@ -212,5 +212,11 @@ else
    exit -1
 fi
 
+JOBID=$(sed -n '2p' ${DATAOUT}/logs/static.bash.o | awk '{print $3}' | sed "s/.pbs-ha//g")
+mv ${DATAOUT}/logs/static.bash.o ${DATAOUT}/logs/static.bash.o.${JOBID}
+mv ${DATAOUT}/logs/static.bash.e ${DATAOUT}/logs/static.bash.e.${JOBID}
+chmod a+r ${DATAOUT}/logs/static.bash.o.${JOBID}
+chmod a+r ${DATAOUT}/logs/static.bash.e.${JOBID}
+
 rm -fr ${DIRRUN}
 
