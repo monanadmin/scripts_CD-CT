@@ -148,6 +148,8 @@ cd ${DIRRUN}
 
 . ${SCRIPTS}/setenv.bash
 
+echo "-- PBS_JOBID: \$PBS_JOBID"
+
 ldd ungrib.exe
 
 rm -f GRIBFILE.* namelist.wps
@@ -229,4 +231,11 @@ done
 
 mv ${DIRRUN}/degrib.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
+
+JOBID=$(sed -n '4p' ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o | awk '{print $3}' | sed "s/.pbs-ha//g")
+mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o.${JOBID}
+mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e.${JOBID}
+chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o.${JOBID}
+chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e.${JOBID}
+
 rm -fr ${DIRRUN}
