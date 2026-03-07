@@ -186,6 +186,11 @@ case "${SCHEDULER_SYSTEM}" in
 esac
 mv ${DIRRUN}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
+JOBID=$(sed -n '5p' ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o | awk '{print $3}' | sed "s/.pbs-ha//g")
+mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o.${JOBID}
+mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e.${JOBID}
+chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o.${JOBID}
+chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e.${JOBID}
 
 
 if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ]
