@@ -2,9 +2,9 @@
 umask 022
 
 # Choose your compiler here (only on Jaci; on Egeon the compiler is fixed to ‘gnu’):
-export COMPILER=intel
+#export COMPILER=intel
 #export COMPILER=gnu
-#export COMPILER=cray
+export COMPILER=cray
 #export COMPILER=nvidia
 
 # Squeduler detect:
@@ -40,6 +40,9 @@ case ${THOSTNAME} in
       elif [ "$COMPILER" == "gnu" ]; then
          export MAKE_TARG=gfortran-xd2000
          export MAKE_TARG2=gfortran-xd2000
+      elif [ "$COMPILER" == "cray" ]; then
+         export MAKE_TARG=cray-xd2000
+         export MAKE_TARG2=cray-xd2000
       fi
       ;;
 esac
@@ -59,7 +62,7 @@ export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=${DIR_SCRIPTS}
-export MONANDIR=$MONANDIR
+export MONANDIR=/p/projetos/monan_adm/daniel.massaru/issue922-teste/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
 
 
 # Load your system setenv:
