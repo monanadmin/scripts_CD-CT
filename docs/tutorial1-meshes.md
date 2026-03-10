@@ -54,7 +54,7 @@ cd /mnt/beegfs/$USER
 ### 2.2) Clone the scripts repository:
 
 ```
-git clone -b feature/scripts-849-NF-idealized https://github.com/CGFD-USP/scripts_CD-CT
+git clone -b feature/scripts-849-NF-idealized-regional https://github.com/CGFD-USP/scripts_CD-CT
 ```
 
 ## 3) Generating MONAN meshes
