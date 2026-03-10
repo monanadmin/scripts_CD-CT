@@ -2,9 +2,9 @@
 umask 022
 
 # Choose your compiler here (only on Jaci; on Egeon the compiler is fixed to ‘gnu’):
-#export COMPILER=intel
+export COMPILER=intel
 #export COMPILER=gnu
-export COMPILER=cray
+#export COMPILER=cray
 #export COMPILER=nvidia
 
 # Squeduler detect:
