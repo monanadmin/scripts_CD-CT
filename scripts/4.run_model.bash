@@ -15,7 +15,7 @@
 #
 #-----------------------------------------------------------------------------#
 
-if [ $# -ne 7 -a $# -ne 1 ]
+if [ $# -ne 6 -a $# -ne 1 ]
 then
    echo ""
    echo "Instructions: execute the command below"
