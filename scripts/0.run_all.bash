@@ -331,7 +331,7 @@ case ${STEP} in
    #---~---
    #   STEP 1: Install and compile MONAN and its utility programs.
    #---~---
-   time 1.install_monan.bash ${MONAN_ONETWO} -bc ${tag_or_branch_name_CONVERT_MPAS}        \
+   time ./1.install_monan.bash ${MONAN_ONETWO} -bc ${tag_or_branch_name_CONVERT_MPAS}      \
       -bm ${tag_or_branch_name_MONAN} -gc ${github_link_CONVERT_MPAS}                      \
       -gm ${github_link_MONAN}
    #---~---
@@ -340,15 +340,15 @@ case ${STEP} in
    #---~---
    #   STEP 2: Run the pre-processing step, and make initial/boundary conditions if needed.
    #---~---
-   time 2.pre_processing.bash ${MONAN_ONETWO} ${OVERWRITE} -e ${EXP} -f ${FCST} -r ${RES}  \
-      -t ${YYYYMMDDHHi}
+   time ./2.pre_processing.bash ${MONAN_ONETWO} ${OVERWRITE} -e ${EXP} -f ${FCST}          \
+      -r ${RES} -t ${YYYYMMDDHHi}
    #---~---
    ;;
 3)
    #---~---
    #   STEP 3: Run the model.
    #---~---
-   time 3.run_model.bash ${MONAN_ONETWO} ${dv_VARTABLE} -d ${OUTPUT_DIAG_INTERVAL}         \
+   time ./3.run_model.bash ${MONAN_ONETWO} ${dv_VARTABLE} -d ${OUTPUT_DIAG_INTERVAL}       \
       -e ${EXP} -f ${FCST} -l ${NLEV} -r ${RES} -t ${YYYYMMDDHHi}
    #---~---
    ;;
@@ -356,7 +356,7 @@ case ${STEP} in
    #---~---
    # STEP 4: Run the post-processing step.
    #---~---
-   time 4.run_post.bash ${MONAN_ONETWO} ${dv_VARTABLE} -d ${OUTPUT_DIAG_INTERVAL}          \
+   time ./4.run_post.bash ${MONAN_ONETWO} ${dv_VARTABLE} -d ${OUTPUT_DIAG_INTERVAL}        \
       -e ${EXP} -f ${FCST} -l ${NLEV} -r ${RES} -t ${YYYYMMDDHHi}
    #---~---
    ;;
