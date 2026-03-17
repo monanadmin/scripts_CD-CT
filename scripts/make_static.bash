@@ -202,7 +202,6 @@ mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/logs/
 mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/logs/
 mv log.init_atmosphere.* ${DATAOUT}/logs/
 
-
 if [ -s ${DIRRUN}/x1.${RES}.static.nc ]
 then
    mv ${DIRRUN}/x1.${RES}.static.nc ${DATAIN}/fixed
@@ -217,6 +216,6 @@ mv ${DATAOUT}/logs/static.bash.o ${DATAOUT}/logs/static.bash.o.${JOBID}
 mv ${DATAOUT}/logs/static.bash.e ${DATAOUT}/logs/static.bash.e.${JOBID}
 chmod a+r ${DATAOUT}/logs/static.bash.o.${JOBID}
 chmod a+r ${DATAOUT}/logs/static.bash.e.${JOBID}
-
+chmod a+r ${DATAOUT}/logs/log.init_atmosphere.*
 rm -fr ${DIRRUN}
 
