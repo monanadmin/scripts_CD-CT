@@ -282,4 +282,10 @@ do
 
 done
 
+JOBID=$(sed -n '5p' ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o | awk '{print $3}' | sed "s/.pbs-ha//g")
+mv ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o.${JOBID}
+mv ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e.${JOBID}
+chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o.${JOBID}
+chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e.${JOBID}
+
 rm -fr ${DIRRUN}
