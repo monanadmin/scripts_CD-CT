@@ -190,6 +190,18 @@ printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 #     NLAT = 180 * PointsPerDegree + 1
 #---~---
 case ${RES} in
+65536002)
+   #---~---
+   #   3 km, use 40 points per degree
+   #---~---
+   NLAT=7201
+   NLON=14401
+   STARTLAT=-90.0
+   STARTLON=0.0
+   ENDLAT=90.0
+   ENDLON=360.0
+   #---~---
+   ;;
 5898242)
    #---~---
    #   10 km, use 12 points per degree
@@ -220,6 +232,30 @@ case ${RES} in
    #---~---
    NLAT=901
    NLON=1801
+   STARTLAT=-90.0
+   STARTLON=0.0
+   ENDLAT=90.0
+   ENDLON=360.0
+   #---~---
+   ;;
+655362)
+   #---~---
+   #   30 km, use 4 points per degree
+   #---~---
+   NLAT=721
+   NLON=1441
+   STARTLAT=-90.0
+   STARTLON=0.0
+   ENDLAT=90.0
+   ENDLON=360.0
+   #---~---
+   ;;
+163842)
+   #---~---
+   #   60 km, use 2 points per degree
+   #---~---
+   NLAT=361
+   NLON=721
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
