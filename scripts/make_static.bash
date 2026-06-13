@@ -67,16 +67,14 @@ then
       cd ${DATAIN}/fixed
       echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
       wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
-      wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}_static.tar.gz
       tar -xzvf x1.${RES}.tar.gz
-      tar -xzvf x1.${RES}_static.tar.gz
       chmod 755 *
    fi
    echo -e "${GREEN}==>${NC} Creating x1.${RES}.graph.info.part.${cores} ... \n"
    cd ${DATAIN}/fixed
    gpmetis -minconn -contig -niter=200 x1.${RES}.graph.info ${cores}
-   rm -fr x1.${RES}.tar.gz x1.${RES}_static.tar.gz
    chmod 755 *
+   rm -fr x1.${RES}.tar.gz
 fi
 
 files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
@@ -144,10 +142,10 @@ chmod 755 *
 date
 beg_secs=\`date +"%s"\`
 
-if [ "$HOSTNAME" = "egeon" ]; then
+if [ ${SCHEDULER_SYSTEM} == "SLURM" ]; then
    echo "-- SLURM_JOB_ID: \$SLURM_JOB_ID"
    time mpirun -np ${STATIC_ncores} ./\${executable}
-else
+elif [ ${SCHEDULER_SYSTEM} == "PBS" ]; then
    echo "-- PBS_JOBID: \$PBS_JOBID"
    time mpirun --ppn ${STATIC_ncpn} -np ${STATIC_ncores} --depth=${STATIC_nthreads} --cpu-bind depth ./\${executable}
 fi
@@ -157,7 +155,6 @@ end_secs=\`date +"%s"\`
 
 let wallsecs=\$end_secs-\$beg_secs
 echo "STATIC time taken by run in seconds is " \$wallsecs
-
 
 grep "Finished running" log.init_atmosphere.0000.out >& /dev/null
 if [ \$? -ne 0 ]; then
@@ -173,11 +170,10 @@ echo "  ### Static completed - \$(date) ####"
 echo "  ####################################"
 echo " "
 
-
 EOF0
+
 chmod a+x ${DIRRUN}/static.bash
 rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
-
 
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
@@ -202,6 +198,17 @@ mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/logs/
 mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/logs/
 mv log.init_atmosphere.* ${DATAOUT}/logs/
 
+if [ ${SCHEDULER_SYSTEM} = "SLURM" ]; then
+   : # Slurm já gera JOBID na submissão.
+elif [ ${SCHEDULER_SYSTEM} = "PBS" ]; then
+   JOBID=$(sed -n '2p' ${DATAOUT}/logs/static.bash.o | awk '{print $3}' | sed "s/.pbs-ha//g")
+   mv ${DATAOUT}/logs/static.bash.o ${DATAOUT}/logs/static.bash.o.${JOBID}
+   mv ${DATAOUT}/logs/static.bash.e ${DATAOUT}/logs/static.bash.e.${JOBID}
+fi
+chmod a+r ${DATAOUT}/logs/static.bash.o.*
+chmod a+r ${DATAOUT}/logs/static.bash.e.*
+chmod a+r ${DATAOUT}/logs/log.init_atmosphere.*
+
 if [ -s ${DIRRUN}/x1.${RES}.static.nc ]
 then
    mv ${DIRRUN}/x1.${RES}.static.nc ${DATAIN}/fixed
@@ -211,11 +218,4 @@ else
    exit -1
 fi
 
-JOBID=$(sed -n '2p' ${DATAOUT}/logs/static.bash.o | awk '{print $3}' | sed "s/.pbs-ha//g")
-mv ${DATAOUT}/logs/static.bash.o ${DATAOUT}/logs/static.bash.o.${JOBID}
-mv ${DATAOUT}/logs/static.bash.e ${DATAOUT}/logs/static.bash.e.${JOBID}
-chmod a+r ${DATAOUT}/logs/static.bash.o.${JOBID}
-chmod a+r ${DATAOUT}/logs/static.bash.e.${JOBID}
-chmod a+r ${DATAOUT}/logs/log.init_atmosphere.*
 rm -fr ${DIRRUN}
-

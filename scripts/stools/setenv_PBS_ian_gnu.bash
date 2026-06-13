@@ -27,7 +27,6 @@ export STATIC_nthreads=1
 export STATIC_jobname="Pre.static"
 export STATIC_walltime="02:00:00"
 
-
 # PRE-Degrib phase:
 export DEGRIB_QUEUE="pesqextra"
 export DEGRIB_ncores=1
@@ -47,6 +46,16 @@ export INITATMOS_ncpn=128
 export INITATMOS_nthreads=1
 export INITATMOS_jobname="Pre.InitAtmos"
 export INITATMOS_walltime="02:00:00"
+
+# PRE-LBCs phase:
+export LBCS_QUEUE="pesqextra"
+export LBCS_ncores=64
+export LBCS_nnodes=1
+export LBCS_ncpus=64
+export LBCS_ncpn=64
+export LBCS_nthreads=1
+export LBCS_jobname="Pre.LBCS"
+export LBCS_walltime="02:00:00"
 
 # Model phase:
 export MODEL_QUEUE="pesqextra"
@@ -85,7 +94,6 @@ export GCCCIS=/p/projetos/monan_adm/monan/CIs
 # PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL
 export PIO=
 export LD_LIBRARY_PATH=$NETCDF/lib:$PNETCDF/lib:$PIO/lib64:$LD_LIBRARY_PATH
-
 
 # --- Others Variables ---
 # HPE Slingshot/Libfabric:

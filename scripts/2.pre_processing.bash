@@ -25,7 +25,7 @@ then
    echo ""
    echo "${0} EXP_NAME/OP RESOLUTION LABELI FCST"
    echo ""
-   echo "EXP_NAME    :: Forcing: GFS"
+   echo "EXP_NAME    :: Forcing: GFS or ERA"
    echo "            :: Others options to be added later..."
    echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
    echo "                                                                 40962  (120 km)"
@@ -52,7 +52,7 @@ echo "---- Pre Processing ----"
 echo ""
 
 
-# Standart directories variables:---------------------------------------
+# Standard directories variables:---------------------------------------
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}    
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
@@ -80,8 +80,6 @@ final_date=${yyyymmddhhf:0:4}-${yyyymmddhhf:4:2}-${yyyymmddhhf:6:2}_${yyyymmddhh
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 
-
-
 echo -e  "${GREEN}==>${NC} Scripts_CD-CT last commit: \n"
 git log | head -1
 
@@ -94,32 +92,66 @@ then
 	rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
 	ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
 fi
-
+#----------------------------------------------------------------------------------
 
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
-if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
-then
-   echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
-   time ./make_static.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+if [[ ${EXP} == "GFS" || ${EXP} == "ERA" ]]; then
+   if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
+   then
+      echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
+      time ./make_static.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+   else
+      echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
+   fi
 else
-   echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
+   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+   echo -e  "${RED}==>${NC} Static phase fails! Please select EXP=GFS or EXP=ERA.\n"
+   echo -e  "${RED}==>${NC} Exiting script. \n"
+   exit -1
+fi
+
+#----------------------------------------------------------------------------------
+
+# Degrib phase:---------------------------------------------------------------------
+if [[ ${EXP} == "GFS" ]]
+then
+   echo -e  "${GREEN}==>${NC} Submitting Degrib for GFS data...\n"
+   time ./make_degrib_GFS.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+elif [[ ${EXP} == "ERA" ]]
+then
+   echo -e  "${GREEN}==>${NC} Submitting Degrib for ERA data...\n"
+   time ./make_degrib_ERA5.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+else
+   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+   echo -e  "${RED}==>${NC} Degrib phase fails! Please select EXP=GFS or EXP=ERA.\n"
+   echo -e  "${RED}==>${NC} Exiting script. \n"
+   exit -1
 fi
 #----------------------------------------------------------------------------------
 
-
-# Degrib phase:---------------------------------------------------------------------
-echo -e  "${GREEN}==>${NC} Running Degrib:\n"
-time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
-#----------------------------------------------------------------------------------
-
-
-
-
 # Init Atmosphere phase:------------------------------------------------------------
-echo -e  "${GREEN}==>${NC} Running Init Atmosphere...\n"
-time ./make_initatmos.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+if [[ ${EXP} == "GFS" || ${EXP} == "ERA" ]]; then
+   echo -e  "${GREEN}==>${NC} Submitting Init Atmosphere for real case...\n"
+   time ./make_initatmos.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+else
+   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+   echo -e  "${RED}==>${NC} Init Atmosphere phase fails! Please select EXP=GFS or EXP=ERA.\n"
+   echo -e  "${RED}==>${NC} Exiting script. \n"
+   exit -1
+fi
 #----------------------------------------------------------------------------------
 
-
-
+# LBCs phase:------------------------------------------------------------
+if [[ $MODERUN == "R" ]]; then
+   echo -e  "${GREEN}==>${NC} Regional simulation: submitting Init Atmosphere to generate lateral boundary conditions...\n"
+   time ./make_lbcs.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+elif [[ $MODERUN == "G" ]]; then
+   echo -e  "${GREEN}==>${NC} Global simulation: no need for lateral boundary conditions.\n"
+else
+   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+   echo -e  "${RED}==>${NC} LBCs phase fails! Please select MODERUN=R or G.\n"
+   echo -e  "${RED}==>${NC} Exiting script. \n"
+   exit -1
+fi
+#----------------------------------------------------------------------------------
 

@@ -40,6 +40,15 @@ export INITATMOS_ncpn=64
 export INITATMOS_jobname="Pre.InitAtmos"
 export INITATMOS_walltime="02:00:00" 
 
+# PRE-LBCs phase:
+export LBCS_QUEUE="batch"
+export LBCS_ncores=64
+export LBCS_nnodes=1
+export LBCS_ncpus=64
+export LBCS_ncpn=64
+export LBCS_nthreads=1
+export LBCS_jobname="Pre.LBCS"
+export LBCS_walltime="02:00:00"
 
 # Model phase:
 export MODEL_QUEUE="batch"
@@ -49,7 +58,6 @@ export MODEL_ncpn=64
 export MODEL_jobname="Model.MONAN"
 export MODEL_walltime="8:00:00"
 
-
 # Post phase:
 export POST_QUEUE="batch"
 ### export POST_ncores=1 not used yet
@@ -58,8 +66,6 @@ export POST_nnodes=1
 export POST_ncpn=32
 export POST_jobname="Post.MONAN"
 export POST_walltime="8:00:00"
-
-
 
 
 
