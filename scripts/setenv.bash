@@ -43,6 +43,9 @@ case ${THOSTNAME} in
       elif [ "$COMPILER" == "cray" ]; then
          export MAKE_TARG=cray-xd2000
          export MAKE_TARG2=cray-xd2000
+      elif [ "$COMPILER" == "nvidia" ]; then
+         export MAKE_TARG=nvhpc-xd2000
+         export MAKE_TARG2=nvhpc-xd2000
       fi
       ;;
 esac
@@ -62,7 +65,7 @@ export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=${DIR_SCRIPTS}
-export MONANDIR=$MONANDIR
+export MONANDIR=/p/projetos/monan_adm/marcelo.paiva/iMONAN2.0.0/scripts_CD-CT/sources/MONAN-Model_feature_i994_nvhpc
 
 
 # Load your system setenv:
