@@ -101,6 +101,7 @@ sed -e "s,#RES#,${RES},g" \
 
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
+cp -f ${DATAIN}/fixed/QNWFA_QNIFA_SIGMA_MONTHLY.dat ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:${start_date:0:13} ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}

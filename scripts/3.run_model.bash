@@ -139,7 +139,7 @@ then
 fi
 
 
-files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" ""${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.GFS")
+files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" ""${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.GFS" "${DATAIN}/fixed/ugwp_limb_tau.nc")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -158,6 +158,7 @@ cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.GFS ${DIRRUN}
+cp -f ${DATAIN}/fixed/ugwp_limb_tau.nc ${DIRRUN}
 
 
 if [ ${EXP} = "GFS" ]

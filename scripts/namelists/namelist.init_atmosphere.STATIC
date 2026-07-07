@@ -34,6 +34,7 @@
 &preproc_stages
     config_static_interp = true
     config_native_gwd_static = true
+    config_native_gwd_gsl_static = false
     config_vertical_grid = false
     config_met_interp = false
     config_input_sst = false
