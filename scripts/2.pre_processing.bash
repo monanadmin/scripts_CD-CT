@@ -96,6 +96,39 @@ then
 fi
 
 
+# Building MP_THOMPSON DBL tables
+echo ""
+echo -e  "${GREEN}==>${NC} Building MP_THOMPSON DBL tables...\n"
+
+rm -f ${EXECS}/MP_THOMPSON_*_DATA.DBL
+rm -f ${DATAIN}/fixed/MP_THOMPSON_*_DATA.DBL
+
+cd ${EXECS}
+${EXECS}/build_tables
+
+mv ${EXECS}/MP_THOMPSON_QRacrQG_DATA.DBL    ${DATAIN}/fixed
+mv ${EXECS}/MP_THOMPSON_QRacrQS_DATA.DBL    ${DATAIN}/fixed
+mv ${EXECS}/MP_THOMPSON_freezeH2O_DATA.DBL  ${DATAIN}/fixed
+mv ${EXECS}/MP_THOMPSON_QIautQS_DATA.DBL    ${DATAIN}/fixed
+
+chmod 755 ${DATAIN}/fixed/MP_THOMPSON_*_DATA.DBL
+
+# verify here if tables was created ok
+files_needed=("${DATAIN}/fixed/MP_THOMPSON_QRacrQG_DATA.DBL" "${DATAIN}/fixed/MP_THOMPSON_QRacrQS_DATA.DBL" "${DATAIN}/fixed/MP_THOMPSON_freezeH2O_DATA.DBL" "${DATAIN}/fixed/MP_THOMPSON_QIautQS_DATA.DBL")
+for file in "${files_needed[@]}"
+do
+  if [ -s "${file}" ] ; then
+    echo ""
+    echo -e "${GREEN}==>${NC} File ${file} generated sucessfully in ${EXECS} and moved to ${DATAIN}/fixed !"
+    echo
+  else
+    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"   
+    echo -e  "${RED}==>${NC} [${0}] An error occurred during MP_THOMPSON build_tables. At least the file ${file} was not generated. \n"
+    exit -1
+  fi
+done
+
+
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
 then
