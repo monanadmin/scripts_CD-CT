@@ -98,7 +98,7 @@ You will need to execute only 6 steps scripts, so you can run the Atmospheric MO
 
 Default values:
 ~~~
-<OPTIONAL_tag_or_branch_name_MONAN-Model> = "1.4.3-rc"
+<OPTIONAL_tag_or_branch_name_MONAN-Model> = "1.4.4"
 <OPTIONAL_tag_or_branch_name_Convert-MPAS> = "1.2.0"
 ~~~
 
