@@ -43,6 +43,9 @@ case ${THOSTNAME} in
       elif [ "$COMPILER" == "cray" ]; then
          export MAKE_TARG=cray-xd2000
          export MAKE_TARG2=cray-xd2000
+      elif [ "$COMPILER" == "nvidia" ]; then
+         export MAKE_TARG=nvhpc-xd2000
+         export MAKE_TARG2=nvhpc-xd2000
       fi
       ;;
 esac
