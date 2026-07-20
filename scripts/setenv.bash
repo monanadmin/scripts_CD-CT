@@ -65,7 +65,7 @@ export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=${DIR_SCRIPTS}
-export MONANDIR=/p/projetos/monan_adm/marcelo.paiva/iMONAN2.0.0/scripts_CD-CT/sources/MONAN-Model_feature_i994_nvhpc
+export MONANDIR=$MONANDIR
 
 
 # Load your system setenv:
