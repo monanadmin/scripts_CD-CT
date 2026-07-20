@@ -136,7 +136,6 @@ ulimit -s unlimited
 ulimit -c unlimited
 ulimit -v unlimited
 
-
 . ${SCRIPTS}/setenv.bash
 
 cd ${DIRRUN}
@@ -203,7 +202,6 @@ mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/logs/
 mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/logs/
 mv log.init_atmosphere.* ${DATAOUT}/logs/
 
-
 if [ -s ${DIRRUN}/x1.${RES}.static.nc ]
 then
    mv ${DIRRUN}/x1.${RES}.static.nc ${DATAIN}/fixed
@@ -213,5 +211,11 @@ else
    exit -1
 fi
 
+JOBID=$(sed -n '2p' ${DATAOUT}/logs/static.bash.o | awk '{print $3}' | sed "s/.pbs-ha//g")
+mv ${DATAOUT}/logs/static.bash.o ${DATAOUT}/logs/static.bash.o.${JOBID}
+mv ${DATAOUT}/logs/static.bash.e ${DATAOUT}/logs/static.bash.e.${JOBID}
+chmod a+r ${DATAOUT}/logs/static.bash.o.${JOBID}
+chmod a+r ${DATAOUT}/logs/static.bash.e.${JOBID}
+chmod a+r ${DATAOUT}/logs/log.init_atmosphere.*
 rm -fr ${DIRRUN}
 

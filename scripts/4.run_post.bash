@@ -218,6 +218,8 @@ cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh
 
 cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash
+echo "-- PBS_JOBID: \$PBS_JOBID"
+
 chmod 755 ${DIRRUN}/*
 
 echo "Executing posts ${inicio} to ${fim} in node Node ${node}."
@@ -301,7 +303,7 @@ EOSH
    sleep 5
 done
 
-
+total_nodes=${node}
 
 # Dependencias JobId:
 dependency="afterok"
@@ -314,6 +316,7 @@ done
 # Script final , para conferir todos os arquivos, criar o template final  e apagar o diretorio DIRRUN
 node=0
 rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
+
 
 if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]   
 then
@@ -337,6 +340,7 @@ cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh
 
 cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash
+echo "-- PBS_JOBID: \$PBS_JOBID"
 
 # Saving important files to the logs directory:
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
@@ -380,3 +384,13 @@ esac
 cd ${SCRIPTS}
 chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
 time ${SCRIPTS}/make_template.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+
+for ((n=0 ; n<total_nodes ; n++)) 
+do
+   PBS_JOB_ID=$(sed -n '4p' ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o | awk '{print $3}' | sed "s/.pbs-ha//g")
+   mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o.${PBS_JOB_ID}
+   mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e.${PBS_JOB_ID}
+   chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o.${PBS_JOB_ID}
+   chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e.${PBS_JOB_ID}
+done
+

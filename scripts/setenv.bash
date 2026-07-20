@@ -40,6 +40,9 @@ case ${THOSTNAME} in
       elif [ "$COMPILER" == "gnu" ]; then
          export MAKE_TARG=gfortran-xd2000
          export MAKE_TARG2=gfortran-xd2000
+      elif [ "$COMPILER" == "cray" ]; then
+         export MAKE_TARG=cray-xd2000
+         export MAKE_TARG2=cray-xd2000
       fi
       ;;
 esac
