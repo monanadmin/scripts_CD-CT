@@ -2,6 +2,13 @@
 
 ## History
 
+**1.4.1**
+- Compatibility with MONAN 1.4.4, including support for the new cold-start flags in namelist.atmosphere.TEMPLATE: config_coldstart_substeps and config_coldstart_steps_to_substep.
+- Updated config_smdiv to 0.15 in namelist.atmosphere.TEMPLATE.
+- Adjusted permissions for log files and included the job ID in output filenames.
+- Commented out the MPICH REPORT section in the stools files.
+- Added support for the Cray compiler.
+
 **1.4.0**
 - Compatibility with MONAN 1.4.3-rc.
 - Support for multi-environment: 'Jaci' supercomputer (intel and gnu compilers and PBS scheduler) and 'Egeon' cluster (gnu compiler and SLURM scheduler).
@@ -91,7 +98,7 @@ You will need to execute only 6 steps scripts, so you can run the Atmospheric MO
 
 Default values:
 ~~~
-<OPTIONAL_tag_or_branch_name_MONAN-Model> = "1.4.3-rc"
+<OPTIONAL_tag_or_branch_name_MONAN-Model> = "1.4.4"
 <OPTIONAL_tag_or_branch_name_Convert-MPAS> = "1.2.0"
 ~~~
 
