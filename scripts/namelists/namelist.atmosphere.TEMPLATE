@@ -66,7 +66,7 @@
     config_mynn_edmf = 0
     config_ngw_scheme = true
     config_knob_ugwp_tauamp = 0.13e-3
-    config_ugwp_diags = true ! if true (experimental), check new output
+    config_ugwp_diags = true 
 /
 &gf_monan
     config_gf_pcvol = 0
