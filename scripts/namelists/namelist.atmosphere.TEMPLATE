@@ -66,6 +66,9 @@
     config_bucket_update = 'none'
     config_physics_suite = 'mesoscale_reference_monan'
     config_mynn_edmf = 0
+    config_ngw_scheme = true
+    config_knob_ugwp_tauamp = 0.13e-3
+    config_ugwp_diags = true 
 /
 &gf_monan
     config_gf_pcvol = 0
@@ -73,7 +76,6 @@
     config_gf_gustf = 1
     config_gf_sub3d = 0
 /
-
 &soundings
     config_sounding_interval = 'none'
 /

@@ -80,7 +80,7 @@ then
 fi
 
 
-files_needed=("${SCRIPTS}/namelists/namelist.init_atmosphere.TEMPLATE" "${SCRIPTS}/namelists/streams.init_atmosphere.TEMPLATE" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}:${start_date:0:13}" "${EXECS}/init_atmosphere_model")
+files_needed=("${SCRIPTS}/namelists/namelist.init_atmosphere.TEMPLATE" "${SCRIPTS}/namelists/streams.init_atmosphere.TEMPLATE" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" "${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}:${start_date:0:13}" "${EXECS}/init_atmosphere_model")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -101,6 +101,7 @@ sed -e "s,#RES#,${RES},g" \
 
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
+cp -f ${DATAIN}/fixed/QNWFA_QNIFA_SIGMA_MONTHLY.dat ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:${start_date:0:13} ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
