@@ -9,7 +9,6 @@ relhum_isobaric
 uzonal_isobaric
 umeridional_isobaric
 w_isobaric
-omega_isobaric
 surface_pressure
 mslp
 precipw
@@ -29,3 +28,4 @@ lh
 cldfrac_tot_UPP
 ter
 landmask
+omega_isobaric

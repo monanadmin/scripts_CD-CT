@@ -10,12 +10,6 @@
                   packages="initial_conds" 
                   output_interval="initial_only" />
 
-<immutable_stream name="ugwp_oro_data"
-                  type="output"
-                  filename_template="x1.#RES#.ugwp_oro_data.nc"
-                  packages="gwd_gsl_stage_out"
-                  output_interval="initial_only" />
-
 <immutable_stream name="surface"
                   type="output"
                   filename_template="x1.#RES#.sfc_update.nc"
