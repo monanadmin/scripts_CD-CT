@@ -14,12 +14,14 @@
 
 <immutable_stream name="ugwp_oro_data"
                   type="output"
+                  io_type="pnetcdf,cdf5"
                   filename_template="x1.#RES#.ugwp_oro_data.nc"
                   packages="gwd_gsl_stage_out"
-                  output_interval="initial_only" />
+                  output_interval="none" />
 
 <immutable_stream name="surface"
                   type="output"
+                  io_type="pnetcdf,cdf5"
                   filename_template="x1.#RES#.sfc_update.nc"
                   filename_interval="none"
                   packages="sfc_update"
@@ -27,6 +29,7 @@
 
 <immutable_stream name="lbc"
                   type="output"
+                  io_type="pnetcdf,cdf5"
                   filename_template="lbc.$Y-$M-$D_$h.$m.$s.nc"
                   filename_interval="output_interval"
                   packages="lbcs"

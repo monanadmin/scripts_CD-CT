@@ -98,7 +98,7 @@ fi
 
 # Building MP_THOMPSON DBL tables
 echo ""
-echo -e  "${GREEN}==>${NC} Building MP_THOMPSON DBL tables...\n"
+echo -e  "${GREEN}==>${NC} Building MP_THOMPSON DBL tables ...\n"
 
 rm -f ${EXECS}/MP_THOMPSON_*_DATA.DBL
 rm -f ${DATAIN}/fixed/MP_THOMPSON_*_DATA.DBL
@@ -112,6 +112,7 @@ mv ${EXECS}/MP_THOMPSON_freezeH2O_DATA.DBL  ${DATAIN}/fixed
 mv ${EXECS}/MP_THOMPSON_QIautQS_DATA.DBL    ${DATAIN}/fixed
 
 chmod 755 ${DATAIN}/fixed/MP_THOMPSON_*_DATA.DBL
+chgrp $USER ${DATAIN}/fixed/MP_THOMPSON_*_DATA.DBL
 
 # verify here if tables was created ok
 files_needed=("${DATAIN}/fixed/MP_THOMPSON_QRacrQG_DATA.DBL" "${DATAIN}/fixed/MP_THOMPSON_QRacrQS_DATA.DBL" "${DATAIN}/fixed/MP_THOMPSON_freezeH2O_DATA.DBL" "${DATAIN}/fixed/MP_THOMPSON_QIautQS_DATA.DBL")
@@ -128,6 +129,43 @@ do
   fi
 done
 
+# Copying NoahmpTable.TBL from source to datain folder
+echo ""
+echo -e "${GREEN}==>${NC} Copying NoahmpTable.TBL from source to datain fixed folder ...\n"
+
+if [ ! -s ${DATAIN}/fixed/NoahmpTable.TBL ]
+then
+   if [ -s ${MONANDIR}/src/core_atmosphere/physics/physics_noahmp/parameters/NoahmpTable.TBL ]; then
+      cp -f ${MONANDIR}/src/core_atmosphere/physics/physics_noahmp/parameters/NoahmpTable.TBL ${DATAIN}/fixed
+      chmod 755 ${DATAIN}/fixed/NoahmpTable.TBL
+   else
+      echo -e "${RED}==>${NC} File NoahmpTable.TBL not found in ${MONANDIR}. Please run script 1.install_monan.bash first. \n"
+      exit -1
+   fi
+else
+   echo -e "${GREEN}==>${NC} File NoahmpTable.TBL already exist in ${DATAIN}/fixed.\n"
+fi
+
+#TODO: EGK - Verify if necessary data for NOAH-MP soil colour pre-processing is present in datain folder
+echo -e "${GREEN}==>${NC} Verifying if clm_soilcolour_21class_30s exist in datain WPS_GEOG folder for running NOAH-MP model with MONAN soil colour table activated ...\n"
+
+if [ ! -d ${DATAIN}/WPS_GEOG/clm_soilcolour_21class_30s/ ]
+then
+   mkdir -p ${DATAIN}/WPS_GEOG
+   cd ${DATAIN}/WPS_GEOG
+   echo -e "${GREEN}==>${NC} downloading clm_soilcolour_21class_30s/ folder...\n"
+# needs to download data from MONAN dataserver or some mirror... 
+#   rm -f ${DATAIN}/WPS_GEOG/wget-log*
+#   wget https://...
+#   ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG/clm_soilcolour_21class_30s ${DATAIN}/WPS_GEOG
+else
+   echo -e "${GREEN}==>${NC} Folder clm_soilcolour_21class_30s already exist in ${DATAIN}/WPS_GEOG.\n"
+fi
+
+
+# moving back to scripts folder
+cd ${SCRIPTS}
+
 
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
@@ -138,6 +176,8 @@ else
    echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
 fi
 #----------------------------------------------------------------------------------
+
+
 
 
 # Degrib phase:---------------------------------------------------------------------
