@@ -109,6 +109,16 @@ chmod 755 ${SCRIPTS}/setenv.bash
 
 #----------------------------------------------------------------------
 
+#=====================================================================================
+#
+# ATTENTION, please:
+# 
+# scripts_CD-CT versions up to 1.1.0 run MONAN-Model versions up to 1.3.0
+#
+# scripts_CD-CT versions 1.2.0 onwards run MONAN-Model versions 1.3.1 onwards
+#
+#=====================================================================================
+
 # Just making sure you will install the correct MONAN-model version,
 #  for this version of scripts-CD-CT version:
 
