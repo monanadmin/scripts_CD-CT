@@ -2,6 +2,12 @@
 
 ## History
 
+**1.5.0**
+- Updated the workflow for full compatibility with MONAN 2.0.0, including support for the Noah-MP land surface model and the UGWP parameterization.
+- Updated the pre-processing, execution, and post-processing scripts, including the required static files, streams, and namelist configurations.
+- Added new diagnostic variables for accumulated surface fluxes and optimized the generation of the "MP_THOMPSON_*_DATA.DBL" tables by creating them only during the first pre-processing execution, while integrating the build_tables step into the workflow.
+- Improved the compilation environment with support for the NVIDIA NVHPC compiler.
+
 **1.4.1**
 - Compatibility with MONAN 1.4.4, including support for the new cold-start flags in namelist.atmosphere.TEMPLATE: config_coldstart_substeps and config_coldstart_steps_to_substep.
 - Updated config_smdiv to 0.15 in namelist.atmosphere.TEMPLATE.
