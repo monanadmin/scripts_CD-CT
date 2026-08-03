@@ -88,7 +88,7 @@ EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
 # Input variables:-----------------------------------------------------
 github_link_MONAN=${1};   #github_link=https://github.com/monanadmin/MONAN-Model.git
 tag_or_branch_name_MONAN=${2}
-tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="1.4.4"}
+tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="2.0.0-rc"}
 echo "MONAN branch name in use: ${tag_or_branch_name_MONAN}"
 
 tag_or_branch_name_CONVERT_MPAS=${3}
@@ -109,37 +109,28 @@ chmod 755 ${SCRIPTS}/setenv.bash
 
 #----------------------------------------------------------------------
 
-#=====================================================================================
-#
-# ATTENTION, please:
-# 
-# scripts_CD-CT versions up to 1.1.0 run MONAN-Model versions up to 1.3.0
-#
-# scripts_CD-CT versions 1.2.0 onwards run MONAN-Model versions 1.3.1 onwards
-#
-#=====================================================================================
-
 # Just making sure you will install the correct MONAN-model version,
 #  for this version of scripts-CD-CT version:
 
 echo ""
 echo "********************************************************************************"
-echo "*"
-echo "* ATTENTION:"
-echo "*"
-echo "* Compatibility notice:"
-echo "*"
-echo "* scripts_CD-CT versions up to 1.1.0 are compatible with MONAN-Model versions up to 1.3.0."
-echo "* scripts_CD-CT versions from 1.2.0 to 1.4.0 are compatible with MONAN-Model versions from 1.3.1 to 1.4.3."
-echo "* scripts_CD-CT version 1.4.1 requires MONAN-Model version 1.4.4 or later."
-echo "*"
-echo "*"
-echo "* Note: scripts_CD-CT 1.4.1 introduces new namelist entries that are only supported by MONAN-Model 1.4.4 and later versions."
-echo "* Running scripts_CD-CT 1.4.1 with MONAN-Model versions prior to 1.4.4 may cause the model to abort during namelist parsing."
-echo "*"
+echo "* ATTENTION:                                                                   *"
+echo "*                                                                              *"
+echo "********************************************************************************"
+echo "*                    scripts_CD-CT / MONAN-Model Compatibility                 *"
+echo "********************************************************************************"
+echo "*                                                                              *"
+echo "*    scripts_CD-CT Version        Compatible MONAN-Model Version               *"
+echo "*    ---------------------------  --------------------------------             *"
+echo "*    <= 1.1.0                     <= 1.3.0                                     *"
+echo "*    1.2.0 - 1.4.0                1.3.1 - 1.4.3                                *"
+echo "*    1.4.1                        1.4.4                                        *"
+echo "*    1.5.0                        2.0.0                                        *"
+echo "*                                                                              *"
 echo "********************************************************************************"
 echo ""
-echo -e "${GREEN}==>${NC} tag_or_branch_name_MONAN = ${tag_or_branch_name_MONAN}"
+echo -e "${GREEN}==>${NC} Your MONAN-Model = ${tag_or_branch_name_MONAN}"
+echo -e "${GREEN}==>${NC} Your Scripts_CD-CT = $(git branch --show-current)"
 echo ""
 read -p "Are you sure you are installing the right versions scripts x MONAN-Model ? [Y/n]" confirma
 confirma=${confirma:-Y}
