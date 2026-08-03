@@ -102,8 +102,7 @@ echo -e  "${GREEN}==>${NC} Building MP_THOMPSON DBL tables ...\n"
 
 files_needed=("${DATAIN}/fixed/MP_THOMPSON_QRacrQG_DATA.DBL" "${DATAIN}/fixed/MP_THOMPSON_QRacrQS_DATA.DBL" "${DATAIN}/fixed/MP_THOMPSON_freezeH2O_DATA.DBL" "${DATAIN}/fixed/MP_THOMPSON_QIautQS_DATA.DBL")
 
-if [ ! -s ${DATAIN}/fixed/MP_THOMPSON_QRacrQG_DATA.DBL ]
-then
+if [ ! -s ${DATAIN}/fixed/MP_THOMPSON_QRacrQG_DATA.DBL ]  || [ ! -s ${DATAIN}/fixed/MP_THOMPSON_QRacrQS_DATA.DBL ] || [ ! -s ${DATAIN}/fixed/MP_THOMPSON_freezeH2O_DATA.DBL ] || [ ! -s ${DATAIN}/fixed/MP_THOMPSON_QIautQS_DATA.DBL ]; then
    echo -e  "${GREEN}==>${NC} This calculation can take around 2 minutes on a supercomputer...\n"
 
    rm -f ${EXECS}/MP_THOMPSON_*_DATA.DBL
