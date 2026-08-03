@@ -24,8 +24,9 @@
         type="output"
         io_type="pnetcdf,cdf5"
         filename_template="MONAN_DIAG_G_MOD_#CIORIG#_#LABELI#_$Y$M$D$h.$m.$s.x#RES#L#NLEV#.nc"
-        output_interval="3:00:00" >
-
+        output_interval="3:00:00" 
+        clobber_mode=replace_files
+        precision=single >
 	<file name="stream_list.atmosphere.diagnostics"/>
 </stream>
 
@@ -44,5 +45,40 @@
                   filename_interval="none"
                   packages="iau"
                   input_interval="initial_only" />
+
+<immutable_stream name="lbc_in"
+                  type="input"
+                  filename_template="lbc.$Y-$M-$D_$h.$m.$s.nc"
+                  filename_interval="input_interval"
+                  packages="limited_area"
+                  input_interval="none" />
+
+<immutable_stream name="ugwp_oro_data_in"
+                  type="input"
+                  filename_template="x1.#RES#.ugwp_oro_data.nc"
+                  packages="ugwp_orog_stream"
+                  input_interval="initial_only" />
+
+<immutable_stream name="ugwp_ngw_in"
+                  type="input"
+                  filename_template="ugwp_limb_tau.nc"
+                  packages="ugwp_ngw_stream"
+                  input_interval="initial_only" />
+
+<immutable_stream name="da_state"
+                  type="input;output"
+                  filename_template="mpasout.$Y-$M-$D_$h.$m.$s.nc"
+                  packages="jedi_da"
+                  input_interval="initial_only"
+                  output_interval="none" />
+
+<stream name="diag_ugwp"
+        type="output"
+        filename_template="diag_ugwp.$Y-$M-$D_$h.$m.$s.nc"
+        packages="ugwp_diags_stream"
+        output_interval="none" >
+
+	<file name="stream_list.atmosphere.diag_ugwp"/>
+</stream>
 
 </streams>

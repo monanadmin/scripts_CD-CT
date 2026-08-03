@@ -39,11 +39,11 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 
 # Input variables:-----------------------------------------------------
 github_link="https://github.com/monanadmin/MONAN-Model.git"
-monan_branch=1.4.4
+monan_branch=2.0.0-rc
 convertmpas_branch=1.2.0
 EXP=GFS
 RES=1024002       #Options: 40962=120km;163842=60km;655362=30Km;1024002=24km;2621442=15Km;5898242=10Km
-YYYYMMDDHHi=2026012000
+YYYYMMDDHHi=2026080100
 FCST=24
 #----------------------------------------------------------------------
 

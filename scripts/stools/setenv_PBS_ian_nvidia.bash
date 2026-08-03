@@ -2,7 +2,7 @@
 
 # Load modules:
 module purge
-module load PrgEnv-intel
+module load PrgEnv-nvidia/8.6.0
 module load craype-x86-turin
 module load cray-hdf5/1.14.3.3
 module load cray-netcdf/4.9.0.15

@@ -68,7 +68,7 @@ export NETCDF=/mnt/beegfs/monan/libs_openmpi/netcdf
 export PNETCDF=/mnt/beegfs/monan/libs_openmpi/PnetCDF
 export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
-export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v1.4.x
+export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v2.0.x
 export OPERDIR=/oper/dados/ioper/tempo
 export GCCCIS=/mnt/beegfs/monan/CIs
 
