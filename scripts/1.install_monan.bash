@@ -130,7 +130,7 @@ echo "*                                                                         
 echo "********************************************************************************"
 echo ""
 echo -e "${GREEN}==>${NC} Your MONAN-Model = ${tag_or_branch_name_MONAN}"
-echo -e "${GREEN}==>${NC} Your Scripts_CD-CT = $(git branch --show-current)"
+echo -e "${GREEN}==>${NC} Your Scripts_CD-CT = $(git describe --tags --exact-match 2>/dev/null || git branch --show-current)"
 echo ""
 read -p "Are you sure you are installing the right versions scripts x MONAN-Model ? [Y/n]" confirma
 confirma=${confirma:-Y}
