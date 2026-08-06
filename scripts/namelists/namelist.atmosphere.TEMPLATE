@@ -36,7 +36,7 @@
     config_xnutr = 0.2
 /
 &limited_area
-    config_apply_lbcs = false
+    config_apply_lbcs = #APPLY_LBCS#
 /
 &io
     config_pio_num_iotasks = 0

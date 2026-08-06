@@ -6,7 +6,7 @@
 #SBATCH --tasks-per-node=#NTASKSPNODE#
 #SBATCH --partition=#PARTITION#
 #SBATCH --time=#WALLTIME#
-#SBATCH --output=#OUTPUTJOB#%j
-#SBATCH --error=#ERRORJOB#%j
+#SBATCH --output=#OUTPUTJOB#.%j
+#SBATCH --error=#ERRORJOB#.%j
 #SBATCH --exclusive
 

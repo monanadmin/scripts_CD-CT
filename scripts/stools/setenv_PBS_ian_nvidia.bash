@@ -80,6 +80,7 @@ export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
 
 export OPERDIR=/oper/dados/ioper/tempo
+export OPERDIRLGFS=/p/projetos/ioper/data/external/gfs_0p25
 export DIRDADOS=/p/projetos/monan_adm/monan/dados/MONAN_v2.0.x
 export GCCCIS=/p/projetos/monan_adm/monan/CIs
 

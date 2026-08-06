@@ -8,10 +8,10 @@ umask 022
 #     
 #     Performs the following tasks:
 # 
-#        o VCheck all input files before 
-#        o Creates the submition script
+#        o Check all input files before 
+#        o Creates the submission script
 #        o Submit the model
-#        o Veriffy all files generated
+#        o Verify all files generated
 #        
 #
 #-----------------------------------------------------------------------------#
@@ -21,19 +21,16 @@ then
    echo ""
    echo "Instructions: execute the command below"
    echo ""
-   echo "${0} [EXP_NAME/OP] RESOLUTION LABELI FCST"
+   echo "${0} EXP RESOLUTION LABELI FCST"
    echo ""
-   echo "EXP_NAME    :: Forcing: GFS"
-   echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
-   echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
-   echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
+   echo "EXP         :: Initial or lateral boundary condition dataset (GFS or ERA)"
+   echo "RESOLUTION  :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 1024002 for the ~24 km mesh)"
+   echo "LABELI      :: Forecast initialization date and time (YYYYMMDDHH), e.g., 2026080100"
+   echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
-   echo "24 hour forecast example for 24km:"
-   echo "${0} GFS 1024002 2024010100 24"
-   echo "48 hour forecast example for 120km:"
-   echo "${0} GFS   40962 2024010100 48"
+   echo "Example of a 24-hour forecast:"
+   echo "${0} GFS 1024002 2026080100 24"
    echo ""
-
    exit
 fi
 
@@ -89,30 +86,62 @@ printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 # From now on, CONFI_LEN_DISP becames cte = 0.0, pickin up this value from static file.
 
 # Calculating default parameters for different resolutions
-if [ $RES -eq 1024002 ]; then  #24Km
-   CONFIG_DT=150.0
-   CONFIG_CONV_INTERVAL="00:15:00"
-elif [ $RES -eq 2621442 ]; then  #15Km
-   CONFIG_DT=90.0
-   CONFIG_CONV_INTERVAL="00:15:00"
-elif [ $RES -eq 40962 ]; then  #120Km
+# global mesh
+if [[ "$RES" == "40962" ]]; then      #120Km
    CONFIG_DT=600.0
    CONFIG_CONV_INTERVAL="00:15:00"
-elif [ $RES -eq 163842 ]; then  #60Km
+elif [[ "$RES" == "163842" ]]; then   #60Km
    CONFIG_DT=300.0
    CONFIG_CONV_INTERVAL="00:15:00"
-elif [ $RES -eq 655362 ]; then  #30Km
+elif [[ "$RES" == "655362" ]]; then   #30Km
    CONFIG_DT=150.0
    CONFIG_CONV_INTERVAL="00:15:00"
-elif [ $RES -eq 5898242 ]; then  #10Km
+elif [[ "$RES" == "1024002" ]]; then  #24Km
+   CONFIG_DT=150.0
+   CONFIG_CONV_INTERVAL="00:15:00"
+elif [[ "$RES" == "2621442" ]]; then  #15Km
+   CONFIG_DT=90.0
+   CONFIG_CONV_INTERVAL="00:15:00"
+elif [[ "$RES" == "5898242" ]]; then  #10Km
    CONFIG_DT=60.0
    CONFIG_CONV_INTERVAL="00:15:00"
-elif [ $RES -eq 65536002 ]; then  #3Km
+elif [[ "$RES" == "23592962" ]]; then  #5km
+   CONFIG_DT=30.0
+   CONFIG_CONV_INTERVAL="00:15:00"
+elif [[ "$RES" == "65536002" ]]; then  #3Km
    CONFIG_DT=18.0
    CONFIG_CONV_INTERVAL="00:15:00"
+# regional mesh
+elif [[ "$RES" == "655362.REG.AMS_CAR" ]]; then #30 km (AMS + Caribe)
+   CONFIG_DT=150.0
+   CONFIG_CONV_INTERVAL="00:15:00"
+elif [[ "$RES" == "5898242.REG.AMS_CAR" ]]; then #10 km (AMS + Caribe)
+   CONFIG_DT=60.0
+   CONFIG_CONV_INTERVAL="00:15:00"
+elif [[ "$RES" == "23592962.REG.AMS_CAR" ]]; then #5 km (AMS + Caribe)
+   CONFIG_DT=30.0
+   CONFIG_CONV_INTERVAL="00:15:00"
+else
+    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+    echo -e  "${RED}==>${NC} [${0}] Simulation parameters for resolution $RES have not been set! Edit them in '3.run_model.bash'.\n"
+    exit -1
 fi
 #-------------------------------------------------------
 
+# Setting configuration to apply or not lateral boundary conditions and output filename
+if [[ $MODERUN == "R" ]]; then
+   APPLY_LBCS=true
+   RORG=R
+elif [[ $MODERUN == "G" ]]; then
+   APPLY_LBCS=false
+   RORG=G
+else
+   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+   echo -e  "${RED}==>${NC} Atmosphere phase fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash' so that MONAN knows whether to read or not lateral boundary conditions.\n"
+   echo -e  "${RED}==>${NC} Exiting script. \n"
+   exit -1
+fi
+#-------------------------------------------------------
 
 # Calculating final forecast dates in model namelist format: DD_HH:MM:SS 
 # using: start_date(yyyymmdd) + FCST(hh) :
@@ -128,18 +157,16 @@ then
       cd ${DATAIN}/fixed
       echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
       wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
-      wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}_static.tar.gz
       tar -xzvf x1.${RES}.tar.gz
-      tar -xzvf x1.${RES}_static.tar.gz
    fi
    echo -e "${GREEN}==>${NC} Creating x1.${RES}.graph.info.part.${cores} ... \n"
    cd ${DATAIN}/fixed
    gpmetis -minconn -contig -niter=200 x1.${RES}.graph.info ${cores}
-   rm -fr x1.${RES}.tar.gz x1.${RES}_static.tar.gz
+   rm -fr x1.${RES}.tar.gz
 fi
 
 
-files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" "${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE}" "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.GFS" "${DATAIN}/fixed/ugwp_limb_tau.nc")
+files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" "${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE}" "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${DATAIN}/fixed/ugwp_limb_tau.nc")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -158,17 +185,19 @@ cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}
-cp -f ${DATAIN}/fixed/Vtable.GFS ${DIRRUN}
+cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}
 cp -f ${DATAIN}/fixed/ugwp_limb_tau.nc ${DIRRUN}
 
-
-if [ ${EXP} = "GFS" ]
+if [[ $MODERUN == "R" ]]; then
+   cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/lbc*.nc ${DIRRUN}
+fi
+if [[ ${EXP} == "GFS" ||  ${EXP} == "ERA" ]]
 then
    sed -e "s,#LABELI#,${start_date},g;s,#FCSTS#,${DD_HHMMSS_forecast},g;s,#RES#,${RES},g;
-s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_CONV_INTERVAL#,${CONFIG_CONV_INTERVAL},g" \
+s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_CONV_INTERVAL#,${CONFIG_CONV_INTERVAL},g;s,#APPLY_LBCS#,${APPLY_LBCS},g" \
    ${SCRIPTS}/namelists/namelist.atmosphere.TEMPLATE > ${DIRRUN}/namelist.atmosphere
    
-   sed -e "s,#RES#,${RES},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
+   sed -e "s,#RES#,${RES},g;s,#RORG#,${RORG},g;s,#LBCINT#,${LBCINT},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
    ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE > ${DIRRUN}/streams.atmosphere
 fi
 cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.output ${DIRRUN}
@@ -213,10 +242,10 @@ cd ${DIRRUN}
 date
 beg_secs=\`date +"%s"\`
 
-if [ "$HOSTNAME" = "egeon" ]; then
+if [ ${SCHEDULER_SYSTEM} == "SLURM" ]; then
    echo "-- SLURM_JOB_ID: \$SLURM_JOB_ID"
    time mpirun -np ${MODEL_ncores} ./\${executable}
-else
+elif [ ${SCHEDULER_SYSTEM} == "PBS" ]; then
    echo "-- PBS_JOBID: \$PBS_JOBID"
    time mpirun --ppn ${MODEL_ncpn} -np ${MODEL_ncores} --depth=${MODEL_nthreads} --cpu-bind depth ./\${executable}
 fi
@@ -265,6 +294,15 @@ case "${SCHEDULER_SYSTEM}" in
 esac
 mv ${DIRRUN}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 
+if [ ${SCHEDULER_SYSTEM} = "SLURM" ]; then
+   : # Slurm já gera JOBID na submissão.
+elif [ ${SCHEDULER_SYSTEM} = "PBS" ]; then
+   JOBID=$(sed -n '5p' ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o | awk '{print $3}' | sed "s/.pbs-ha//g")
+   mv ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o.${JOBID}
+   mv ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e.${JOBID}
+fi
+chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o.*
+chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e.*
 
 #-----Loop que verifica se os arquivos foram gerados corretamente (>0)-----
 output_interval=${t_strouthor}
@@ -274,7 +312,7 @@ do
    i=$(printf "%04d" ${ii})
    hh=${YYYYMMDDHHi:8:2}
    currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 $(echo "(${i}-1)*${t_strout:0:2}" | bc) hours $(echo "(${i}-1)*${t_strout:3:2}" | bc) minutes $(echo "(${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
-   file=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L${NLEV}.nc
+   file=MONAN_DIAG_${RORG}_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L${NLEV}.nc
 
    if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Model/${file} ]
    then
@@ -284,11 +322,5 @@ do
    fi
 
 done
-
-JOBID=$(sed -n '5p' ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o | awk '{print $3}' | sed "s/.pbs-ha//g")
-mv ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o.${JOBID}
-mv ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e.${JOBID}
-chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o.${JOBID}
-chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e.${JOBID}
 
 rm -fr ${DIRRUN}

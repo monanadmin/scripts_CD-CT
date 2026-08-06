@@ -41,9 +41,10 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 github_link="https://github.com/monanadmin/MONAN-Model.git"
 monan_branch=2.0.0-rc
 convertmpas_branch=1.2.0
-EXP=GFS
-RES=1024002       #Options: 40962=120km;163842=60km;655362=30Km;1024002=24km;2621442=15Km;5898242=10Km
-YYYYMMDDHHi=2026080100
+EXP=GFS                    #Options - GFS or ERA
+RES=1024002                #Options - Global: 40962=120km; 163842=60km; 655362=30Km; 1024002=24km; 2621442=15Km; 5898242=10Km
+                           #Options - Regional: 655362.REG.AMS_CAR=30km; 5898242.REG.AMS_CAR=10km; 23592962.REG.AMS_CAR=5km
+YYYYMMDDHHi=2026080100     #Check dates disponible for the initial condition (CI) using ERA
 FCST=24
 #----------------------------------------------------------------------
 

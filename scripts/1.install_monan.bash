@@ -115,7 +115,6 @@ chmod 755 ${SCRIPTS}/setenv.bash
 echo ""
 echo "********************************************************************************"
 echo "* ATTENTION:                                                                   *"
-echo "*                                                                              *"
 echo "********************************************************************************"
 echo "*                    scripts_CD-CT / MONAN-Model Compatibility                 *"
 echo "********************************************************************************"
@@ -126,6 +125,7 @@ echo "*    <= 1.1.0                     <= 1.3.0                                
 echo "*    1.2.0 - 1.4.0                1.3.1 - 1.4.3                                *"
 echo "*    1.4.1                        1.4.4                                        *"
 echo "*    1.5.0                        2.0.0                                        *"
+echo "*    1.6.0                        2.0.0                                        *"
 echo "*                                                                              *"
 echo "********************************************************************************"
 echo ""
@@ -215,9 +215,6 @@ MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.atmosphere"
 
 make clean CORE=atmosphere
 make -j 8 ${MAKE_TARG} CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
-#make -j 8 ${MAKE_TARG} CORE=atmosphere OPENMP=true USE_PIO2=true PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
-
-#make -j 8 intel-xd2000 CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single OPTIMIZATION_LEVEL=O1 FFLAGS_OPT=-O1 CFLAGS_OPT=-O1 CXXFLAGS_OPT=-O1 2>&1 | tee \${MAKE_OUT_FILE}
 
 
 #CR: TODO: put verify here if executable was created ok
@@ -231,10 +228,6 @@ MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.init_atmosphere"
 
 make clean CORE=init_atmosphere
 make -j 8 ${MAKE_TARG2} CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
-#make -j 8 ${MAKE_TARG2} CORE=init_atmosphere OPENMP=true USE_PIO2=true PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
-
-#make -j 8 intel-xd2000 CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single OPTIMIZATION_LEVEL=O1 FFLAGS_OPT=-O1 CFLAGS_OPT=-O1 CXXFLAGS_OPT=-O1 2>&1 | tee \${MAKE_OUT_FILE}
-
 
 mv ${MONANDIR}/init_atmosphere_model ${EXECS}
 make clean CORE=init_atmosphere
