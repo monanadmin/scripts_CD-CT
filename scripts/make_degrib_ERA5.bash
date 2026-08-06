@@ -64,19 +64,28 @@ if [ "$HOSTNAME" = "egeon" ]; then
 fi
 
 BNDDIR=${GCCCIS}/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
-
-# Se nao existir CI no diretorio do GCC MONAN dir /beegfs/monan/CIs (Egeon), /p/projetos/monan_adm/monan/CIs (Jaci) busca em datain/EXP, se não aborta!
-if [ ! -s ${BNDDIR}/era5.pl.${YYYYMMDDHHi}.grib ] || [ ! -s ${BNDDIR}/era5.sl.${YYYYMMDDHHi}.grib ]
+# If boundary condition files do not exist in BNDDIR (GCC MONAN), search for them
+# in the available DATAIN directories. Abort if they cannot be found.
+if [ -s "${DATAIN}/${EXP}/era5.pl.${YYYYMMDDHHi}.grib" ] && [ -s "${DATAIN}/${EXP}/era5.sl.${YYYYMMDDHHi}.grib" ]
 then
-   if [ -s ${DATAIN}/${EXP}/${YYYYMMDDHHi}/era5.pl.${YYYYMMDDHHi}.grib ] || [ ! -s ${DATAIN}/${EXP}/${YYYYMMDDHHi}/era5.sl.${YYYYMMDDHHi}.grib ]
-   then
-      echo -e "${RED}==>${NC}Condicao de contorno inexistente! - ${EXP}"
-      echo -e "${RED}==>${NC}Ciheck ${BNDDIR} or" 
-      echo -e "${RED}==>${NC}Check ${DATAIN}/${EXP}."
-      exit 1
-   else
-      BNDDIR=${DATAIN}/${EXP}/${YYYYMMDDHHi}
-   fi
+    BNDDIR="${DATAIN}/${EXP}"
+elif [ -s "${DATAIN}/${EXP}/${YYYYMMDDHHi}/era5.pl.${YYYYMMDDHHi}.grib" ] && [ -s "${DATAIN}/${EXP}/${YYYYMMDDHHi}/era5.sl.${YYYYMMDDHHi}.grib" ]
+then
+    BNDDIR="${DATAIN}/${EXP}/${YYYYMMDDHHi}"
+elif [ -s "${DATAIN}/ERA5/era5.pl.${YYYYMMDDHHi}.grib" ] && [ -s "${DATAIN}/ERA5/era5.sl.${YYYYMMDDHHi}.grib" ]
+then
+    BNDDIR="${DATAIN}/ERA5"
+elif [ -s "${DATAIN}/ERA5/${YYYYMMDDHHi}/era5.pl.${YYYYMMDDHHi}.grib" ] && [ -s "${DATAIN}/ERA5/${YYYYMMDDHHi}/era5.sl.${YYYYMMDDHHi}.grib" ]
+then
+    BNDDIR="${DATAIN}/ERA5/${YYYYMMDDHHi}"
+elif [ -s "${BNDDIR}/era5.pl.${YYYYMMDDHHi}.grib" ] && [ -s "${BNDDIR}/era5.sl.${YYYYMMDDHHi}.grib" ]
+then
+   : # File already exists in BNDDIR; keep the current directory.
+else
+    echo -e "${RED}==>${NC} Boundary condition files not found! - ${EXP}"
+    echo -e "${RED}==>${NC} Check ${BNDDIR}"
+    echo -e "${RED}==>${NC} Check ${DATAIN}/${EXP}"
+    exit 1
 fi
 
 files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${BNDDIR}/era5.pl.${YYYYMMDDHHi}.grib" "${BNDDIR}/era5.sl.${YYYYMMDDHHi}.grib")
@@ -105,8 +114,13 @@ if [[ $MODERUN == "R" ]]; then
    for ((hour=0; hour<=FCST; hour+=dt)); do
       valid_date=$(date -u -d "${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2} ${YYYYMMDDHHi:8:2}:00:00 UTC ${hour} hour" +"%Y%m%d%H")
       echo "Temporarily copying ERA5 data: era5.pl|sl.${valid_date}.grib"
-      cp -f ${BNDDIR}/era5.pl.${valid_date}.grib ${DATAIN}/${YYYYMMDDHHi}
-      cp -f ${BNDDIR}/era5.sl.${valid_date}.grib ${DATAIN}/${YYYYMMDDHHi}
+      if [ ! -s "${BNDDIR}/era5.pl.${valid_date}.grib" ] || [ ! -s "${BNDDIR}/era5.sl.${valid_date}.grib" ]
+      then
+         echo -e "${RED}==>${NC} ERA5 data not found for ${valid_date}."
+         exit 1
+      fi
+      cp -f "${BNDDIR}/era5.pl.${valid_date}.grib" "${DATAIN}/${YYYYMMDDHHi}/"
+      cp -f "${BNDDIR}/era5.sl.${valid_date}.grib" "${DATAIN}/${YYYYMMDDHHi}/"
    done
 
    if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]

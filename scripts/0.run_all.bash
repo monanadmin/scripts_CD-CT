@@ -1,30 +1,9 @@
-#!/bin/bash 
-
-
-#if [ $# -ne 5 ]
-#then
-#   echo ""
-#   echo "Instructions: execute the command below"
-#   echo ""
-#   echo "${0} GitHubUserRepo EXP_NAME RESOLUTION LABELI FCST"
-#   echo ""
-#   echo "GitHubUserRepo :: GitHub link for your personal fork, eg: https://github.com/MYUSER/MONAN-Model.git"
-#   echo "EXP_NAME       :: Forcing: GFS"
-#   echo "RESOLUTION     :: number of points in resolution model grid, e.g: 1024002  (24 km)"
-#   echo "LABELI         :: Initial date YYYYMMDDHH, e.g.: 2024010100"
-#   echo "FCST           :: Forecast hours, e.g.: 24 or 36, etc."
-#   echo ""
-#   echo "24 hour forcast example:"
-#   echo "${0} https://github.com/MYUSER/MONAN-Model.git GFS 1024002 2024010100 24"
-#   echo ""
-#   exit
-#fi
+#!/bin/bash
 
 # Set environment variables exports:
 echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
-
 
 # Standart directories variables:---------------------------------------
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
@@ -36,15 +15,14 @@ SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
 EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 #----------------------------------------------------------------------
 
-
 # Input variables:-----------------------------------------------------
-github_link="https://github.com/monanadmin/MONAN-Model.git"
+github_link="https://github.com/monanadmin/MONAN-Model.git"   # Switch to your fork when you need to make changes or develop the model.
 monan_branch=2.0.0-rc
 convertmpas_branch=1.2.0
-EXP=GFS                    #Options - GFS or ERA
-RES=1024002                #Options - Global: 40962=120km; 163842=60km; 655362=30Km; 1024002=24km; 2621442=15Km; 5898242=10Km
-                           #Options - Regional: 655362.REG.AMS_CAR=30km; 5898242.REG.AMS_CAR=10km; 23592962.REG.AMS_CAR=5km
-YYYYMMDDHHi=2026080100     #Check dates disponible for the initial condition (CI) using ERA
+EXP=GFS                    # Options: GFS or ERA
+RES=655362                 # Options-Global: 40962=120km; 163842=60km; 655362=30Km; 1024002=24km; 2621442=15Km; 5898242=10Km
+                           # Options-Regional: 655362.REG.AMS_CAR=30km; 5898242.REG.AMS_CAR=10km; 23592962.REG.AMS_CAR=5km
+YYYYMMDDHHi=2026080100     # Check the available dates for the initial and boundary conditions (regional), especially for ERA5 data.
 FCST=24
 #----------------------------------------------------------------------
 

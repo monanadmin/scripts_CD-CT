@@ -2,8 +2,8 @@
 umask 022
 
 # Choose the simulation mode:
-export MODERUN=G     # R=Regional simulation | G=Global simulation.
-export LBCINT=10800  # Interval (seconds) for updating lateral boundary conditions (when regional)
+export MODERUN=G     # R=Regional simulation and G=Global simulation.
+export LBCINT=10800  # Interval (seconds) for updating lateral boundary conditions (when regional mode).
 
 # Choose your compiler here (only on Jaci; on Egeon the compiler is fixed to ‘gnu’):
 export COMPILER=intel

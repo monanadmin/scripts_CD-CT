@@ -64,27 +64,27 @@ fi
 
 OPERDIREXP=${OPERDIR}/${EXP}
 BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
-
-# Se nao existir CI no diretorio do IO, busca no GCC MONAN dir /beegfs/monan/CIs (Egeon), /p/projetos/monan_adm/monan/CIs 
-# Se nao existir tambem no GCC MONAN, busca em datain/EXP, se não aborta!
-#CR: maybe this if should belong to the SLURM kind of running...
-if [ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+# Search for GFS files in the available directories.
+# Priority: IO (Lustre/NetApp) -> GCC MONAN -> DATAIN.
+if [ -s "${OPERDIRLGFS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2" ]
 then
-   if [ ! -s ${GCCCIS}/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
-   then
-      if [ -s ${DATAIN}/${EXP}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
-      then
-         echo -e "${RED}==>${NC}Condicao de contorno inexistente! - ${EXP}"
-         echo -e "${RED}==>${NC}Check ${BNDDIR} or" 
-         echo -e "${RED}==>${NC}Check ${GCCCIS}/${EXP} or"
-	 echo -e "${RED}==>${NC}Check ${DATAIN}/${EXP}."
-         exit 1
-      else
-         BNDDIR=${DATAIN}/${EXP}/${YYYYMMDDHHi}
-      fi
-   else
-      BNDDIR=${GCCCIS}/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
-   fi    
+    BNDDIR="${OPERDIRLGFS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}"
+elif [ -s "${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2" ]
+then
+   : # File already exists in BNDDIR; keep the current directory.
+elif [ -s "${GCCCIS}/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2" ]
+then
+    BNDDIR="${GCCCIS}/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}"
+elif [ -s "${DATAIN}/${EXP}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2" ]
+then
+    BNDDIR="${DATAIN}/${EXP}/${YYYYMMDDHHi}"
+else
+    echo -e "${RED}==>${NC} Boundary condition file not found! - ${EXP}"
+    echo -e "${RED}==>${NC} Check ${OPERDIRLGFS}."
+    echo -e "${RED}==>${NC} Check ${BNDDIR}."
+    echo -e "${RED}==>${NC} Check ${GCCCIS}/${EXP}."
+    echo -e "${RED}==>${NC} Check ${DATAIN}/${EXP}."
+    exit 1
 fi
 
 files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")

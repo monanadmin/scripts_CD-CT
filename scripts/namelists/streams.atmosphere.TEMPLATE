@@ -51,8 +51,7 @@
                   filename_template="lbc.$Y-$M-$D_$h.$m.$s.nc"
                   filename_interval="input_interval"
                   packages="limited_area"
-<<<<<<< HEAD
-                  input_interval="none" />
+                  input_interval="#LBCINT#" />
 
 <immutable_stream name="ugwp_oro_data_in"
                   type="input"
@@ -82,8 +81,4 @@
 	<file name="stream_list.atmosphere.diag_ugwp"/>
 </stream>
 
-=======
-                  input_interval="#LBCINT#" />
->>>>>>> joao/develop_gitrebase
 </streams>
-

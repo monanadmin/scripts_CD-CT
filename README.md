@@ -1,39 +1,35 @@
-# Scripts CD-CT 
+# Scripts CD-CT
 
-Continuos Deployment & Continuous Testing for MONAN (Model for Ocean-laNd-Atmosphere PredictioN).
+Scripts for Continuos Deployment & Continuous Testing for MONAN (Model for Ocean-laNd-Atmosphere PredictioN).
 
 ## Get Started
 
 **Getting the scritps:**
 
-Cloning this repo: `git clone https://github.com/monanadmin/scripts_CD-CT.git`
-you will get this directories:
-~~~
-scripts
-scripts/namelists
-scripts/stools
-~~~
+```
+$ git clone https://github.com/monanadmin/scripts_CD-CT.git
+$ cd scripts_CD-CT/scripts
+```
 
-- The `scripts` directory is the most important folder that contains all the scripts that you will need to install, compile, run, and produce produtcs of the MONAN model.
-- The `scripts/namelists` directory contains all versioned namelists needded for run and compile all phases of model;
-- The `scripts/stools` directory contains template scripts for execution on SLURM and PBS, and scripts for the operation of the PBS_Intel, PBS_GNU, and PBS_Cray environments.
+### 1. Install the model and configuring the execution mode (Global or Regional):
 
-You only need to execute the following four scripts to run the MONAN model.
-
-
-**1. Install the model and configuring the execution mode (Global or Regional):**
-
-- First you need to get a **fork repository** in your github account of a MONAN oficial repo: `https://github.com/monanadmin/MONAN-Model`. Attention! Uncheck "Copy the main branch only" in the fork creation step to copy all branches. 
-- The you can install the model in your work directory by running:
+- First, you need to fork the official MONAN repository into your GitHub account. For detailed instructions, see [Creating a MONAN‐Model Fork](https://github.com/monanadmin/MONAN-Model/wiki/Creating-a-MONAN%E2%80%90Model-Fork).
+- Then, you can install the model in your working directory (lustre or beegfs) by running:
 
 ~~~
-./1.install_monan.bash <https://github.com/MYUSER/MONAN-Model-My-Fork.git> <OPTIONAL_tag_or_branch_name_MONAN-Model-My-Fork> <OPTIONAL_tag_or_branch_namer_Convert-MPAS>
+./1.install_monan.bash <https://github.com/MYUSER/MONAN-Model-My-Fork.git> <tag_or_branch_name_MONAN-Model> <tag_or_branch_name_Convert-MPAS>
 ~~~
-
 Default values:
 ~~~
-<OPTIONAL_tag_or_branch_name_MONAN-Model> = "2.0.0-rc"
-<OPTIONAL_tag_or_branch_name_Convert-MPAS> = "1.2.0"
+<tag_or_branch_name_MONAN-Model> = "2.0.0-rc"
+<tag_or_branch_name_Convert-MPAS> = "1.2.0"
+~~~
+
+**Note:** To simply run the official version of the MONAN repository, you only need to enter the URL `https://github.com/monanadmin/MONAN-Model.git` instead of the URL of your fork.
+
+Example:
+~~~
+$ ./1.install_monan.bash https://github.com/monanadmin/MONAN-Model.git 2.0.0-rc 1.2.0
 ~~~
 
 - This first step will create a standart diretories structures for work:
@@ -48,6 +44,8 @@ scripts_CD-CT/
 
 Where:
 - `scripts` folder will contain all scripts produced to run all steps of the model;
+- `scripts/namelists` directory contains all versioned namelists needded for run and compile all phases of model;
+- `scripts/stools` directory contains template scripts for execution on SLURM and PBS, and scripts for the operation of the PBS_Intel, PBS_GNU, and PBS_Cray environments.
 - `sources` folder will contain all codes of any processes that uses compiled programming languages, such as MONAN model sources, convert_mpas sources, etc.
 - `execs` folder will contain all the executables needed;
 - `datain` folder will contain all the input data that the model need to run;
@@ -56,33 +54,58 @@ Where:
      - `dataout\Model\<YYYYMMDDHH>` will contain all the output files from the MONAN model;
      - `dataout\Post\<YYYYMMDDHH>` will contain all the output files from the post-processing phase of the MONAN;
 
-After running the first step, it will clone the MONAN model from your fork repo in a `source` diretory.
+After running the first step, it will clone the MONAN model from your fork repo in a `sources` diretory.
 
 **Configuring the execution mode (Global or Regional):**
 
-Default execution mode is "Global", to set to Regional mode follows:
+The default execution mode is "Global", to set the execution mode to "Regional" (limited-area), follow these steps:
 
 ```
 $ vi scripts/setenv.bash
 (...)
-MODERUN=R      | Option: R=Regional and G=Global.
-LBCINT=10800   | Option: Integer value for the lateral boundary condition update interval.
+MODERUN=R      | R=Regional simulation and G=Global simulation.
+LBCINT=10800   | Option: nterval (seconds) for updating lateral boundary conditions (when regional mode).
 ```
-After this change, you must specify the regional grid in the RESOLUTION parameter during the subsequent steps (2, 3, and 4) listed below.
+After this change, you must specify the regional grid in the `RESOLUTION` parameter during the subsequent steps (2, 3, and 4) described below.
 
 Currently, the available regional options are:
 
 ```
-655362.REG.AMS_CAR => 30km for South America and the Caribbean
-5898242.REG.AMS_CAR => 10km for South America and the Caribbean
-23592962.REG.AMS_CAR => 5km for South America and the Caribbean
+655362.REG.AMS_CAR    => 30 km for South America and the Caribbean
+5898242.REG.AMS_CAR   => 10 km for South America and the Caribbean
+23592962.REG.AMS_CAR  => 5 km for South America and the Caribbean
 ```
+For these meshes, the Scripts_CD-CT are configured to automatically set the appropriate CONFIG_DT (time step), as well as the LAT and LON values used by Convert_MPAS.
 
-**Note 1:** For regional runs, it is necessary to have the initial condition files available, in addition to the first forecast or analysis based on the interval provided by LBCINT for generating the LBC files.
 
-**Note 2:** If you wish to use your own regional mesh, you must copy the "x1.your_mesh.grid.nc" and "x1.your_mesh.graph.info" files to the "datain/fixed" folder and create an if-block for the automatic configuration of CONFIG_DT in script 3, as well as for the LAT and LON settings used by Convert_MPAS in script 4.
+**Using custom regional (limited-area) meshes:**
 
-**2. Prepare the Initial Conditions for the model:**
+- If you wish to use your own regional mesh, you must copy the "x1.your_mesh_file.grid.nc" and "x1.your_mesh_file.graph.info" files to the `datain/fixed` folder and create an "if-block" for the automatic configuration of `CONFIG_DT` in script "3.run_model.bash" (line 114), as well as for the "LAT" and "LON" settings used by "Convert_MPAS" in script "4.run_post.bash" (line 160).
+
+**Attention!** When using "your_mesh_file", do not use the same identifier (the "RESOLUTION" parameter) as an existing global mesh. If the identifier is already in use, you must rename your mesh files to match the new identifier and use the new identifier in the "RESOLUTION" parameter.
+
+- In the `RESOLUTION` parameter, pass only "your_mesh_file", without the "x1." prefix and the ".grid.nc" or ".graph.info" extensions. But "your_mesh_file" (in datain/fixed) needs the format: "x1.your_mesh_file.grid.nc" and "x1.your_mesh_file.graph.info".
+
+For example, for "your_mesh_file":
+```
+x1.5898242_BRASIL.grid.nc
+x1.5898242_BRASIL.graph.info
+```
+The `RESOLUTION` parameter should be set to: `5898242_BRASIL`
+
+**ERA5 Simulation**
+
+- To perform simulations using ERA5 data, you must set the `EXP` parameter to `ERA` in steps 2, 3, and 4 below.
+
+- We do not yet have a centralized location with regular dates or a standardized naming convention for ERA5 files, as we currently do for GFS data. Therefore, you will need to copy the `.pl` and `.sl` files to the `datain/ERA` folder and rename them according to the following pattern:
+
+```
+era5.pl.YYYYMMDDHH.grib
+era5.sl.YYYYMMDDHH.grib
+```
+Where: `YYYY=year; MM=month; DD=day and HH=hour`
+
+### 2. Prepare the Initial Conditions for the model:
 
 Just run the second script as follows:
 
@@ -103,7 +126,9 @@ Example of a 24-hour forecast:
 ./2.pre_processing.bash GFS 1024002 2026080100 24
 ~~~
 
-**3. Run the model:**
+**Note:** For regional runs, initial condition files must be available, along with the first forecast or analysis file. The remaining files required for the lateral boundary conditions are determined by the interval specified by LBCINT and the forecast length specified by FCST.
+
+### 3. Run the model:
 
 Execute the 3rd step script:
 
@@ -124,7 +149,7 @@ Example of a 24-hour forecast:
 $ ./3.run_model.bash GFS 1024002 2026080100 24
 ~~~
 
-**4. Run the post-processing model:**
+### 4. Run the post-processing model:
 
 Execute the step 4 script:
 
@@ -144,11 +169,55 @@ Example of a 24-hour forecast:
 $ ./4.run_post.bash GFS 1024002 2026080100 24
 ~~~
 
+### Plus: The "0.run_all.bash" script
+
+This script automates the steps required to run MONAN.
+
+The logic consists of removing or adding comments at the corresponding steps, as needed.
+
+```
+$ cd scripts
+$ vi 0.run_all.bash
+
+(...)
+# Input variables:-----------------------------------------------------
+github_link="https://github.com/monanadmin/MONAN-Model.git"   # Switch to your fork when you need to make changes or develop the model.
+monan_branch=2.0.0-rc
+convertmpas_branch=1.2.0
+EXP=GFS                    # Options: GFS or ERA
+RES=1024002                # Options-Global: 40962=120km; 163842=60km; 655362=30Km; 1024002=24km; 2621442=15Km; 5898242=10Km
+                           # Options-Regional: 655362.REG.AMS_CAR=30km; 5898242.REG.AMS_CAR=10km; 23592962.REG.AMS_CAR=5km
+YYYYMMDDHHi=2026080100     # Check the available dates for the initial and boundary conditions (regional), especially for ERA5 data.
+FCST=24
+#----------------------------------------------------------------------
+
+# STEP 1: Installing and compiling the A-MONAN model and utility programs:
+time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
+#exit
+
+# STEP 2: Executing the pre-processing fase. Preparing all CI/CC files needed:
+time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+#exit
+
+# STEP 3: Executing the Model run:
+time ${SCRIPTS}/3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+#exit
+
+# STEP 4: Executing the Post of Model run:
+time ${SCRIPTS}/4.run_post.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+#exit
+```
+
+Example:
+```
+./0.run_all.bash
+```
+
 ## History
 
 **1.6.0**
 
-- Added support for MONAN Regional (limited-area) simulations.
+- Added support for MONAN regional (limited-area) simulations.
 - Added support for initializing simulations from ERA5 data.
 
 **1.5.0**
