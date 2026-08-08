@@ -91,6 +91,7 @@ then
 	echo -e  "${GREEN}==>${NC} copying and linking fixed input data ${SYSTEM_KEYC}... \n"
 	mkdir -p ${DATAIN}
 	rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
+	rsync -rv --chmod=ugo=rw ${MONANDIR}/src/core_atmosphere/physics/physics_noahmp/parameters/NoahmpTable.TBL ${DATAIN}/fixed/ 
 	rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
 	ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
 fi

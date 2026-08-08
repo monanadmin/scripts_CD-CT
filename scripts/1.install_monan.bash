@@ -98,7 +98,10 @@ echo "convert_mpas branch name in use: ${tag_or_branch_name_CONVERT_MPAS}"
 
 
 # Local variables:-----------------------------------------------------
-MONANDIR=${SOURCES}/MONAN-Model_${tag_or_branch_name_MONAN}
+#MONANDIR=${SOURCES}/MONAN-Model_${tag_or_branch_name_MONAN}
+# Replace "/" with "_" so branch names can be used as directory names
+safe_name=${tag_or_branch_name_MONAN//\//_}
+MONANDIR=${SOURCES}/MONAN-Model_${safe_name}
 CONVERT_MPAS_DIR=${SOURCES}/convert_mpas_${tag_or_branch_name_CONVERT_MPAS}
 
 #$(sed -i "s;DIR_SCRIPTS=.*$;DIR_SCRIPTS=$(dirname $(dirname $(pwd)));" setenv.bash)
