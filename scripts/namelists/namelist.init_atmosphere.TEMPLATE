@@ -17,7 +17,7 @@
     config_sfc_prefix = 'SST'
     config_fg_interval = 86400
     config_landuse_data = 'MODIFIED_IGBP_MODIS_NOAH'
-    config_soilcol_data = 'MODIFIED_CLM_NOAH'
+    config_soilcol_data = 'MODIFIED_RAD_CLM_NOAH'
     config_topo_data = 'GMTED2010'
     config_use_spechumd = true
 /
