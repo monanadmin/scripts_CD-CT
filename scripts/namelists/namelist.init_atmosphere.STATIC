@@ -29,6 +29,10 @@
     config_nsm = 30
     config_tc_vertical_grid = true
 /
+&soil_grid
+    config_dzstop = 0.10
+    config_kzs = 0.66
+/
 &interpolation_control
     config_extrap_airtemp = 'linear'
 /
