@@ -8,6 +8,7 @@ zgeo_isobaric
 temperature_isobaric
 isltyp
 ivgtyp
+isctyp
 landmask
 ter
 surface_pressure
