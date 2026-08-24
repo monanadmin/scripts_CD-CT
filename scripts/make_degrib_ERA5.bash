@@ -14,7 +14,7 @@ then
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
    echo "Example of a 24-hour forecast:"
-   echo "${0} GFS 1024002 2026080100 24"
+   echo "${0} ERA 655362 2026080100 24"
    echo ""
    exit
 fi
@@ -64,8 +64,8 @@ if [ "$HOSTNAME" = "egeon" ]; then
 fi
 
 BNDDIR=${GCCCIS}/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
-# If boundary condition files do not exist in BNDDIR (GCC MONAN), search for them
-# in the available DATAIN directories. Abort if they cannot be found.
+# If boundary condition files do not exist in DATAIN directories, search for them
+# in the BNDDIR (GCC MONAN) directories. Abort if they cannot be found.
 if [ -s "${DATAIN}/${EXP}/era5.pl.${YYYYMMDDHHi}.grib" ] && [ -s "${DATAIN}/${EXP}/era5.sl.${YYYYMMDDHHi}.grib" ]
 then
     BNDDIR="${DATAIN}/${EXP}"
@@ -109,7 +109,7 @@ cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib_${EXP}.bash
 
 if [[ $MODERUN == "R" ]]; then
-   echo "MODERUN=R. Degribbing ERA data for both initial and lateral boundary conditions..."
+   echo -e " Degribbing ERA5 data for Regional (limited-area) mode – lateral boundary conditions.\n"
    dt=$((LBCINT / 3600))
    for ((hour=0; hour<=FCST; hour+=dt)); do
       valid_date=$(date -u -d "${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2} ${YYYYMMDDHHi:8:2}:00:00 UTC ${hour} hour" +"%Y%m%d%H")
@@ -200,8 +200,8 @@ echo "End of degrib Job"
 
 EOF0
 
-elif [[ ${MODERUN} == "G" ]]; then
-   echo "MODERUN=G. Degribbing ERA data only for initial conditions..."
+elif [[ ${MODERUN} == "G" ]]; then 
+   echo -e " Degribbing ERA5 data for Global mode – only initial conditions.\n"
    cp -f ${BNDDIR}/era5.pl.${YYYYMMDDHHi}.grib ${DATAIN}/${YYYYMMDDHHi}
    cp -f ${BNDDIR}/era5.sl.${YYYYMMDDHHi}.grib ${DATAIN}/${YYYYMMDDHHi}   
 

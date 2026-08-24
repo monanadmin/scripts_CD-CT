@@ -13,7 +13,7 @@ then
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
    echo "Example of a 24-hour forecast:"
-   echo "${0} GFS 1024002 2026080100 24"
+   echo "${0} GFS 655362 2026080100 24"
    echo ""
    exit
 fi
@@ -22,6 +22,11 @@ fi
 echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
+
+echo ""
+echo "---- Make LBCs ----"
+echo ""
+
 
 # Standart directories variables:---------------------------------------
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
@@ -79,7 +84,6 @@ do
     exit -1
   fi
 done
-
 
 sed -e "s,#LABELI#,${start_date},g;s,#LABELF#,${final_date},g;s,#GEODAT#,${GEODATA},g;s,#LBCINT#,${LBCINT},g;s,#RES#,${RES},g;s,#EXP#,${EXP},g" \
 	 ${SCRIPTS}/namelists/namelist.init_atmosphere.LBCS > ${DIRRUN}/namelist.init_atmosphere

@@ -30,7 +30,7 @@ then
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
    echo "Example of a 24-hour forecast:"
-   echo "${0} GFS 1024002 2026080100 24"
+   echo "${0} GFS 655362 2026080100 24"
    echo ""
    exit
 fi
@@ -84,8 +84,10 @@ t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
 # Definindo G ou R no MONAN_DIAG
 if [[ $MODERUN == "R" ]]; then
    RORG=R
+   echo -e " Post is running in Regional (limited-area) mode.\n"
 elif [[ $MODERUN == "G" ]]; then
    RORG=G
+   echo -e " Post is running in Global mode.\n"
 else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} Post fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash'.\n"
@@ -179,6 +181,10 @@ elif [[ "$RES" == "23592962.REG.AMS_CAR" ]]; then #5 km (AMS + Caribe)
    ENDLAT=42.0
    STARTLON=254.0
    ENDLON=344.0
+else
+    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+    echo -e  "${RED}==>${NC} [${0}] Convert_MPAS parameters for resolution/mesh $RES have not been set! Edit them in '4.run_post.bash'.\n"
+    exit -1
 fi
 #-------------------------------------------------------
 

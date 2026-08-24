@@ -15,7 +15,7 @@ then
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
    echo "Example of a 24-hour forecast:"
-   echo "${0} GFS 1024002 2026080100 24"
+   echo "${0} GFS 655362 2026080100 24"
    echo ""
    exit
 fi
@@ -53,8 +53,6 @@ GEODATA=${DATAIN}/WPS_GEOG
 cores=${STATIC_ncores}
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
-
-
 
 
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
@@ -226,10 +224,4 @@ else
    exit -1
 fi
 
-#JOBID=$(sed -n '2p' ${DATAOUT}/logs/static.bash.o | awk '{print $3}' | sed "s/.pbs-ha//g")
-#mv ${DATAOUT}/logs/static.bash.o ${DATAOUT}/logs/static.bash.o.${JOBID}
-#mv ${DATAOUT}/logs/static.bash.e ${DATAOUT}/logs/static.bash.e.${JOBID}
-#chmod a+r ${DATAOUT}/logs/static.bash.o.${JOBID}
-#chmod a+r ${DATAOUT}/logs/static.bash.e.${JOBID}
-#chmod a+r ${DATAOUT}/logs/log.init_atmosphere.*
-#rm -fr ${DIRRUN}
+rm -fr ${DIRRUN}

@@ -14,7 +14,7 @@ then
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
    echo "Example of a 24-hour forecast:"
-   echo "${0} GFS 1024002 2026080100 24"
+   echo "${0} GFS 655362 2026080100 24"
    echo ""
    exit
 fi
@@ -85,8 +85,15 @@ done
 
 if [[ $MODERUN == "R" ]]; then
    BLEND_BDY_TERRAIN=true
-else
+   echo -e " Init_atmos is running in Regional (limited-area) mode.\n"
+elif [[ $MODERUN == "G" ]]; then
    BLEND_BDY_TERRAIN=false
+   echo -e " Init_atmos is running in Global mode.\n"
+else
+   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+   echo -e  "${RED}==>${NC} Init_atmos fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash'.\n"
+   echo -e  "${RED}==>${NC} Exiting script. \n"
+   exit -1
 fi
 
 sed -e "s,#LABELI#,${start_date},g;s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g;s,#EXP#,${EXP},g;s,#BLEND_BDY_TERRAIN#,${BLEND_BDY_TERRAIN},g" \

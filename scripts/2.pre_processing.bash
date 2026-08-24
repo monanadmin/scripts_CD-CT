@@ -9,7 +9,7 @@ umask 022
 #     Performs the following tasks:
 # 
 #        o Creates topography, land use and static variables
-#        o Ungrib GFS data
+#        o Ungrib GFS or ERA5 data
 #        o Interpolates to model the grid
 #        o Creates initial and boundary conditions
 #        o Creates scripts to run the model and post-processing (CR: to be modified to phase 3 and 4)
@@ -31,7 +31,7 @@ then
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
    echo "Example of a 24-hour forecast:"
-   echo "${0} GFS 1024002 2026080100 24"
+   echo "${0} GFS 655362 2026080100 24"
    echo ""
    exit
 fi
@@ -217,7 +217,7 @@ fi
 
 # LBCs phase:------------------------------------------------------------
 if [[ $MODERUN == "R" ]]; then
-   echo -e  "${GREEN}==>${NC} Regional simulation: submitting Init Atmosphere to generate lateral boundary conditions...\n"
+   echo -e  "${GREEN}==>${NC} Regional (limited-area) simulation: submitting Init Atmosphere to generate lateral boundary conditions...\n"
    time ./make_lbcs.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 elif [[ $MODERUN == "G" ]]; then
    echo -e  "${GREEN}==>${NC} Global simulation: no need for lateral boundary conditions.\n"
@@ -228,4 +228,3 @@ else
    exit -1
 fi
 #----------------------------------------------------------------------------------
-

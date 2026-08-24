@@ -29,7 +29,7 @@ then
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
    echo "Example of a 24-hour forecast:"
-   echo "${0} GFS 1024002 2026080100 24"
+   echo "${0} GFS 655362 2026080100 24"
    echo ""
    exit
 fi
@@ -94,7 +94,7 @@ elif [[ "$RES" == "163842" ]]; then   #60Km
    CONFIG_DT=300.0
    CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "655362" ]]; then   #30Km
-   CONFIG_DT=150.0
+   CONFIG_DT=180.0
    CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "1024002" ]]; then  #24Km
    CONFIG_DT=150.0
@@ -113,7 +113,7 @@ elif [[ "$RES" == "65536002" ]]; then  #3Km
    CONFIG_CONV_INTERVAL="00:15:00"
 # regional mesh
 elif [[ "$RES" == "655362.REG.AMS_CAR" ]]; then #30 km (AMS + Caribe)
-   CONFIG_DT=150.0
+   CONFIG_DT=180.0
    CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "5898242.REG.AMS_CAR" ]]; then #10 km (AMS + Caribe)
    CONFIG_DT=60.0
@@ -123,7 +123,7 @@ elif [[ "$RES" == "23592962.REG.AMS_CAR" ]]; then #5 km (AMS + Caribe)
    CONFIG_CONV_INTERVAL="00:15:00"
 else
     echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
-    echo -e  "${RED}==>${NC} [${0}] Simulation parameters for resolution $RES have not been set! Edit them in '3.run_model.bash'.\n"
+    echo -e  "${RED}==>${NC} [${0}] Simulation parameters for resolution/mesh $RES have not been set! Edit them in '3.run_model.bash'.\n"
     exit -1
 fi
 #-------------------------------------------------------
@@ -131,9 +131,11 @@ fi
 # Setting configuration to apply or not lateral boundary conditions and output filename
 if [[ $MODERUN == "R" ]]; then
    APPLY_LBCS=true
+   echo -e " Model is running in Regional (limited-area) mode.\n"
    RORG=R
 elif [[ $MODERUN == "G" ]]; then
    APPLY_LBCS=false
+   echo -e " Model is running in Global mode.\n"
    RORG=G
 else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"

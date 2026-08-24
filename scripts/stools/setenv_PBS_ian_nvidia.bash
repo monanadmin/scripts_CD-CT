@@ -49,6 +49,15 @@ export INITATMOS_nthreads=1
 export INITATMOS_jobname="Pre.InitAtmos"
 export INITATMOS_walltime="02:00:00"
 
+# PRE-LBCs phase:
+export LBCS_QUEUE="pesqextra"
+export LBCS_ncores=64
+export LBCS_nnodes=1
+export LBCS_ncpus=64
+export LBCS_ncpn=64
+export LBCS_nthreads=1
+export LBCS_jobname="Pre.LBCS"
+export LBCS_walltime="02:00:00"
 
 # Model phase:
 export MODEL_QUEUE="pesqextra"

@@ -14,7 +14,7 @@ then
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
    echo "Example of a 24-hour forecast:"
-   echo "${0} GFS 1024002 2026080100 24"
+   echo "${0} GFS 655362 2026080100 24"
    echo ""
    exit
 fi
@@ -108,7 +108,7 @@ cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib_${EXP}.bash
 
 if [[ $MODERUN == "R" ]]; then
-   echo "MODERUN=R. Degribbing GFS data for both initial and lateral boundary conditions..."
+   echo -e " Degribbing GFS data for Regional (limited-area) mode – lateral boundary conditions.\n"
    dt=$((LBCINT / 3600))
    for ((hour=0; hour<=FCST; hour+=dt)); do
       hour_fmt=$(printf "%03d" "$hour")
@@ -195,7 +195,7 @@ echo "End of degrib Job"
 EOF0
 
 elif [[ $MODERUN == "G" ]]; then
-   echo "MODERUN=G. Degribbing GFS data only for initial conditions..."
+   echo -e " Degribbing GFS data for Global mode – only initial conditions.\n"
    cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
    
    if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
