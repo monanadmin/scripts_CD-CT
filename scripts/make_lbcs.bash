@@ -150,14 +150,17 @@ chmod a+x ${DIRRUN}/lbcs.bash
 
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
-      echo -e  "${GREEN}==>${NC} Sbatch lbcs.bash...\n"
+      echo -e  "\n${GREEN}==>${NC} sbatch lbcs.bash...\n"
       cd ${DIRRUN}
       sbatch --wait ${DIRRUN}/lbcs.bash
       ;;
     PBS)
-      echo -e  "${GREEN}==>${NC} qsub lbcs.bash...\n"
+      echo -e  "\n${GREEN}==>${NC} qsub lbcs.bash...\n"
       cd ${DIRRUN}
-      qsub -W block=true ${DIRRUN}/lbcs.bash
+      JOBID=$(qsub -W block=true ${DIRRUN}/lbcs.bash)
+      JOBID=${JOBID%%.*}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.o.${JOBID}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.e.${JOBID}
       ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
@@ -167,16 +170,6 @@ case "${SCHEDULER_SYSTEM}" in
 esac
 mv ${DIRRUN}/lbcs.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
-if [ ${SCHEDULER_SYSTEM} = "SLURM" ]; then
-   : # Slurm já gera JOBID na submissão.
-elif [ ${SCHEDULER_SYSTEM} = "PBS" ]; then
-   JOBID=$(sed -n '4p' ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.o | awk '{print $3}' | sed "s/.pbs-ha//g")
-   mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.o.${JOBID}
-   mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.e.${JOBID}
-fi
-chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.o.*
-chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.e.*
-
 if [ -z "$(ls ${DATAOUT}/${YYYYMMDDHHi}/Pre/lbc* 2>/dev/null)" ]
 then
   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	
@@ -185,5 +178,5 @@ then
   exit -1
 fi
 
-chmod 775 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
+chmod -R 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
 rm -fr ${DIRRUN}

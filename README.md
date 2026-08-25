@@ -29,7 +29,7 @@ Default values:
 
 Example:
 ~~~
-$ ./1.install_monan.bash https://github.com/monanadmin/MONAN-Model.git 2.0.0-rc 1.2.0
+./1.install_monan.bash https://github.com/monanadmin/MONAN-Model.git 2.0.0-rc 1.2.0
 ~~~
 
 - This first step will create a standart diretories structures for work:
@@ -123,10 +123,10 @@ FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)
 Example of a 24-hour forecast:
 
 ~~~
-./2.pre_processing.bash GFS 1024002 2026080100 24
+./2.pre_processing.bash GFS 655362 2026080100 24
 ~~~
 
-**Note:** For regional runs, initial condition files must be available, along with the first forecast or analysis file. The remaining files required for the lateral boundary conditions are determined by the interval specified by LBCINT and the forecast length specified by FCST.
+**Note:** For regional (limited-area) simulations, forecast or analysis files beyond the initial one are required to provide the lateral boundary conditions. The interval between these files is determined by the "LBCINT" variable in `setenv.bash`, while the total number of files required depends on the forecast duration specified by FCST.
 
 ### 3. Run the model:
 
@@ -146,7 +146,7 @@ FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)
 Example of a 24-hour forecast:
 
 ~~~
-$ ./3.run_model.bash GFS 1024002 2026080100 24
+./3.run_model.bash GFS 655362 2026080100 24
 ~~~
 
 ### 4. Run the post-processing model:
@@ -166,7 +166,7 @@ FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)
 ~~~
 Example of a 24-hour forecast:
 ~~~
-$ ./4.run_post.bash GFS 1024002 2026080100 24
+./4.run_post.bash GFS 655362 2026080100 24
 ~~~
 
 ### Plus: The "0.run_all.bash" script
@@ -185,7 +185,7 @@ github_link="https://github.com/monanadmin/MONAN-Model.git"   # Switch to your f
 monan_branch=2.0.0-rc
 convertmpas_branch=1.2.0
 EXP=GFS                    # Options: GFS or ERA
-RES=1024002                # Options-Global: 40962=120km; 163842=60km; 655362=30Km; 1024002=24km; 2621442=15Km; 5898242=10Km
+RES=655362                 # Options-Global: 40962=120km; 163842=60km; 655362=30Km; 1024002=24km; 2621442=15Km; 5898242=10Km
                            # Options-Regional: 655362.REG.AMS_CAR=30km; 5898242.REG.AMS_CAR=10km; 23592962.REG.AMS_CAR=5km
 YYYYMMDDHHi=2026080100     # Check the available dates for the initial and boundary conditions (regional), especially for ERA5 data.
 FCST=24

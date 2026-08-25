@@ -131,11 +131,11 @@ fi
 # Setting configuration to apply or not lateral boundary conditions and output filename
 if [[ $MODERUN == "R" ]]; then
    APPLY_LBCS=true
-   echo -e " Model is running in Regional (limited-area) mode.\n"
+   echo -e "Model is running in Regional (limited-area) mode.\n"
    RORG=R
 elif [[ $MODERUN == "G" ]]; then
    APPLY_LBCS=false
-   echo -e " Model is running in Global mode.\n"
+   echo -e "Model is running in Global mode.\n"
    RORG=G
 else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
@@ -276,17 +276,18 @@ chmod a+x ${DIRRUN}/model.bash
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
       echo -e  "${GREEN}==>${NC} Submitting MONAN atmosphere model and waiting for finish before exit... \n"
-      echo -e  "${GREEN}==>${NC} Logs being generated at ${DATAOUT}/logs... \n"
-      echo -e  "sbatch ${SCRIPTS}/model.bash"
+      echo -e  "${GREEN}==>${NC} sbatch model.bash\n"
       cd ${DIRRUN}
       sbatch --wait ${DIRRUN}/model.bash
-        ;;
+      ;;
     PBS)
       echo -e  "${GREEN}==>${NC} Submitting MONAN atmosphere model and waiting for finish before exit... \n"
-      echo -e  "${GREEN}==>${NC} Logs being generated at ${DATAOUT}/logs... \n"
       echo -e  "${GREEN}==>${NC} qsub model.bash...\n"
       cd ${DIRRUN}
-      qsub -W block=true ${DIRRUN}/model.bash
+      JOBID=$(qsub -W block=true ${DIRRUN}/model.bash)
+      JOBID=${JOBID%%.*}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o.${JOBID}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e.${JOBID}
       ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
@@ -295,16 +296,6 @@ case "${SCHEDULER_SYSTEM}" in
 #      ;;
 esac
 mv ${DIRRUN}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
-
-if [ ${SCHEDULER_SYSTEM} = "SLURM" ]; then
-   : # Slurm já gera JOBID na submissão.
-elif [ ${SCHEDULER_SYSTEM} = "PBS" ]; then
-   JOBID=$(sed -n '5p' ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o | awk '{print $3}' | sed "s/.pbs-ha//g")
-   mv ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o.${JOBID}
-   mv ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e.${JOBID}
-fi
-chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o.*
-chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e.*
 
 #-----Loop que verifica se os arquivos foram gerados corretamente (>0)-----
 output_interval=${t_strouthor}
@@ -325,4 +316,6 @@ do
 
 done
 
+chmod -R 755 ${DATAOUT}/${YYYYMMDDHHi}/Model/*
 rm -fr ${DIRRUN}
+echo -e "\n$(basename "$0") completed successfully.\n"

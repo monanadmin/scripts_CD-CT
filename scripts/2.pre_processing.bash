@@ -1,5 +1,7 @@
 #!/bin/bash 
 umask 022
+set -e
+trap 'echo -e "\n${RED}==>${NC} $(basename "$0") failed.\n"' ERR
 #-----------------------------------------------------------------------------#
 # !SCRIPT: pre_processing
 #
@@ -205,7 +207,7 @@ fi
 
 # Init Atmosphere phase:------------------------------------------------------------
 if [[ ${EXP} == "GFS" || ${EXP} == "ERA" ]]; then
-   echo -e  "${GREEN}==>${NC} Submitting Init Atmosphere for real case...\n"
+   echo -e  "\n${GREEN}==>${NC} Submitting Init Atmosphere for real case...\n"
    time ./make_initatmos.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
@@ -217,10 +219,9 @@ fi
 
 # LBCs phase:------------------------------------------------------------
 if [[ $MODERUN == "R" ]]; then
-   echo -e  "${GREEN}==>${NC} Regional (limited-area) simulation: submitting Init Atmosphere to generate lateral boundary conditions...\n"
    time ./make_lbcs.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 elif [[ $MODERUN == "G" ]]; then
-   echo -e  "${GREEN}==>${NC} Global simulation: no need for lateral boundary conditions.\n"
+   : # it doesn't need the LBC (lateral boundary conditions)
 else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} LBCs phase fails! Please select MODERUN=R or G.\n"
@@ -228,3 +229,4 @@ else
    exit -1
 fi
 #----------------------------------------------------------------------------------
+echo -e "\n$(basename "$0") completed successfully.\n"

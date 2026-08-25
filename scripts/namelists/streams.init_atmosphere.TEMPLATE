@@ -30,7 +30,7 @@
 <immutable_stream name="lbc"
                   type="output"
                   io_type="pnetcdf,cdf5"
-                  filename_template="lbc.$Y-$M-$D_$h.$m.$s.nc"
+                  filename_template="lbc.$Y-$M-$D_$h.$m.$s_#RES#.nc"
                   filename_interval="output_interval"
                   packages="lbcs"
                   output_interval="3:00:00" />

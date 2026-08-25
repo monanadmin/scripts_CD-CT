@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+trap 'echo -e "\n${RED}==>${NC} $(basename "$0") failed.\n"' ERR
 
 # Set environment variables exports:
 echo ""

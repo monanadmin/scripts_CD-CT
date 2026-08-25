@@ -85,10 +85,10 @@ done
 
 if [[ $MODERUN == "R" ]]; then
    BLEND_BDY_TERRAIN=true
-   echo -e " Init_atmos is running in Regional (limited-area) mode.\n"
+   echo -e "\nInit_atmos is running in Regional (limited-area) mode.\n"
 elif [[ $MODERUN == "G" ]]; then
    BLEND_BDY_TERRAIN=false
-   echo -e " Init_atmos is running in Global mode.\n"
+   echo -e "\nInit_atmos is running in Global mode.\n"
 else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} Init_atmos fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash'.\n"
@@ -170,14 +170,17 @@ chmod a+x ${DIRRUN}/initatmos.bash
 
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
-      echo -e  "${GREEN}==>${NC} Sbatch initatmos.bash...\n"
+      echo -e  "\n${GREEN}==>${NC} sbatch initatmos.bash...\n"
       cd ${DIRRUN}
       sbatch --wait ${DIRRUN}/initatmos.bash
       ;;
     PBS)
-      echo -e  "${GREEN}==>${NC} qsub initatmos.bash...\n"
+      echo -e  "\n${GREEN}==>${NC} qsub initatmos.bash...\n"
       cd ${DIRRUN}
-      qsub -W block=true ${DIRRUN}/initatmos.bash
+      JOBID=$(qsub -W block=true ${DIRRUN}/initatmos.bash)
+      JOBID=${JOBID%%.*}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o.${JOBID}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e.${JOBID}
       ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
@@ -187,16 +190,6 @@ case "${SCHEDULER_SYSTEM}" in
 esac
 mv ${DIRRUN}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
-if [ ${SCHEDULER_SYSTEM} = "SLURM" ]; then
-   : # Slurm já gera JOBID na submissão.
-elif [ ${SCHEDULER_SYSTEM} = "PBS" ]; then
-   JOBID=$(sed -n '5p' ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o | awk '{print $3}' | sed "s/.pbs-ha//g")
-   mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o.${JOBID}
-   mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e.${JOBID}
-fi
-chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o.*
-chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e.*
-
 if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ]
 then
   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	
@@ -205,5 +198,5 @@ then
   exit -1
 fi
 
-chmod 775 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
+chmod -R 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
 rm -fr ${DIRRUN}

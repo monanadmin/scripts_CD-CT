@@ -87,6 +87,8 @@ else
     exit 1
 fi
 
+echo -e "\n${EXP} folder located at ${BNDDIR}\n"
+
 files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")
 
 for file in "${files_needed[@]}"
@@ -108,7 +110,7 @@ cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib_${EXP}.bash
 
 if [[ $MODERUN == "R" ]]; then
-   echo -e " Degribbing GFS data for Regional (limited-area) mode – lateral boundary conditions.\n"
+   echo -e "Degribbing GFS data for Regional (limited-area) mode – lateral boundary conditions.\n"
    dt=$((LBCINT / 3600))
    for ((hour=0; hour<=FCST; hour+=dt)); do
       hour_fmt=$(printf "%03d" "$hour")
@@ -195,7 +197,7 @@ echo "End of degrib Job"
 EOF0
 
 elif [[ $MODERUN == "G" ]]; then
-   echo -e " Degribbing GFS data for Global mode – only initial conditions.\n"
+   echo -e "Degribbing GFS data for Global mode – only initial conditions.\n"
    cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
    
    if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
@@ -283,31 +285,24 @@ chmod a+x ${DIRRUN}/degrib_${EXP}.bash
 
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
-      echo -e  "${GREEN}==>${NC} Sbatch degrib_${EXP}.bash...\n"
+      echo -e  "\n${GREEN}==>${NC} sbatch degrib_${EXP}.bash...\n"
       cd ${DIRRUN}
       sbatch --wait ${DIRRUN}/degrib_${EXP}.bash
-        ;;
+      ;;
    PBS)
-      echo -e  "${GREEN}==>${NC} Qsub degrib_${EXP}.bash...\n"
+      echo -e  "\n${GREEN}==>${NC} qsub degrib_${EXP}.bash...\n"
       cd ${DIRRUN}
-      qsub -W block=true ${DIRRUN}/degrib_${EXP}.bash
-       ;;
+      JOBID=$(qsub -W block=true ${DIRRUN}/degrib_${EXP}.bash)
+      JOBID=${JOBID%%.*}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.o.${JOBID}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.e.${JOBID}
+      ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
 #      ${DIRRUN}/degrib_${EXP}.bash
 #      ;;
 esac
 mv ${DIRRUN}/degrib_${EXP}.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
-
-if [ ${SCHEDULER_SYSTEM} = "SLURM" ]; then
-   : # Slurm já gera JOBID na submissão.
-elif [ ${SCHEDULER_SYSTEM} = "PBS" ]; then
-   JOBID=$(sed -n '4p' ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.o | awk '{print $3}' | sed "s/.pbs-ha//g")
-   mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.o.${JOBID}
-   mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.e.${JOBID}
-fi
-chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.o.*
-chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.e.*
 
 files_ungrib=("${EXP}:${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}")
 for file in "${files_ungrib[@]}"
@@ -322,5 +317,5 @@ do
   fi
 done
 
-chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
+chmod -R 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
 rm -fr ${DIRRUN}

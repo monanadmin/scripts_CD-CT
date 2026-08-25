@@ -48,7 +48,7 @@
 
 <immutable_stream name="lbc_in"
                   type="input"
-                  filename_template="lbc.$Y-$M-$D_$h.$m.$s.nc"
+                  filename_template="lbc.$Y-$M-$D_$h.$m.$s_#RES#.nc"
                   filename_interval="input_interval"
                   packages="limited_area"
                   input_interval="#LBCINT#" />

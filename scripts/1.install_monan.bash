@@ -1,6 +1,5 @@
 #!/bin/bash 
 umask 022
-
 #-----------------------------------------------------------------------------#
 # !SCRIPT: install_monan
 #
@@ -275,4 +274,4 @@ else
     echo -e "${RED}==>${NC} !!! An error occurred during convert_mpas build. Check output"
     exit -1
 fi
-
+echo -e "\n$(basename "$0") completed successfully.\n"

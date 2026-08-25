@@ -1,6 +1,5 @@
 #!/bin/bash 
 umask 022
-
 #-----------------------------------------------------------------------------#
 # !SCRIPT: run_post
 #
@@ -84,10 +83,10 @@ t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
 # Definindo G ou R no MONAN_DIAG
 if [[ $MODERUN == "R" ]]; then
    RORG=R
-   echo -e " Post is running in Regional (limited-area) mode.\n"
+   echo -e "Post is running in Regional (limited-area) mode.\n"
 elif [[ $MODERUN == "G" ]]; then
    RORG=G
-   echo -e " Post is running in Global mode.\n"
+   echo -e "Post is running in Global mode.\n"
 else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} Post fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash'.\n"
@@ -330,17 +329,17 @@ EOSH
    chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
    case "${SCHEDULER_SYSTEM}" in
       SLURM)
-         echo "Sbatch PostAtmos_node.${node}.sh"
+         echo -e "${GREEN}==> sbatch PostAtmos_node.${node}.sh"
          jobid[${node}]=$(sbatch --parsable ${DIRRUN}/PostAtmos_node.${node}.sh)
          echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
          echo ""
          ;;
-       PBS)
-         echo "Rodando em PBS"
-         echo -e  "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
+       PBS)         
+         echo -e "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
          cd ${DIRRUN}
-	 		jobid[${node}]=$(qsub ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
-          ;;
+ 	 jobid[${node}]=$(qsub ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
+         jobid[${node}]=${jobid[${node}]%%.*}
+         ;;
 #      GENERIC)
 #         echo "Nenhum gerenciador detectado"
 #         ${DIRRUN}/PostAtmos_node.${node}.sh
@@ -420,14 +419,17 @@ chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
 
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
-      echo "Sbatch PostAtmos_node.${node}.sh"
+      echo -e "${GREEN}==>${NC} sbatch PostAtmos_node.${node}.sh...\n"
+      cd ${DIRRUN}
       sbatch --wait --dependency=${dependency} ${DIRRUN}/PostAtmos_node.${node}.sh 
       ;;
     PBS)
-      echo "Rodando em PBS"
-      echo -e  "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
+      echo -e "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
       cd ${DIRRUN}
-      qsub -W depend=${dependency} -W block=true ${DIRRUN}/PostAtmos_node.${node}.sh
+      JOBID=$(qsub -W depend=${dependency} -W block=true ${DIRRUN}/PostAtmos_node.${node}.sh)
+      JOBID=${JOBID%%.*}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o.${JOBID}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e.${JOBID}
       ;;
 #   GENERIC)
 #      echo "Nenhum gerenciador detectado"
@@ -438,19 +440,16 @@ esac
 
 #CR: passar este scriptpara dentro do script PostAtmos_node.0.sh, submetido.
 cd ${SCRIPTS}
-chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
+chmod -R 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
 time ${SCRIPTS}/make_template.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 
-for ((n=0 ; n<total_nodes ; n++)) 
+for ((n=1 ; n<total_nodes ; n++)) 
 do
-
    if [ ${SCHEDULER_SYSTEM} = "SLURM" ]; then
       : # Slurm já gera JOBID na submissão.
    elif [ ${SCHEDULER_SYSTEM} = "PBS" ]; then
-      JOBID=$(sed -n '4p' ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o | awk '{print $3}' | sed "s/.pbs-ha//g")
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o.${JOBID}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e.${JOBID}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o.${jobid[${n}]}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e.${jobid[${n}]}
 fi
 done
-chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.*.o.*
-chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.*.e.*
+echo -e "\n$(basename "$0") completed successfully.\n"

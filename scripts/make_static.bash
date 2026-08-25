@@ -174,14 +174,17 @@ rm -fr ${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc
 
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
-      echo -e  "${GREEN}==>${NC} Sbatch static.bash...\n"
+      echo -e  "\n${GREEN}==>${NC} sbatch static.bash...\n"
       cd ${DIRRUN}
       sbatch --wait ${DIRRUN}/static.bash
       ;;
     PBS)
-      echo -e  "${GREEN}==>${NC} qsub static.bash...\n"
+      echo -e  "\n${GREEN}==>${NC} qsub static.bash...\n"
       cd ${DIRRUN}
-      qsub -W block=true ${DIRRUN}/static.bash
+      JOBID=$(qsub -W block=true ${DIRRUN}/static.bash)
+      JOBID=${JOBID%%.*}
+      mv ${DATAOUT}/logs/static.bash.o ${DATAOUT}/logs/static.bash.o.${JOBID}
+      mv ${DATAOUT}/logs/static.bash.e ${DATAOUT}/logs/static.bash.e.${JOBID}
       ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
@@ -194,17 +197,6 @@ mv ${DIRRUN}/static.bash ${DATAOUT}/logs/
 mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/logs/
 mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/logs/
 mv log.init_atmosphere.* ${DATAOUT}/logs/
-
-if [ ${SCHEDULER_SYSTEM} = "SLURM" ]; then
-   : # Slurm já gera JOBID na submissão.
-elif [ ${SCHEDULER_SYSTEM} = "PBS" ]; then
-   JOBID=$(sed -n '2p' ${DATAOUT}/logs/static.bash.o | awk '{print $3}' | sed "s/.pbs-ha//g")
-   mv ${DATAOUT}/logs/static.bash.o ${DATAOUT}/logs/static.bash.o.${JOBID}
-   mv ${DATAOUT}/logs/static.bash.e ${DATAOUT}/logs/static.bash.e.${JOBID}
-fi
-chmod a+r ${DATAOUT}/logs/static.bash.o.*
-chmod a+r ${DATAOUT}/logs/static.bash.e.*
-chmod a+r ${DATAOUT}/logs/log.init_atmosphere.*
 
 if [ -s ${DIRRUN}/x1.${RES}.static.nc ]
 then
@@ -224,4 +216,5 @@ else
    exit -1
 fi
 
+chmod -R 755 ${DATAOUT}/logs/*
 rm -fr ${DIRRUN}

@@ -12,7 +12,7 @@
 
 <immutable_stream name="lbc"
                   type="output"
-                  filename_template="lbc.$Y-$M-$D_$h.$m.$s.nc"
+                  filename_template="lbc.$Y-$M-$D_$h.$m.$s_#RES#.nc"
                   filename_interval="output_interval"
                   packages="lbcs"
                   clobber_mode="overwrite"
