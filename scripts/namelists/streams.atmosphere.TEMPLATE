@@ -14,7 +14,7 @@
 
 <stream name="output"
         type="output"
-        filename_template="MONAN_HIST_G_MOD_#CIORIG#_#LABELI#_$Y$M$D$h.$m.$s.x#RES#L#NLEV#.nc"
+        filename_template="MONAN_HIST_#RORG#_MOD_#CIORIG#_#LABELI#_$Y$M$D$h.$m.$s.x#RES#L#NLEV#.nc"
         output_interval="none" >
 
 	<file name="stream_list.atmosphere.output"/>
@@ -23,8 +23,8 @@
 <stream name="diagnostics"
         type="output"
         io_type="pnetcdf,cdf5"
-        filename_template="MONAN_DIAG_G_MOD_#CIORIG#_#LABELI#_$Y$M$D$h.$m.$s.x#RES#L#NLEV#.nc"
-        output_interval="3:00:00" 
+        filename_template="MONAN_DIAG_#RORG#_MOD_#CIORIG#_#LABELI#_$Y$M$D$h.$m.$s.x#RES#L#NLEV#.nc"
+        output_interval="3:00:00"
         clobber_mode=replace_files
         precision=single >
 	<file name="stream_list.atmosphere.diagnostics"/>
@@ -48,10 +48,10 @@
 
 <immutable_stream name="lbc_in"
                   type="input"
-                  filename_template="lbc.$Y-$M-$D_$h.$m.$s.nc"
+                  filename_template="lbc.$Y-$M-$D_$h.$m.$s_#RES#.nc"
                   filename_interval="input_interval"
                   packages="limited_area"
-                  input_interval="none" />
+                  input_interval="#LBCINT#" />
 
 <immutable_stream name="ugwp_oro_data_in"
                   type="input"

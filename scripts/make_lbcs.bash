@@ -1,5 +1,4 @@
 #!/bin/bash 
-umask 022
 
 if [ $# -ne 4 ]
 then
@@ -25,8 +24,9 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
 echo ""
-echo "---- Make Init Atmosphere ----"
+echo "---- Make LBCs ----"
 echo ""
+
 
 # Standart directories variables:---------------------------------------
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
@@ -46,11 +46,14 @@ YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
 FCST=${4};        #FCST=24
 #-------------------------------------------------------
 
-
 # Local variables--------------------------------------
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
+yyyymmddi=${YYYYMMDDHHi:0:8}
+hhi=${YYYYMMDDHHi:8:2}
+yyyymmddhhf=$(date +"%Y%m%d%H" -d "${yyyymmddi} ${hhi}:00 ${FCST} hours" )
+final_date=${yyyymmddhhf:0:4}-${yyyymmddhhf:4:2}-${yyyymmddhhf:6:2}_${yyyymmddhhf:8:2}:00:00
 GEODATA=${DATAIN}/WPS_GEOG
-cores=${INITATMOS_ncores}
+cores=${LBCS_ncores}
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
@@ -71,8 +74,7 @@ then
    rm -fr x1.${RES}.tar.gz
 fi
 
-
-files_needed=("${SCRIPTS}/namelists/namelist.init_atmosphere.TEMPLATE" "${SCRIPTS}/namelists/streams.init_atmosphere.TEMPLATE" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" "${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}:${start_date:0:13}" "${EXECS}/init_atmosphere_model")
+files_needed=("${SCRIPTS}/namelists/namelist.init_atmosphere.LBCS" "${SCRIPTS}/namelists/streams.init_atmosphere.LBCS" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${EXECS}/init_atmosphere_model")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -83,55 +85,38 @@ do
   fi
 done
 
-if [[ $MODERUN == "R" ]]; then
-   BLEND_BDY_TERRAIN=true
-   echo -e "\nInit_atmos is running in Regional (limited-area) mode.\n"
-elif [[ $MODERUN == "G" ]]; then
-   BLEND_BDY_TERRAIN=false
-   echo -e "\nInit_atmos is running in Global mode.\n"
-else
-   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
-   echo -e  "${RED}==>${NC} Init_atmos fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash'.\n"
-   echo -e  "${RED}==>${NC} Exiting script. \n"
-   exit -1
-fi
+sed -e "s,#LABELI#,${start_date},g;s,#LABELF#,${final_date},g;s,#GEODAT#,${GEODATA},g;s,#LBCINT#,${LBCINT},g;s,#RES#,${RES},g;s,#EXP#,${EXP},g" \
+	 ${SCRIPTS}/namelists/namelist.init_atmosphere.LBCS > ${DIRRUN}/namelist.init_atmosphere
 
-sed -e "s,#LABELI#,${start_date},g;s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g;s,#EXP#,${EXP},g;s,#BLEND_BDY_TERRAIN#,${BLEND_BDY_TERRAIN},g" \
-    ${SCRIPTS}/namelists/namelist.init_atmosphere.TEMPLATE > ${DIRRUN}/namelist.init_atmosphere
-
-sed -e "s,#RES#,${RES},g" \
-    ${SCRIPTS}/namelists/streams.init_atmosphere.TEMPLATE > ${DIRRUN}/streams.init_atmosphere
+sed -e "s,#RES#,${RES},g;s,#LBCINT#,${LBCINT},g" \
+    ${SCRIPTS}/namelists/streams.init_atmosphere.LBCS > ${DIRRUN}/streams.init_atmosphere
 
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
-cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
-cp -f ${DATAIN}/fixed/QNWFA_QNIFA_SIGMA_MONTHLY.dat ${DIRRUN}
-cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:${start_date:0:13} ${DIRRUN}
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:* ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
+
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
-
-chmod 755 ${DIRRUN}/*
-chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
-
-rm -f ${DIRRUN}/initatmos.bash 
+rm -f ${DIRRUN}/lbcs.bash 
 
 if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
 then
-   sed -e "s,#JOBNAME#,${INITATMOS_jobname},g;
-   s,#NNODES#,${INITATMOS_nnodes},g;
-   s,#NCPUS#,${INITATMOS_ncpus},g;
-   s,#NTASKS#,${INITATMOS_ncores},g;
-   s,#NTASKSPNODE#,${INITATMOS_ncpn},g;
-   s,#NTHREADS#,${INITATMOS_nthreads},g;
-   s,#PARTITION#,${INITATMOS_QUEUE},g;
-   s,#WALLTIME#,${INITATMOS_walltime},g;
-   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o,g;
-   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e,g" \
-   ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/initatmos.bash 
+   sed -e "s,#JOBNAME#,${LBCS_jobname},g;
+   s,#NNODES#,${LBCS_nnodes},g;
+   s,#NCPUS#,${LBCS_ncpus},g;
+   s,#NTASKS#,${LBCS_ncores},g;
+   s,#NTASKSPNODE#,${LBCS_ncpn},g;
+   s,#NTHREADS#,${LBCS_nthreads},g;
+   s,#PARTITION#,${LBCS_QUEUE},g;
+   s,#WALLTIME#,${LBCS_walltime},g;
+   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.o,g;
+   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.e,g" \
+   ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/lbcs.bash 
 else
-   echo "#!/bin/bash " > ${DIRRUN}/initatmos.bash 
+   echo "#!/bin/bash " > ${DIRRUN}/lbcs.bash 
 fi
 
-cat << EOF0 >> ${DIRRUN}/initatmos.bash 
+cat << EOF0 >> ${DIRRUN}/lbcs.bash 
 
 export executable=init_atmosphere_model
 
@@ -139,61 +124,56 @@ ulimit -c unlimited
 ulimit -v unlimited
 ulimit -s unlimited
 
-cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash
 
-date
-beg_secs=\`date +"%s"\`
+cd ${DIRRUN}
 
 if [ ${SCHEDULER_SYSTEM} == "SLURM" ]; then
    echo "-- SLURM_JOB_ID: \$SLURM_JOB_ID"
-   time mpirun -np ${INITATMOS_ncores} ./\${executable}
+   time mpirun -np ${LBCS_ncores} ./\${executable}
 elif [ ${SCHEDULER_SYSTEM} == "PBS" ]; then
    echo "-- PBS_JOBID: \$PBS_JOBID"
-   time mpirun --ppn ${INITATMOS_ncpn} -np ${INITATMOS_ncores} --depth=${INITATMOS_nthreads} --cpu-bind depth ./\${executable}
+   time mpirun --ppn ${LBCS_ncpn} -np ${LBCS_ncores} --depth=${LBCS_nthreads} --cpu-bind depth ./\${executable}
 fi
 
 date
-end_secs=\`date +"%s"\`
 
-let wallsecs=\$end_secs-\$beg_secs
-echo "INITATMOS time taken by run in seconds is " \$wallsecs
-
-mv ${DIRRUN}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log.init_atmosphere.0000.x1.${RES}.init.nc.${YYYYMMDDHHi}.out
-mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
-mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+mv ${DIRRUN}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log.init_atmosphere.0000.${RES}.lbcs.nc.${YYYYMMDDHHi}.out
+mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.init_atmosphere.lbcs
+mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/streams.init_atmosphere.lbcs
 mv ${DIRRUN}/x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
+mv ${DIRRUN}/lbc*.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
 
 EOF0
 
-chmod a+x ${DIRRUN}/initatmos.bash
+chmod a+x ${DIRRUN}/lbcs.bash
 
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
-      echo -e  "\n${GREEN}==>${NC} sbatch initatmos.bash...\n"
+      echo -e  "\n${GREEN}==>${NC} sbatch lbcs.bash...\n"
       cd ${DIRRUN}
-      sbatch --wait ${DIRRUN}/initatmos.bash
+      sbatch --wait ${DIRRUN}/lbcs.bash
       ;;
     PBS)
-      echo -e  "\n${GREEN}==>${NC} qsub initatmos.bash...\n"
+      echo -e  "\n${GREEN}==>${NC} qsub lbcs.bash...\n"
       cd ${DIRRUN}
-      JOBID=$(qsub -W block=true ${DIRRUN}/initatmos.bash)
+      JOBID=$(qsub -W block=true ${DIRRUN}/lbcs.bash)
       JOBID=${JOBID%%.*}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o.${JOBID}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e.${JOBID}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.o.${JOBID}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.e.${JOBID}
       ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
 #      cd ${DIRRUN}
-#      ${DIRRUN}/initatmos.bash
+#      ${DIRRUN}/lbcs.bash
 #      ;;
 esac
-mv ${DIRRUN}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+mv ${DIRRUN}/lbcs.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
-if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ]
+if [ -z "$(ls ${DATAOUT}/${YYYYMMDDHHi}/Pre/lbc* 2>/dev/null)" ]
 then
   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	
-  echo -e  "${RED}==>${NC} Init Atmosphere phase fails! Check logs at ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.* .\n"
+  echo -e  "${RED}==>${NC} LBC phase fails! Check logs at ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.* .\n"
   echo -e  "${RED}==>${NC} Exiting script. \n"
   exit -1
 fi

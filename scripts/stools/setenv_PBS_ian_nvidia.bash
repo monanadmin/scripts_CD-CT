@@ -41,14 +41,23 @@ export DEGRIB_walltime="02:00:00"
 
 # PRE-Init Atmosphere phase:
 export INITATMOS_QUEUE="pesqextra"
-export INITATMOS_ncores=512
+export INITATMOS_ncores=256
 export INITATMOS_nnodes=4
-export INITATMOS_ncpus=128
-export INITATMOS_ncpn=128
+export INITATMOS_ncpus=64
+export INITATMOS_ncpn=64
 export INITATMOS_nthreads=1
 export INITATMOS_jobname="Pre.InitAtmos"
 export INITATMOS_walltime="02:00:00"
 
+# PRE-LBCs phase:
+export LBCS_QUEUE="pesqextra"
+export LBCS_ncores=64
+export LBCS_nnodes=1
+export LBCS_ncpus=64
+export LBCS_ncpn=64
+export LBCS_nthreads=1
+export LBCS_jobname="Pre.LBCS"
+export LBCS_walltime="02:00:00"
 
 # Model phase:
 export MODEL_QUEUE="pesqextra"
@@ -80,6 +89,7 @@ export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
 
 export OPERDIR=/oper/dados/ioper/tempo
+export OPERDIRLGFS=/p/projetos/ioper/data/external/gfs_0p25
 export DIRDADOS=/p/projetos/monan_adm/monan/dados/MONAN_v2.0.x
 export GCCCIS=/p/projetos/monan_adm/monan/CIs
 

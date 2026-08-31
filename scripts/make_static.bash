@@ -7,18 +7,16 @@ then
    echo ""
    echo "Instructions: execute the command below"
    echo ""
-   echo "${0} EXP_NAME RESOLUTION LABELI FCST"
+   echo "${0} EXP RESOLUTION LABELI FCST"
    echo ""
-   echo "EXP_NAME    :: Forcing: GFS"
-   echo "            :: Others options to be added later..."
-   echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
-   echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
-   echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
+   echo "EXP         :: Initial or lateral boundary condition dataset (GFS or ERA)"
+   echo "RESOLUTION  :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 1024002 for the ~24 km mesh)"
+   echo "LABELI      :: Forecast initialization date and time (YYYYMMDDHH), e.g., 2026080100"
+   echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
-   echo "24 hour forcast example:"
-   echo "${0} GFS 1024002 2024010100 24"
+   echo "Example of a 24-hour forecast:"
+   echo "${0} GFS 655362 2026080100 24"
    echo ""
-
    exit
 fi
 
@@ -57,8 +55,6 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 #-------------------------------------------------------
 
 
-
-
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
 then
    if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info ]
@@ -67,16 +63,14 @@ then
       cd ${DATAIN}/fixed
       echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
       wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
-      wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}_static.tar.gz
       tar -xzvf x1.${RES}.tar.gz
-      tar -xzvf x1.${RES}_static.tar.gz
       chmod 755 *
    fi
    echo -e "${GREEN}==>${NC} Creating x1.${RES}.graph.info.part.${cores} ... \n"
    cd ${DATAIN}/fixed
    gpmetis -minconn -contig -niter=200 x1.${RES}.graph.info ${cores}
-   rm -fr x1.${RES}.tar.gz x1.${RES}_static.tar.gz
    chmod 755 *
+   rm -fr x1.${RES}.tar.gz
 fi
 
 files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
@@ -144,10 +138,10 @@ chmod 755 *
 date
 beg_secs=\`date +"%s"\`
 
-if [ "$HOSTNAME" = "egeon" ]; then
+if [ ${SCHEDULER_SYSTEM} == "SLURM" ]; then
    echo "-- SLURM_JOB_ID: \$SLURM_JOB_ID"
    time mpirun -np ${STATIC_ncores} ./\${executable}
-else
+elif [ ${SCHEDULER_SYSTEM} == "PBS" ]; then
    echo "-- PBS_JOBID: \$PBS_JOBID"
    time mpirun --ppn ${STATIC_ncpn} -np ${STATIC_ncores} --depth=${STATIC_nthreads} --cpu-bind depth ./\${executable}
 fi
@@ -157,7 +151,6 @@ end_secs=\`date +"%s"\`
 
 let wallsecs=\$end_secs-\$beg_secs
 echo "STATIC time taken by run in seconds is " \$wallsecs
-
 
 grep "Finished running" log.init_atmosphere.0000.out >& /dev/null
 if [ \$? -ne 0 ]; then
@@ -173,23 +166,25 @@ echo "  ### Static completed - \$(date) ####"
 echo "  ####################################"
 echo " "
 
-
 EOF0
+
 chmod a+x ${DIRRUN}/static.bash
 rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
 rm -fr ${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc
 
-
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
-      echo -e  "${GREEN}==>${NC} Sbatch static.bash...\n"
+      echo -e  "\n${GREEN}==>${NC} sbatch static.bash...\n"
       cd ${DIRRUN}
       sbatch --wait ${DIRRUN}/static.bash
       ;;
     PBS)
-      echo -e  "${GREEN}==>${NC} qsub static.bash...\n"
+      echo -e  "\n${GREEN}==>${NC} qsub static.bash...\n"
       cd ${DIRRUN}
-      qsub -W block=true ${DIRRUN}/static.bash
+      JOBID=$(qsub -W block=true ${DIRRUN}/static.bash)
+      JOBID=${JOBID%%.*}
+      mv ${DATAOUT}/logs/static.bash.o ${DATAOUT}/logs/static.bash.o.${JOBID}
+      mv ${DATAOUT}/logs/static.bash.e ${DATAOUT}/logs/static.bash.e.${JOBID}
       ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
@@ -221,11 +216,5 @@ else
    exit -1
 fi
 
-JOBID=$(sed -n '2p' ${DATAOUT}/logs/static.bash.o | awk '{print $3}' | sed "s/.pbs-ha//g")
-mv ${DATAOUT}/logs/static.bash.o ${DATAOUT}/logs/static.bash.o.${JOBID}
-mv ${DATAOUT}/logs/static.bash.e ${DATAOUT}/logs/static.bash.e.${JOBID}
-chmod a+r ${DATAOUT}/logs/static.bash.o.${JOBID}
-chmod a+r ${DATAOUT}/logs/static.bash.e.${JOBID}
-chmod a+r ${DATAOUT}/logs/log.init_atmosphere.*
+chmod -R 755 ${DATAOUT}/logs/*
 rm -fr ${DIRRUN}
-
