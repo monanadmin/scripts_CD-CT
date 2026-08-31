@@ -311,7 +311,7 @@ do
   then
     echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
     echo -e  "${RED}==>${NC} Degrib fails! At least the file ${file} was not generated at ${DATAIN}/${YYYYMMDDHHi}. \n"
-    echo -e  "${RED}==>${NC} Check logs at ${DATAOUT}/logs/degrib.* .\n"
+    echo -e  "${RED}==>${NC} Check logs at ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.* .\n"
     echo -e  "${RED}==>${NC} Exiting script. \n"
     exit -1
   fi

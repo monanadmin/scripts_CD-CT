@@ -173,7 +173,7 @@ mv ${DIRRUN}/lbcs.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 if [ -z "$(ls ${DATAOUT}/${YYYYMMDDHHi}/Pre/lbc* 2>/dev/null)" ]
 then
   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	
-  echo -e  "${RED}==>${NC} LBC phase fails! Check logs at ${DATAOUT}/logs/lbcs.* .\n"
+  echo -e  "${RED}==>${NC} LBC phase fails! Check logs at ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.* .\n"
   echo -e  "${RED}==>${NC} Exiting script. \n"
   exit -1
 fi

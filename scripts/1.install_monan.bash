@@ -141,7 +141,7 @@ then
 else
    echo ""
    echo -e "    ${RED}==>${NC} Please, make the right versions and try again."
-   exit
+   exit -1
    echo ""
 fi
 

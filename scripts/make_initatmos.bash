@@ -193,7 +193,7 @@ mv ${DIRRUN}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ]
 then
   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	
-  echo -e  "${RED}==>${NC} Init Atmosphere phase fails! Check logs at ${DATAOUT}/logs/initatmos.* .\n"
+  echo -e  "${RED}==>${NC} Init Atmosphere phase fails! Check logs at ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.* .\n"
   echo -e  "${RED}==>${NC} Exiting script. \n"
   exit -1
 fi

@@ -39,10 +39,10 @@ export DEGRIB_walltime="02:00:00"
 
 # PRE-Init Atmosphere phase:
 export INITATMOS_QUEUE="pesqextra"
-export INITATMOS_ncores=512
+export INITATMOS_ncores=256
 export INITATMOS_nnodes=4
-export INITATMOS_ncpus=128
-export INITATMOS_ncpn=128
+export INITATMOS_ncpus=64
+export INITATMOS_ncpn=64
 export INITATMOS_nthreads=1
 export INITATMOS_jobname="Pre.InitAtmos"
 export INITATMOS_walltime="02:00:00"

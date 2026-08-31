@@ -329,7 +329,7 @@ EOSH
    chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
    case "${SCHEDULER_SYSTEM}" in
       SLURM)
-         echo -e "${GREEN}==> sbatch PostAtmos_node.${node}.sh"
+         echo -e "${GREEN}==>${NC} sbatch PostAtmos_node.${node}.sh"
          jobid[${node}]=$(sbatch --parsable ${DIRRUN}/PostAtmos_node.${node}.sh)
          echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
          echo ""
