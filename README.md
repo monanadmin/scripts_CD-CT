@@ -80,7 +80,8 @@ For these meshes, the Scripts_CD-CT are configured to automatically set the appr
 
 **Using custom regional (limited-area) meshes:**
 
-- If you wish to use your own regional mesh, you must copy the "x1.your_mesh_file.grid.nc" and "x1.your_mesh_file.graph.info" files to the `datain/fixed` folder and create an "if-block" for the automatic configuration of `CONFIG_DT` in script "3.run_model.bash" (line 114), as well as for the "LAT" and "LON" settings used by "Convert_MPAS" in script "4.run_post.bash" (line 160).
+- If you wish to use your own regional mesh, copy the "x1.your_mesh_file.grid.nc" and "x1.your_mesh_file.graph.info" files to the `datain/fixed directory`.
+- The scripts will attempt to automatically determine the `CONFIG_DT` setting in "3.run_model.bash" and the target domain parameters required by convert_mpas in "4.run_post.bash". If the automatic configuration fails for your custom mesh, you must add an appropriate "if-block" to configure `CONFIG_DT` in "3.run_model.bash" (around line 114), as well as the target domain parameters (STARTLAT, ENDLAT, STARTLON, ENDLON, NLAT, NLON, etc.) used by convert_mpas in "4.run_post.bash" (around line 182).
 
 **Attention!** When using "your_mesh_file", do not use the same identifier (the "RESOLUTION" parameter) as an existing global mesh. If the identifier is already in use, you must rename your mesh files to match the new identifier and use the new identifier in the "RESOLUTION" parameter.
 

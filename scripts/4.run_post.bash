@@ -54,7 +54,6 @@ SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
 EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 #----------------------------------------------------------------------
 
-
 # Input variables:--------------------------------------
 EXP=${1};         #EXP=GFS
 RES=${2};         #RES=1024002
@@ -181,42 +180,40 @@ elif [[ "$RES" == "23592962.REG.AMS_CAR" ]]; then #5 km (AMS + Caribe)
    STARTLON=254.0
    ENDLON=344.0
 else
-   # Define convert_mpas target domain automatically from the MPAS grid
+   # Define convert_mpas target domain automatically from the grid file
    echo -e "Calculating convert_mpas target domain of personalized mesh...\n"
    GRIDFILE="${DATAIN}/fixed/x1.${RES}.grid.nc"
-   MESH_RES_RAD=$(ncdump -v nominalMinDc "${GRIDFILE}" | grep "nominalMinDc =" | awk '{print $3}')
+   MESH_RES_RAD=$(ncdump -v nominalMinDc "${GRIDFILE}" 2>/dev/null | awk '/nominalMinDc =/ {print $3; exit}')
    MESH_RES_KM=$(awk -v res="${MESH_RES_RAD}" 'BEGIN {printf "%.0f", res * 6371.0}')
-   # Domain margin
+   # Domain margin ("gordura")
    DOMAIN_MARGIN=3
-   # Grid spacing: 10 km -> 0.1°, 30 km -> 0.3°, 60 km -> 0.6°
    GRID_SPACING=$(awk -v res="${MESH_RES_KM}" 'BEGIN {printf "%.1f", res / 100.0}')
    # Get minimum and maximum cell-center coordinates
-   LAT_MIN_RAD=$(cdo -s infon -selname,latCell "${GRIDFILE}" 2>/dev/null | awk '/latCell/ {print $9}')
-   LAT_MAX_RAD=$(cdo -s infon -selname,latCell "${GRIDFILE}" 2>/dev/null | awk '/latCell/ {print $11}')
-   LON_MIN_RAD=$(cdo -s infon -selname,lonCell "${GRIDFILE}" 2>/dev/null | awk '/lonCell/ {print $9}')
-   LON_MAX_RAD=$(cdo -s infon -selname,lonCell "${GRIDFILE}" 2>/dev/null | awk '/lonCell/ {print $11}')
+   LAT_MIN_RAD=$(cdo -s infon -selname,latCell "${GRIDFILE}" 2>/dev/null | awk '/latCell/ {print $9; exit}')
+   LAT_MAX_RAD=$(cdo -s infon -selname,latCell "${GRIDFILE}" 2>/dev/null | awk '/latCell/ {print $11; exit}')
+   LON_MIN_RAD=$(cdo -s infon -selname,lonCell "${GRIDFILE}" 2>/dev/null | awk '/lonCell/ {print $9; exit}')
+   LON_MAX_RAD=$(cdo -s infon -selname,lonCell "${GRIDFILE}" 2>/dev/null | awk '/lonCell/ {print $11; exit}')
    # Convert radians to degrees
    RAD2DEG=57.29577951308232
    LAT_MIN=$(awk -v x="${LAT_MIN_RAD}" -v c="${RAD2DEG}" 'BEGIN {printf "%.1f", x*c}')
    LAT_MAX=$(awk -v x="${LAT_MAX_RAD}" -v c="${RAD2DEG}" 'BEGIN {printf "%.1f", x*c}')
    LON_MIN=$(awk -v x="${LON_MIN_RAD}" -v c="${RAD2DEG}" 'BEGIN {printf "%.1f", x*c}')
    LON_MAX=$(awk -v x="${LON_MAX_RAD}" -v c="${RAD2DEG}" 'BEGIN {printf "%.1f", x*c}')
-   # Add domain margin
+   # Add domain margin ("gordura")
    STARTLAT=$(awk -v x="${LAT_MIN}" -v m="${DOMAIN_MARGIN}" 'BEGIN {printf "%.1f", x-m}')
    ENDLAT=$(awk -v x="${LAT_MAX}" -v m="${DOMAIN_MARGIN}" 'BEGIN {printf "%.1f", x+m}')
    STARTLON=$(awk -v x="${LON_MIN}" -v m="${DOMAIN_MARGIN}" 'BEGIN {printf "%.1f", x-m}')
    ENDLON=$(awk -v x="${LON_MAX}" -v m="${DOMAIN_MARGIN}" 'BEGIN {printf "%.1f", x+m}')
-   # Number of points in the regular lat-lon grid
-   NLAT=$(awk -v start="${STARTLAT}" -v end="${ENDLAT}" -v d="${GRID_SPACING}" 'BEGIN {printf "%d", (end-start)/d + 1.5}')
-   NLON=$(awk -v start="${STARTLON}" -v end="${ENDLON}" -v d="${GRID_SPACING}" 'BEGIN {printf "%d", (end-start)/d + 1.5}')
-   echo "  Resolution   : ${MESH_RES_KM} km"
-   echo "  Grid spacing : ${GRID_SPACING} degrees"
-   echo "  STARTLAT     : ${STARTLAT}"
-   echo "  ENDLAT       : ${ENDLAT}"
-   echo "  STARTLON     : ${STARTLON}"
-   echo "  ENDLON       : ${ENDLON}"
-   echo "  NLAT         : ${NLAT}"
-   echo "  NLON         : ${NLON}"
+   # Number of intervals in the regular lat-lon grid.
+   NLAT=$(awk -v start="${STARTLAT}" -v end="${ENDLAT}" -v d="${GRID_SPACING}" 'BEGIN {printf "%.0f", (end-start)/d}')
+   NLON=$(awk -v start="${STARTLON}" -v end="${ENDLON}" -v d="${GRID_SPACING}" 'BEGIN {printf "%.0f", (end-start)/d}')
+   echo -e "  Resolution     : ${MESH_RES_KM} km"
+   echo -e "  STARTLAT       : ${STARTLAT}"
+   echo -e "  ENDLAT         : ${ENDLAT}"
+   echo -e "  STARTLON       : ${STARTLON}"
+   echo -e "  ENDLON         : ${ENDLON}"
+   echo -e "  NLAT           : ${NLAT}"
+   echo -e "  NLON           : ${NLON}\n"
 fi
 #-------------------------------------------------------
 
@@ -230,7 +227,6 @@ do
     exit -1
   fi
 done
-
 
 # Captura quantos arquivos do modelo tiverem para serem pos-processados e
 # quando nos serao necessarios para executar ${maxpostpernode} convert_mpas por no:
