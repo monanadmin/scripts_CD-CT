@@ -69,7 +69,8 @@ start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHH
 cores=${MODEL_ncores}
 hhi=${YYYYMMDDHHi:8:2}
 NLEV=55
-CONFIG_CONV_INTERVAL="00:30:00"
+CONFIG_CONV_INTERVAL="00:15:00"
+CONFIG_CONV_INTERVAL_SEC=$(echo "${CONFIG_CONV_INTERVAL}" | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
 VARTABLE=".OPER"
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #------------------------------------------------------------------------------------
@@ -89,42 +90,51 @@ printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 # global mesh
 if [[ "$RES" == "40962" ]]; then      #120Km
    CONFIG_DT=600.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "163842" ]]; then   #60Km
    CONFIG_DT=300.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "655362" ]]; then   #30Km
    CONFIG_DT=180.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "1024002" ]]; then  #24Km
    CONFIG_DT=150.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "2621442" ]]; then  #15Km
    CONFIG_DT=90.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "5898242" ]]; then  #10Km
    CONFIG_DT=60.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "23592962" ]]; then  #5km
    CONFIG_DT=30.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "65536002" ]]; then  #3Km
    CONFIG_DT=18.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 # regional mesh
 elif [[ "$RES" == "655362.REG.AMS_CAR" ]]; then #30 km (AMS + Caribe)
    CONFIG_DT=180.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "5898242.REG.AMS_CAR" ]]; then #10 km (AMS + Caribe)
    CONFIG_DT=60.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "23592962.REG.AMS_CAR" ]]; then #5 km (AMS + Caribe)
    CONFIG_DT=30.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 else
-    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
-    echo -e  "${RED}==>${NC} [${0}] Simulation parameters for resolution/mesh $RES have not been set! Edit them in '3.run_model.bash'.\n"
-    exit -1
+    # Calculating CONFIG_DT for personalized mesh.
+    echo -e "Calculating CONFIG_DT for personalized mesh... \n"
+    MESH_RES_RAD=$(ncdump -v nominalMinDc ${DATAIN}/fixed/x1.${RES}.grid.nc | grep "nominalMinDc =" | awk '{print $3}')
+    MESH_RES_KM=$(awk -v res="${MESH_RES_RAD}" 'BEGIN {printf "%.0f", res * 6371.0}')
+    CONFIG_DT_CALC=$((MESH_RES_KM * 6))
+   # Check for divisibility by the convection interval
+    if (( CONFIG_CONV_INTERVAL_SEC % CONFIG_DT_CALC == 0 )); then
+        CONFIG_DT=${CONFIG_DT_CALC}
+    else
+        CONFIG_DT=$(awk -v dt="${CONFIG_DT_CALC}" -v interval="${CONFIG_CONV_INTERVAL_SEC}" '
+            BEGIN {
+                for (d = dt; d >= 1; d--) {
+                    if (interval % d == 0) {
+                        print d
+                        exit
+                    }
+                }
+            }
+        ')
+    fi
+    echo -e "  Mesh resolution (nominalMinDc)  : ${MESH_RES_KM} km"
+    echo -e "  Config DT calculated (6x mesh)  : ${CONFIG_DT_CALC} s"
+    echo -e "  Config DT adjusted (considering CONV_INTERVAL - ${CONFIG_CONV_INTERVAL_SEC} s) : ${CONFIG_DT} s\n"
 fi
 #-------------------------------------------------------
 
@@ -166,9 +176,13 @@ then
    gpmetis -minconn -contig -niter=200 x1.${RES}.graph.info ${cores}
    rm -fr x1.${RES}.tar.gz
 fi
+#check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
+if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
+    files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" "${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE}" "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${DATAIN}/fixed/ugwp_limb_tau.nc")
+else
+    files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" "${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE}" "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${DATAIN}/fixed/ugwp_limb_tau.nc")
+fi
 
-
-files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" "${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE}" "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${DATAIN}/fixed/ugwp_limb_tau.nc")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -184,11 +198,16 @@ cp -f ${DATAIN}/fixed/*TBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*DBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*DATA ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
-cp -f ${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}
 cp -f ${DATAIN}/fixed/ugwp_limb_tau.nc ${DIRRUN}
+#check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
+if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
+    cp -f ${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc ${DIRRUN}
+else
+    : #config_native_gwd_gsl_static is false
+fi
 
 if [[ $MODERUN == "R" ]]; then
    cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/lbc*.nc ${DIRRUN}

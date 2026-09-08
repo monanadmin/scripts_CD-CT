@@ -206,14 +206,17 @@ else
    echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.static.nc was not created. \n"
    exit -1
 fi
-
-if [ -s ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ]
-then
-   mv ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ${DATAIN}/fixed
-   chmod 755 ${DATAIN}/fixed/*
+#check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
+if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
+    if [ -s ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ]; then
+       mv ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ${DATAIN}/fixed
+       chmod 755 ${DATAIN}/fixed/*
+    else
+       echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc was not created. \n"
+       exit -1
+    fi
 else
-   echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc was not created. \n"
-   exit -1
+    : #config_native_gwd_gsl_static is false
 fi
 
 chmod -R 755 ${DATAOUT}/logs/*

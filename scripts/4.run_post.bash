@@ -181,12 +181,44 @@ elif [[ "$RES" == "23592962.REG.AMS_CAR" ]]; then #5 km (AMS + Caribe)
    STARTLON=254.0
    ENDLON=344.0
 else
-    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
-    echo -e  "${RED}==>${NC} [${0}] Convert_MPAS parameters for resolution/mesh $RES have not been set! Edit them in '4.run_post.bash'.\n"
-    exit -1
+   # Define convert_mpas target domain automatically from the MPAS grid
+   echo -e "Calculating convert_mpas target domain of personalized mesh...\n"
+   GRIDFILE="${DATAIN}/fixed/x1.${RES}.grid.nc"
+   MESH_RES_RAD=$(ncdump -v nominalMinDc "${GRIDFILE}" | grep "nominalMinDc =" | awk '{print $3}')
+   MESH_RES_KM=$(awk -v res="${MESH_RES_RAD}" 'BEGIN {printf "%.0f", res * 6371.0}')
+   # Domain margin
+   DOMAIN_MARGIN=3
+   # Grid spacing: 10 km -> 0.1°, 30 km -> 0.3°, 60 km -> 0.6°
+   GRID_SPACING=$(awk -v res="${MESH_RES_KM}" 'BEGIN {printf "%.1f", res / 100.0}')
+   # Get minimum and maximum cell-center coordinates
+   LAT_MIN_RAD=$(cdo -s infon -selname,latCell "${GRIDFILE}" 2>/dev/null | awk '/latCell/ {print $9}')
+   LAT_MAX_RAD=$(cdo -s infon -selname,latCell "${GRIDFILE}" 2>/dev/null | awk '/latCell/ {print $11}')
+   LON_MIN_RAD=$(cdo -s infon -selname,lonCell "${GRIDFILE}" 2>/dev/null | awk '/lonCell/ {print $9}')
+   LON_MAX_RAD=$(cdo -s infon -selname,lonCell "${GRIDFILE}" 2>/dev/null | awk '/lonCell/ {print $11}')
+   # Convert radians to degrees
+   RAD2DEG=57.29577951308232
+   LAT_MIN=$(awk -v x="${LAT_MIN_RAD}" -v c="${RAD2DEG}" 'BEGIN {printf "%.1f", x*c}')
+   LAT_MAX=$(awk -v x="${LAT_MAX_RAD}" -v c="${RAD2DEG}" 'BEGIN {printf "%.1f", x*c}')
+   LON_MIN=$(awk -v x="${LON_MIN_RAD}" -v c="${RAD2DEG}" 'BEGIN {printf "%.1f", x*c}')
+   LON_MAX=$(awk -v x="${LON_MAX_RAD}" -v c="${RAD2DEG}" 'BEGIN {printf "%.1f", x*c}')
+   # Add domain margin
+   STARTLAT=$(awk -v x="${LAT_MIN}" -v m="${DOMAIN_MARGIN}" 'BEGIN {printf "%.1f", x-m}')
+   ENDLAT=$(awk -v x="${LAT_MAX}" -v m="${DOMAIN_MARGIN}" 'BEGIN {printf "%.1f", x+m}')
+   STARTLON=$(awk -v x="${LON_MIN}" -v m="${DOMAIN_MARGIN}" 'BEGIN {printf "%.1f", x-m}')
+   ENDLON=$(awk -v x="${LON_MAX}" -v m="${DOMAIN_MARGIN}" 'BEGIN {printf "%.1f", x+m}')
+   # Number of points in the regular lat-lon grid
+   NLAT=$(awk -v start="${STARTLAT}" -v end="${ENDLAT}" -v d="${GRID_SPACING}" 'BEGIN {printf "%d", (end-start)/d + 1.5}')
+   NLON=$(awk -v start="${STARTLON}" -v end="${ENDLON}" -v d="${GRID_SPACING}" 'BEGIN {printf "%d", (end-start)/d + 1.5}')
+   echo "  Resolution   : ${MESH_RES_KM} km"
+   echo "  Grid spacing : ${GRID_SPACING} degrees"
+   echo "  STARTLAT     : ${STARTLAT}"
+   echo "  ENDLAT       : ${ENDLAT}"
+   echo "  STARTLON     : ${STARTLON}"
+   echo "  ENDLON       : ${ENDLON}"
+   echo "  NLAT         : ${NLAT}"
+   echo "  NLON         : ${NLON}"
 fi
 #-------------------------------------------------------
-
 
 files_needed=("${SCRIPTS}/namelists/include_fields.diag${VARTABLE}" "${SCRIPTS}/namelists/convert_mpas.nml" "${SCRIPTS}/namelists/target_domain.TEMPLATE" "${EXECS}/convert_mpas" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc")
 for file in "${files_needed[@]}"

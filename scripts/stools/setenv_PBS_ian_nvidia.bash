@@ -9,7 +9,8 @@ module load cray-netcdf/4.9.0.15
 module load cray-parallel-netcdf/1.12.3.15
 module load xpmem/0.2.119-1.3_gef379be13330
 module load grads/2.2.1.oga.1
-module load cdo/2.4.2
+module load cdo2/2.5.4
+module load nco/5.3.9
 module load METIS/5.1.0
 module load cray-pals
 module list
@@ -27,7 +28,6 @@ export STATIC_nthreads=1
 export STATIC_jobname="Pre.static"
 export STATIC_walltime="02:00:00"
 
-
 # PRE-Degrib phase:
 export DEGRIB_QUEUE="pesqextra"
 export DEGRIB_ncores=1
@@ -37,7 +37,6 @@ export DEGRIB_ncpn=1
 export DEGRIB_nthreads=1
 export DEGRIB_jobname="Pre.degrib"
 export DEGRIB_walltime="02:00:00"
-
 
 # PRE-Init Atmosphere phase:
 export INITATMOS_QUEUE="pesqextra"
@@ -90,14 +89,13 @@ export PNETCDFDIR=${PNETCDF}
 
 export OPERDIR=/oper/dados/ioper/tempo
 export OPERDIRLGFS=/p/projetos/ioper/data/external/gfs_0p25
-export DIRDADOS=/p/projetos/monan_adm/monan/dados/MONAN_v2.0.x
+export DIRDADOS=/p/projetos/monan_adm/monan/dados/MONAN_unified
 export GCCCIS=/p/projetos/monan_adm/monan/CIs
 
 
 # PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL
 export PIO=
 export LD_LIBRARY_PATH=$NETCDF/lib:$PNETCDF/lib:$PIO/lib64:$LD_LIBRARY_PATH
-
 
 # --- Others Variables ---
 # HPE Slingshot/Libfabric:

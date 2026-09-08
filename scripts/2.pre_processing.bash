@@ -80,14 +80,15 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 echo -e  "${GREEN}==>${NC} Scripts_CD-CT last commit: \n"
 git log | head -1
 
-
-if [ ! -d ${DATAIN}/fixed ]
-then
-	echo -e  "${GREEN}==>${NC} copying and linking fixed input data ${SYSTEM_KEYC}... \n"
-	mkdir -p ${DATAIN}
-	rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
-	rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
-	ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+if [ ! -d ${DATAIN}/fixed ]; then
+    echo -e "${GREEN}==>${NC} copying and linking fixed input data ${SYSTEM_KEYC}... \n"
+    mkdir -p ${DATAIN}
+    rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
+    ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+fi
+if [ ! -f ${DIRHOMED}/execs/ungrib.exe ]; then
+    echo -e "${GREEN}==>${NC} copying ungrib.exe to execs folder... \n"
+    rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs/ungrib.exe ${DIRHOMED}/execs/
 fi
 #----------------------------------------------------------------------------------
 

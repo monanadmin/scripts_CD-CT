@@ -159,14 +159,14 @@ if [ ! -f ${SCRIPTS}/namelists/NMLVERSION.txt ]; then
     #---first time -> copy all
     cp -r ${SCRIPTS}/namelists/${MONANVERSION}/* ${SCRIPTS}/namelists/
     echo -e "${MONANVERSION}" > ${SCRIPTS}/namelists/NMLVERSION.txt
-    echo -e "Copied all namelist files for the first time."
+    echo -e "Copied all namelist files for the first time.\n"
 else
     NMLVERSION=$(head -n 1 ${SCRIPTS}/namelists/NMLVERSION.txt | xargs)
     if [ ${MONANVERSION} == ${NMLVERSION} ]; then
         #---other times with same version -> preserve user files
         cp -u ${SCRIPTS}/namelists/${MONANVERSION}/* ${SCRIPTS}/namelists/
         echo -e "${MONANVERSION}" > ${SCRIPTS}/namelists/NMLVERSION.txt
-        echo -e "User-modified files preserved; only new/updated namelist files copied."
+        echo -e "User-modified files preserved; only new/updated namelist files copied.\n"
     else
 	#--- MONAN-Model version changed -> force full copy and preserve user-modified files in the backup folder
         if diff -rq "${SCRIPTS}/namelists/${NMLVERSION}" "${SCRIPTS}/namelists/" 2>/dev/null | grep -q "differ"; then
@@ -181,7 +181,7 @@ else
         fi
         cp -r ${SCRIPTS}/namelists/${MONANVERSION}/* ${SCRIPTS}/namelists/
         echo -e "${MONANVERSION}" > ${SCRIPTS}/namelists/NMLVERSION.txt
-	echo -e "MONAN-Model version changed; copied all namelist files and preserved user-modified files, if any, in the 'user' backup folder."
+	echo -e "MONAN-Model version changed; copied all namelist files and preserved user-modified files, if any, in the 'user' backup folder.\n"
     fi
 fi	
 
