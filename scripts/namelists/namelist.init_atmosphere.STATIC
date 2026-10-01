@@ -22,12 +22,39 @@
     config_use_spechumd = false
 /
 &vertical_grid
-    config_ztop = 30000.0
+!    config_specified_zeta_levels = 'L55.txt' != ''  The name of a text file containing a list of
+                                             ! vertical coordinate (zeta) values in increasing order at 
+                                             !layer interfaces."
+                                             ! cheack     config_nvertlevels = 55     
+                                             !The number of vertical levels to be used in the model
+                                             !Positive integer values (default: 55)
+    config_ztop = 30000.0                    ! Model top height [m]
+                                             ! Positive real values (default: 30000.0)
     config_nsmterrain = 1
     config_smooth_surfaces = true
     config_dzmin = 0.3
     config_nsm = 30
-    config_tc_vertical_grid = true
+    config_tc_vertical_grid = false       ! Whether to use the vertical layer profile that was developed for use in
+                                          ! real-time TC experiments
+                                          ! true or false (default: true)
+    config_bonatti_vertical_grid = true   ! Whether to use the cubic zeta3 vertical layer profile proposed by 
+                                          ! J. P. Bonatti (2026, CPTEC/INPE) for MONAN 2.0, computed by the 
+                                          ! bonatti_zeta3_levels() subroutine (module mpas_init_atm_bonatti_zeta),
+                                          ! which increases resolution in the low atmosphere via a single cubic 
+                                          ! polynomial in the fractional level index, fitted to the surface, 
+                                          ! model top, first-layer increment (config_bonatti_zeta0) and a mid-blend 
+                                          ! point (config_bonatti_fm)."
+                                          ! type="logical"       default_value="false"
+    config_bonatti_zeta0 = 40.0           ! Target thickness (zeta0) of the first model layer above the surface
+                                          ! for the Bonatti zeta3 vertical coordinate; only used when 
+                                          ! config_bonatti_vertical_grid = true."
+                                          ! possible_values="Positive real values, typically >= 30 m"/>
+                                          ! type="real" default_value="40.0" units="m"
+    config_bonatti_fm = 0.8               ! Fractional level index (F_M) at which the Bonatti zeta3 coordinate 
+                                          ! is constrained to reach half of the model top height (Ztopo/2); 
+                                          ! only used when config_bonatti_vertical_grid = true."
+                                          ! possible_values="Real values in the interval [0.5, 0.8]"/>
+                                          !  type="real"  default_value="0.8"
 /
 &interpolation_control
     config_extrap_airtemp = 'linear'
