@@ -60,11 +60,11 @@ export LBCS_walltime="02:00:00"
 
 # Model phase:
 export MODEL_QUEUE="pesqextra"
-export MODEL_ncores=2048
 export MODEL_nnodes=8
 export MODEL_ncpus=256
-export MODEL_ncpn=256
 export MODEL_nthreads=1
+export MODEL_ncpn=$((MODEL_ncpus / MODEL_nthreads))
+export MODEL_ncores=$((MODEL_nnodes * MODEL_ncpn))
 export MODEL_jobname="Model.MONAN"
 export MODEL_walltime="8:00:00"
 #PBS -l select=8:ncpus=64:mpiprocs=64 ==   512mpi,  8nodes, 64cpn
