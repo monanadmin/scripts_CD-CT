@@ -81,6 +81,15 @@ export POST_nthreads=1
 export POST_jobname="Post.MONAN"
 export POST_walltime="8:00:00"
 
+# Subset phase:
+export SUBSET_QUEUE="pesqextra"
+export SUBSET_ncores=128
+export SUBSET_nnodes=1
+export SUBSET_ncpus=128
+export SUBSET_ncpn=128
+export SUBSET_nthreads=1
+export SUBSET_jobname="Subset.MONAN"
+export SUBSET_walltime="2:00:00"
 
 # Libraries paths:
 export NETCDF=${NETCDF_DIR}
