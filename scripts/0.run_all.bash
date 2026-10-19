@@ -22,22 +22,29 @@ github_link="https://github.com/monanadmin/MONAN-Model.git"   # Switch to your f
 monan_branch=2.0.0-rc
 convertmpas_branch=1.2.0
 EXP=GFS                    # Options: GFS or ERA
-RES=655362                 # Options-Global: 40962=120km; 163842=60km; 655362=30Km; 1024002=24km; 2621442=15Km; 5898242=10Km
-                           # Options-Regional: 655362.REG.AMS_CAR=30km; 5898242.REG.AMS_CAR=10km; 23592962.REG.AMS_CAR=5km
+RES=5898242                # Options-Global:    40962    =120km; 
+                           #                    163842   =60km; 
+                           #                    655362   =30Km; 
+                           #                    1024002  =24km; 
+                           #                    2621442  =15Km; 
+                           #                    5898242  =10Km
+                           # Options-Regional:  655362.REG.AMS_CAR   =30km; 
+                           #                    5898242.REG.AMS_CAR  =10km; 
+                           #                    23592962.REG.AMS_CAR =5km
 YYYYMMDDHHi=2026080100     # Check the available dates for the initial and boundary conditions (regional), especially for ERA5 data.
 FCST=24
 #----------------------------------------------------------------------
 
 # STEP 1: Installing and compiling the A-MONAN model and utility programs:
-time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
+#time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
 #exit
 
 # STEP 2: Executing the pre-processing fase. Preparing all CI/CC files needed:
-time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+#time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
 #exit
 
 # STEP 3: Executing the Model run:
-time ${SCRIPTS}/3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+#time ${SCRIPTS}/3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
 #exit
 
 # STEP 4: Executing the Post of Model run:

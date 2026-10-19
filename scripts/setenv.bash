@@ -69,7 +69,7 @@ export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=${DIR_SCRIPTS}
-export MONANDIR=$MONANDIR
+export MONANDIR=/lustre/projetos/monan_adm/carlos.souza/issues/mpassit-regional/scripts_CD-CT/sources/MONAN-Model_2.0.0-rc
 
 
 # Load your system setenv:
