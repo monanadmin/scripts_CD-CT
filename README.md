@@ -185,11 +185,19 @@ $ vi 0.run_all.bash
 github_link="https://github.com/monanadmin/MONAN-Model.git"   # Switch to your fork when you need to make changes or develop the model.
 monan_branch=2.0.0-rc
 convertmpas_branch=1.2.0
-EXP=GFS                    # (EXP) Options: GFS or ERA
-RES=655362                 # (RES_MESH) Options-Global: 40962=120km; 163842=60km; 655362=30Km; 1024002=24km; 2621442=15Km; 5898242=10Km
-                           #            Options-Regional: 655362.REG.AMS_CAR=30km; 5898242.REG.AMS_CAR=10km; 23592962.REG.AMS_CAR=5km
+EXP=GFS                    # (EXP) Options: GFS or ERA.
+RES=655362                 # (RES_MESH) Options-Global:    40962 = 120km; 
+                           #                              163842 =  60km;
+                           #                              655362 =  30Km;
+                           #                             1024002 =  24km;
+                           #                             2621442 =  15Km;
+                           #                             5898242 =  10Km.
+                           #            Options-Regional (default): 30km_LAC = 30km Latin America and the Caribbean (excl. Mexico);
+                           #                                        10km_LAC = 10km Latin America and the Caribbean (excl. Mexico);
+                           #                                        05km_LAC = 05km Latin America and the Caribbean (excl. Mexico).
+                           #                                        <your_mesh> saved in 'datain/fixed' (x1.<your_mesh>).
 YYYYMMDDHHi=2026080100     # (LABELI) Check the available dates for the initial and boundary conditions (regional), especially for ERA5 data.
-FCST=24                    # (FCST)
+FCST=24                    # (FCST).
 #----------------------------------------------------------------------
 
 # STEP 1: Installing and compiling the A-MONAN model and utility programs:
