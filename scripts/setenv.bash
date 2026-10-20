@@ -71,15 +71,11 @@ export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=${DIR_SCRIPTS}
 export MONANDIR=$MONANDIR
 
+# Workaround for 'module purge' failing with 'set -e' when Conda aliases are undefined.
+alias start_conda=: stop_conda=:
 
 # Load your system setenv:
 . ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEYC}.bash
-
-#module list
-#echo ""
-#read -p "Mostrando modulos carregados - Pressione Enter para continuar.... "
-#echo ""
-
 
 #-----------------------------------------------------------------------
 # We discourage changing the variables below:
@@ -93,7 +89,7 @@ export GREEN='\033[1;32m'  # Green
 export RED='\033[1;31m'    # Red
 export NC='\033[0m'        # No Color
 export BLUE='\033[01;34m'  # Blue
-
+export YELLOW='\033[1;33m' # Yellow
 
 # Functions: ======================================================================================================
 
@@ -113,5 +109,4 @@ how_many_nodes () {
    echo ""
 }
 #----------------------------------------------------------------------------------------------
-
 

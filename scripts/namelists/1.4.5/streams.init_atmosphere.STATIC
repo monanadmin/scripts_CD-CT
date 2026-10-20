@@ -1,0 +1,20 @@
+<streams>
+<immutable_stream name="input"
+                  type="input"
+                  filename_template="x1.#RES#.grid.nc"
+                  input_interval="initial_only" />
+
+<immutable_stream name="output"
+                  type="output"
+                  filename_template="x1.#RES#.static.nc"
+                  packages="initial_conds" 
+                  output_interval="initial_only" />
+
+<immutable_stream name="surface"
+                  type="output"
+                  filename_template="x1.#RES#.sfc_update.nc"
+                  filename_interval="none"
+                  packages="sfc_update"
+                  output_interval="86400" />
+
+</streams>

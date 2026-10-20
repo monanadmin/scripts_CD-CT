@@ -6,10 +6,10 @@ then
    echo ""
    echo "Instructions: execute the command below"
    echo ""
-   echo "${0} EXP RESOLUTION LABELI FCST"
+   echo "${0} EXP RES_MESH LABELI FCST"
    echo ""
    echo "EXP         :: Initial or lateral boundary condition dataset (GFS or ERA)"
-   echo "RESOLUTION  :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 1024002 for the ~24 km mesh)"
+   echo "RES_MESH    :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 655362 for the ~30 km mesh)"
    echo "LABELI      :: Forecast initialization date and time (YYYYMMDDHH), e.g., 2026080100"
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
@@ -97,7 +97,7 @@ do
   then
     echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
     echo -e  "${RED}==>${NC} [${0}] At least the file ${file} was not generated. \n"
-    exit -1
+    exit 1
   fi
 done
 
@@ -287,7 +287,7 @@ else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} Make degrib phase fails during degrib! Please select REGIONAL=Y or REGIONAL=N so that degrib can be done appropriately.\n"
    echo -e  "${RED}==>${NC} Exiting script. \n"
-   exit -1
+   exit 1
 fi
 
 chmod a+x ${DIRRUN}/degrib_${EXP}.bash
@@ -322,7 +322,7 @@ do
     echo -e  "${RED}==>${NC} Degrib fails! At least the file ${file} was not generated at ${DATAIN}/${YYYYMMDDHHi}. \n"
     echo -e  "${RED}==>${NC} Check logs at ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.* .\n"
     echo -e  "${RED}==>${NC} Exiting script. \n"
-    exit -1
+    exit 1
   fi
 done
 

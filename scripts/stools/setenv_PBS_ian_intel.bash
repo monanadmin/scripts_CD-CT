@@ -9,7 +9,8 @@ module load cray-netcdf/4.9.0.15
 module load cray-parallel-netcdf/1.12.3.15
 module load xpmem/0.2.119-1.3_gef379be13330
 module load grads/2.2.1.oga.1
-module load cdo/2.4.2
+module load cdo2/2.5.4
+module load nco/5.3.9
 module load METIS/5.1.0
 module load cray-pals
 module list
@@ -59,13 +60,14 @@ export LBCS_walltime="02:00:00"
 
 # Model phase:
 export MODEL_QUEUE="pesqextra"
-export MODEL_ncores=2048
 export MODEL_nnodes=8
 export MODEL_ncpus=256
-export MODEL_ncpn=256
 export MODEL_nthreads=1
+export MODEL_ncpn=$((MODEL_ncpus / MODEL_nthreads))
+export MODEL_ncores=$((MODEL_nnodes * MODEL_ncpn))
 export MODEL_jobname="Model.MONAN"
 export MODEL_walltime="8:00:00"
+
 #PBS -l select=8:ncpus=64:mpiprocs=64 ==   512mpi,  8nodes, 64cpn
 #PBS -l select=16:ncpus=64:mpiprocs=64 == 1024mpi, 16nodes, 64cpn
 
@@ -79,6 +81,15 @@ export POST_nthreads=1
 export POST_jobname="Post.MONAN"
 export POST_walltime="8:00:00"
 
+# Subset phase:
+export SUBSET_QUEUE="pesqextra"
+export SUBSET_ncores=128
+export SUBSET_nnodes=1
+export SUBSET_ncpus=128
+export SUBSET_ncpn=128
+export SUBSET_nthreads=1
+export SUBSET_jobname="Subset.MONAN"
+export SUBSET_walltime="2:00:00"
 
 # Libraries paths:
 export NETCDF=${NETCDF_DIR}
@@ -88,7 +99,7 @@ export PNETCDFDIR=${PNETCDF}
 
 export OPERDIR=/oper/dados/ioper/tempo
 export OPERDIRLGFS=/p/projetos/ioper/data/external/gfs_0p25
-export DIRDADOS=/p/projetos/monan_adm/monan/dados/MONAN_v2.0.x
+export DIRDADOS=/p/projetos/monan_adm/monan/dados/MONAN_unified
 export GCCCIS=/p/projetos/monan_adm/monan/CIs
 
 

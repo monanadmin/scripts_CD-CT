@@ -9,6 +9,9 @@ relhum_isobaric relhum
 uzonal_isobaric uzonal
 umeridional_isobaric umeridional
 w_isobaric w
+omega_isobaric omega
+dewpoint_isobaric dewpoint
+theta_isobaric theta
 surface_pressure surface_pressure
 mslp mslp
 precipw precipw
@@ -28,10 +31,12 @@ lh lh
 cldfrac_tot_UPP cldfrac_tot_UPP
 ter ter
 landmask landmask
-omega_isobaric omega
-achfx achfx
-acqfx acqfx
-aclh aclh
-acgrdflx acgrdflx
-acnoahres acnoahres
-
+srh_0_3km srh_0_3km
+srh_0_1km srh_0_1km
+wind_speed_level1_max wind_speed_level1_max
+mlcape mlcape
+mlcin mlcin
+rli rli
+rki rki
+rwi rwi
+wspd wspd

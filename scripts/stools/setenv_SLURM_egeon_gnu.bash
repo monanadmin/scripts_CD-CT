@@ -67,14 +67,22 @@ export POST_ncpn=32
 export POST_jobname="Post.MONAN"
 export POST_walltime="8:00:00"
 
-
+# Subset phase:
+export SUBSET_QUEUE="batch"
+export SUBSET_ncores=128
+export SUBSET_nnodes=1
+export SUBSET_ncpus=128
+export SUBSET_ncpn=128
+export SUBSET_nthreads=1
+export SUBSET_jobname="Subset.MONAN"
+export SUBSET_walltime="2:00:00"
 
 # Libraries paths:
 export NETCDF=/mnt/beegfs/monan/libs_openmpi/netcdf
 export PNETCDF=/mnt/beegfs/monan/libs_openmpi/PnetCDF
 export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
-export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v2.0.x
+export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_unified
 export OPERDIR=/oper/dados/ioper/tempo
 export GCCCIS=/mnt/beegfs/monan/CIs
 

@@ -7,10 +7,10 @@ then
    echo ""
    echo "Instructions: execute the command below"
    echo ""
-   echo "${0} EXP RESOLUTION LABELI FCST"
+   echo "${0} EXP RES_MESH LABELI FCST"
    echo ""
    echo "EXP         :: Initial or lateral boundary condition dataset (GFS or ERA)"
-   echo "RESOLUTION  :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 1024002 for the ~24 km mesh)"
+   echo "RES_MESH    :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 655362 for the ~30 km mesh)"
    echo "LABELI      :: Forecast initialization date and time (YYYYMMDDHH), e.g., 2026080100"
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
@@ -59,18 +59,32 @@ if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
 then
    if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info ]
    then
-      mkdir -p ${DATAIN}/fixed   
-      cd ${DATAIN}/fixed
-      echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
-      wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
-      tar -xzvf x1.${RES}.tar.gz
-      chmod 755 *
+      if [[ $MODERUN == "G" ]]
+      then
+         echo -e "${GREEN}==>${NC} Downloading Global meshes tgz files ... \n"
+         mkdir -p ${DATAIN}/fixed   
+         cd ${DATAIN}/fixed
+         if wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
+         then
+            tar -xzvf x1.${RES}.tar.gz
+            rm -fr x1.${RES}.tar.gz
+	 else
+            echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+            echo -e  "${RED}==>${NC} Make Static phase fails: Global file 'x1.${RES}.tar.gz' not found on 'MPAS atmosphere meshes site'.\n"
+            echo -e  "${RED}==>${NC} Exiting script.\n"
+            exit 1
+	 fi
+      else
+         echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+         echo -e  "${RED}==>${NC} Make Static phase fails: Regional file 'x1.${RES}.graph.info' not found in '${DATAIN}/fixed'.\n"
+         echo -e  "${RED}==>${NC} Exiting script.\n"
+         exit 1
+      fi
    fi
    echo -e "${GREEN}==>${NC} Creating x1.${RES}.graph.info.part.${cores} ... \n"
    cd ${DATAIN}/fixed
    gpmetis -minconn -contig -niter=200 x1.${RES}.graph.info ${cores}
    chmod 755 *
-   rm -fr x1.${RES}.tar.gz
 fi
 
 files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
@@ -80,7 +94,7 @@ do
   then
     echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
     echo -e  "${RED}==>${NC} [${0}] At least the file ${file} was not generated. \n"
-    exit -1
+    exit 1
   fi
 done
 
@@ -204,16 +218,19 @@ then
    chmod 755 ${DATAIN}/fixed/*
 else
    echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.static.nc was not created. \n"
-   exit -1
+   exit 1
 fi
-
-if [ -s ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ]
-then
-   mv ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ${DATAIN}/fixed
-   chmod 755 ${DATAIN}/fixed/*
+#check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
+if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
+    if [ -s ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ]; then
+       mv ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ${DATAIN}/fixed
+       chmod 755 ${DATAIN}/fixed/*
+    else
+       echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc was not created. \n"
+       exit 1
+    fi
 else
-   echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc was not created. \n"
-   exit -1
+    : #config_native_gwd_gsl_static is false
 fi
 
 chmod -R 755 ${DATAOUT}/logs/*

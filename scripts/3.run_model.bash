@@ -21,10 +21,10 @@ then
    echo ""
    echo "Instructions: execute the command below"
    echo ""
-   echo "${0} EXP RESOLUTION LABELI FCST"
+   echo "${0} EXP RES_MESH LABELI FCST"
    echo ""
    echo "EXP         :: Initial or lateral boundary condition dataset (GFS or ERA)"
-   echo "RESOLUTION  :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 1024002 for the ~24 km mesh)"
+   echo "RES_MESH    :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 655362 for the ~30 km mesh)"
    echo "LABELI      :: Forecast initialization date and time (YYYYMMDDHH), e.g., 2026080100"
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
@@ -69,7 +69,8 @@ start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHH
 cores=${MODEL_ncores}
 hhi=${YYYYMMDDHHi:8:2}
 NLEV=55
-CONFIG_CONV_INTERVAL="00:30:00"
+CONFIG_CONV_INTERVAL="00:15:00"
+CONFIG_CONV_INTERVAL_SEC=$(echo "${CONFIG_CONV_INTERVAL}" | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
 VARTABLE=".OPER"
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #------------------------------------------------------------------------------------
@@ -89,42 +90,51 @@ printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 # global mesh
 if [[ "$RES" == "40962" ]]; then      #120Km
    CONFIG_DT=600.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "163842" ]]; then   #60Km
    CONFIG_DT=300.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "655362" ]]; then   #30Km
    CONFIG_DT=180.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "1024002" ]]; then  #24Km
    CONFIG_DT=150.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "2621442" ]]; then  #15Km
    CONFIG_DT=90.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "5898242" ]]; then  #10Km
    CONFIG_DT=60.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "23592962" ]]; then  #5km
    CONFIG_DT=30.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 elif [[ "$RES" == "65536002" ]]; then  #3Km
    CONFIG_DT=18.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 # regional mesh
-elif [[ "$RES" == "655362.REG.AMS_CAR" ]]; then #30 km (AMS + Caribe)
+elif [[ "$RES" == "30km_LAC" ]]; then #30 km (AMS + Caribe)
    CONFIG_DT=180.0
-   CONFIG_CONV_INTERVAL="00:15:00"
-elif [[ "$RES" == "5898242.REG.AMS_CAR" ]]; then #10 km (AMS + Caribe)
+elif [[ "$RES" == "10km_LAC" ]]; then #10 km (AMS + Caribe)
    CONFIG_DT=60.0
-   CONFIG_CONV_INTERVAL="00:15:00"
-elif [[ "$RES" == "23592962.REG.AMS_CAR" ]]; then #5 km (AMS + Caribe)
+elif [[ "$RES" == "05km_LAC" ]]; then #5 km (AMS + Caribe)
    CONFIG_DT=30.0
-   CONFIG_CONV_INTERVAL="00:15:00"
 else
-    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
-    echo -e  "${RED}==>${NC} [${0}] Simulation parameters for resolution/mesh $RES have not been set! Edit them in '3.run_model.bash'.\n"
-    exit -1
+    # Calculating CONFIG_DT for personalized mesh.
+    echo -e "Calculating CONFIG_DT for personalized mesh... \n"
+    MESH_RES_RAD=$(ncdump -v nominalMinDc ${DATAIN}/fixed/x1.${RES}.grid.nc | grep "nominalMinDc =" | awk '{print $3}')
+    MESH_RES_KM=$(awk -v res="${MESH_RES_RAD}" 'BEGIN {printf "%.0f", res * 6371.0}')
+    CONFIG_DT_CALC=$((MESH_RES_KM * 6))
+   # Check for divisibility by the convection interval
+    if (( CONFIG_CONV_INTERVAL_SEC % CONFIG_DT_CALC == 0 )); then
+        CONFIG_DT=${CONFIG_DT_CALC}
+    else
+        CONFIG_DT=$(awk -v dt="${CONFIG_DT_CALC}" -v interval="${CONFIG_CONV_INTERVAL_SEC}" '
+            BEGIN {
+                for (d = dt; d >= 1; d--) {
+                    if (interval % d == 0) {
+                        print d
+                        exit
+                    }
+                }
+            }
+        ')
+    fi
+    echo -e "  Mesh resolution (nominalMinDc)  : ${MESH_RES_KM} km"
+    echo -e "  Config DT calculated (6x mesh)  : ${CONFIG_DT_CALC} s"
+    echo -e "  Config DT adjusted (considering CONV_INTERVAL - ${CONFIG_CONV_INTERVAL_SEC} s) : ${CONFIG_DT} s\n"
 fi
 #-------------------------------------------------------
 
@@ -141,7 +151,7 @@ else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} Atmosphere phase fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash' so that MONAN knows whether to read or not lateral boundary conditions.\n"
    echo -e  "${RED}==>${NC} Exiting script. \n"
-   exit -1
+   exit 1
 fi
 #-------------------------------------------------------
 
@@ -156,26 +166,47 @@ if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
 then
    if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info ]
    then
-      cd ${DATAIN}/fixed
-      echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
-      wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
-      tar -xzvf x1.${RES}.tar.gz
+      if [[ $MODERUN == "G" ]]
+      then
+         echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
+         cd ${DATAIN}/fixed
+         if wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
+         then
+            tar -xzvf x1.${RES}.tar.gz
+            rm -fr x1.${RES}.tar.gz
+         else
+            echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+            echo -e  "${RED}==>${NC} Run Model phase fails: Global file 'x1.${RES}.tar.gz' not found on 'MPAS atmosphere meshes site'.\n"
+            echo -e  "${RED}==>${NC} Exiting script.\n"
+            exit 1
+         fi
+      else
+         echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+         echo -e  "${RED}==>${NC} Run Model phase fails: Regional file 'x1.${RES}.graph.info' not found in '${DATAIN}/fixed'.\n"
+         echo -e  "${RED}==>${NC} Exiting script.\n"
+         exit 1
+      fi
    fi
    echo -e "${GREEN}==>${NC} Creating x1.${RES}.graph.info.part.${cores} ... \n"
    cd ${DATAIN}/fixed
    gpmetis -minconn -contig -niter=200 x1.${RES}.graph.info ${cores}
-   rm -fr x1.${RES}.tar.gz
+   chmod 755 *
 fi
 
+#check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
+if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
+    files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" "${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE}" "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${DATAIN}/fixed/ugwp_limb_tau.nc")
+else
+    files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" "${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE}" "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${DATAIN}/fixed/ugwp_limb_tau.nc")
+fi
 
-files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" "${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE}" "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${DATAIN}/fixed/ugwp_limb_tau.nc")
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
   then
     echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"   
     echo -e  "${RED}==>${NC} [${0}] At least the file ${file} was not generated. \n"
-    exit -1
+    exit 1
   fi
 done
 
@@ -184,11 +215,17 @@ cp -f ${DATAIN}/fixed/*TBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*DBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*DATA ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
-cp -f ${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}
 cp -f ${DATAIN}/fixed/ugwp_limb_tau.nc ${DIRRUN}
+#check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
+if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
+    cp -f ${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc ${DIRRUN}
+    cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.diag_ugwp${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diag_ugwp
+else
+    : #config_native_gwd_gsl_static is false
+fi
 
 if [[ $MODERUN == "R" ]]; then
    cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/lbc*.nc ${DIRRUN}
@@ -204,10 +241,8 @@ s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_
 fi
 cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.output ${DIRRUN}
 cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diagnostics
-cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.diag_ugwp${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diag_ugwp
 cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.surface ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
-
 
 chmod 755 ${DIRRUN}
 
@@ -311,7 +346,7 @@ do
    then
     echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"   
     echo -e  "${RED}==>${NC} [${0}] At least the file ${DATAOUT}/${YYYYMMDDHHi}/Model/${file} was not generated. \n"
-    exit -1
+    exit 1
    fi
 
 done

@@ -1,7 +1,7 @@
 #!/bin/bash 
 umask 022
 #-----------------------------------------------------------------------------#
-# !SCRIPT: run_post
+# !SCRIPT: make_template
 #
 # !DESCRIPTION:
 #     Script to run the pos-processing of MONAN model over the forecast horizon.
@@ -21,10 +21,10 @@ then
    echo ""
    echo "Instructions: execute the command below"
    echo ""
-   echo "${0} EXP RESOLUTION LABELI FCST"
+   echo "${0} EXP RES_MESH LABELI FCST"
    echo ""
    echo "EXP         :: Initial or lateral boundary condition dataset (GFS or ERA)"
-   echo "RESOLUTION  :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 1024002 for the ~24 km mesh)"
+   echo "RES_MESH    :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 655362 for the ~30 km mesh)"
    echo "LABELI      :: Forecast initialization date and time (YYYYMMDDHH), e.g., 2026080100"
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
@@ -40,7 +40,7 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
 echo ""
-echo "---- Make Template ----"
+echo "---- Make Template .ctl ----"
 echo ""
 
 
@@ -106,7 +106,7 @@ else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} Make post template phase fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash'.\n"
    echo -e  "${RED}==>${NC} Exiting script. \n"
-   exit -1
+   exit 1
 fi
 
 diag_name_post=MONAN_DIAG_${RORG}_POS_${EXP}_${YYYYMMDDHHi}_${YYYYMMDDHHi}.00.00.x${RES}L${N_MODEL_LEV}.nc
