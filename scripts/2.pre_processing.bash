@@ -25,10 +25,10 @@ then
    echo ""
    echo "Instructions: execute the command below"
    echo ""
-   echo "${0} EXP RESOLUTION LABELI FCST"
+   echo "${0} EXP RES_MESH LABELI FCST"
    echo ""
    echo "EXP         :: Initial or lateral boundary condition dataset (GFS or ERA)"
-   echo "RESOLUTION  :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 1024002 for the ~24 km mesh)"
+   echo "RES_MESH    :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 655362 for the ~30 km mesh)"
    echo "LABELI      :: Forecast initialization date and time (YYYYMMDDHH), e.g., 2026080100"
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
@@ -125,7 +125,7 @@ if [ ! -s ${DATAIN}/fixed/MP_THOMPSON_QRacrQG_DATA.DBL ]  || [ ! -s ${DATAIN}/fi
      else
        echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"   
        echo -e  "${RED}==>${NC} [${0}] An error occurred during MP_THOMPSON build_tables. At least the file ${file} was not generated. \n"
-       exit -1
+       exit 1
      fi
    done
 else
@@ -144,7 +144,7 @@ then
       chmod 755 ${DATAIN}/fixed/NoahmpTable.TBL
    else
       echo -e "${RED}==>${NC} File NoahmpTable.TBL not found in ${MONANDIR}. Please run script 1.install_monan.bash first. \n"
-      exit -1
+      exit 1
    fi
 else
    echo -e "${GREEN}==>${NC} File NoahmpTable.TBL already exist in ${DATAIN}/fixed.\n"
@@ -184,7 +184,7 @@ else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} Static phase fails! Please select EXP=GFS or EXP=ERA.\n"
    echo -e  "${RED}==>${NC} Exiting script. \n"
-   exit -1
+   exit 1
 fi
 
 #----------------------------------------------------------------------------------
@@ -202,7 +202,7 @@ else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} Degrib phase fails! Please select EXP=GFS or EXP=ERA.\n"
    echo -e  "${RED}==>${NC} Exiting script. \n"
-   exit -1
+   exit 1
 fi
 #----------------------------------------------------------------------------------
 
@@ -214,7 +214,7 @@ else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} Init Atmosphere phase fails! Please select EXP=GFS or EXP=ERA.\n"
    echo -e  "${RED}==>${NC} Exiting script. \n"
-   exit -1
+   exit 1
 fi
 #----------------------------------------------------------------------------------
 
@@ -227,7 +227,7 @@ else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} LBCs phase fails! Please select MODERUN=R or G.\n"
    echo -e  "${RED}==>${NC} Exiting script. \n"
-   exit -1
+   exit 1
 fi
 #----------------------------------------------------------------------------------
 echo -e "\n$(basename "$0") completed successfully.\n"

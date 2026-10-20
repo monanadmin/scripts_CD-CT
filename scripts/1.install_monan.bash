@@ -32,7 +32,7 @@ function checkout_system() {
       git clone ${github_link} ${source_dir}
       if [ ! -d "${source_dir}" ]; then
           echo -e "${RED}==>${NC} An error occurred while cloning your fork. Possible causes:  wrong URL, user or password.\n"
-          exit -1
+          exit 1
       fi
   fi
 
@@ -43,7 +43,7 @@ function checkout_system() {
   else
       echo -e "${RED}==>${NC} Failed to check out branch: ${BLUE}${tag_or_branch_name}"
       echo -e "${RED}==>${NC} Please check if you have this branch. Exiting ..."
-      exit -1
+      exit 1
   fi
   git log | head -1
 }
@@ -110,12 +110,14 @@ CONVERT_MPAS_DIR=${SOURCES}/convert_mpas_${tag_or_branch_name_CONVERT_MPAS}
 DATE_TIME_NOW=$(date +"%Y%m%d%H%M%S")
 CDCTVERSION=$(head -n 1 ${DIRHOMES}/VERSION.txt | xargs)
 
-# Check github MONAN version file:
-if ! MONANVERSION=$(get_github_file "${github_link_MONAN}" "${tag_or_branch_name_MONAN}" "VERSION.txt"); then
+# Check MONAN version first local and next github file:
+if [ -f $MONANDIR/VERSION.txt ]; then
+    MONANVERSION=$(head -n 1 $MONANDIR/VERSION.txt)
+elif ! MONANVERSION=$(get_github_file "${github_link_MONAN}" "${tag_or_branch_name_MONAN}" "VERSION.txt"); then
     echo -e "\n${RED}==>${NC} FAIL! Unable to retrieve MONAN version file from GitHub, check:"
     echo -e "- Repository:${NC} ${github_link_MONAN}"
     echo -e "- Branch/Tag:${NC} ${tag_or_branch_name_MONAN}\n"
-    exit -1
+    exit 1
 fi
 
 #$(sed -i "s;DIR_SCRIPTS=.*$;DIR_SCRIPTS=$(dirname $(dirname $(pwd)));" setenv.bash)
@@ -126,21 +128,21 @@ chmod 755 ${SCRIPTS}/setenv.bash
 
 #--------------- Check compatible Scritps_CD-CT x MONAN-Model--------------------
 echo ""
-echo "********************************************************************************"
-echo "* ATTENTION:                                                                   *"
-echo "********************************************************************************"
-echo "*                    scripts_CD-CT / MONAN-Model Compatibility                 *"
-echo "********************************************************************************"
-echo "*                                                                              *"
-echo "*    scripts_CD-CT Version        Compatible MONAN-Model Version               *"
-echo "*    ---------------------------  --------------------------------             *"
-echo "*    (...)                        (...)                                        *"
-echo "*    1.4.0                        1.4.3-rc                                     *"
-echo "*    1.4.1                        1.4.4                                        *"
-echo "*    1.5.0                        2.0.0-rc                                     *"
-echo "*    1.6.0                        1.4.3-rc, 1.4.4, 2.0.0-rc                    *"
-echo "*                                                                              *"
-echo "********************************************************************************"
+echo "*********************************************************************************"
+echo "* ATTENTION:                                                                    *"
+echo "*********************************************************************************"
+echo "*                    scripts_CD-CT / MONAN-Model Compatibility                  *"
+echo "*********************************************************************************"
+echo "*                                                                               *"
+echo "*    scripts_CD-CT Version        Compatible MONAN-Model Version                *"
+echo "*    ---------------------------  --------------------------------              *"
+echo "*    (...)                        (...)                                         *"
+echo "*    1.4.0                        1.4.3-rc                                      *"
+echo "*    1.4.1                        1.4.4                                         *"
+echo "*    1.5.0                        2.0.0-rc                                      *"
+echo "*    1.6.0                        1.4.3-rc, 1.4.4, 1.4.5, 2.0.0-rc and develop  *"
+echo "*                                                                               *"
+echo "*********************************************************************************"
 echo ""
 echo -e "Your MONAN-Model Version = ${MONANVERSION} -> using the tag/branch: ${tag_or_branch_name_MONAN}"
 echo -e "Your Scripts_CD-CT Version = ${CDCTVERSION} -> using the tag/branch: $(git describe --tags --exact-match 2>/dev/null || git branch --show-current)"
@@ -148,7 +150,7 @@ echo ""
 echo -e "${GREEN}==>${NC} Check compatibility: Scripts_CD-CT x MONAN-Model...\n"
 if [ ! -d ${SCRIPTS}/namelists/${MONANVERSION} ]; then
     echo -e "${RED}==>${NC} FAIL! 'Scripts_CD-CT' and 'MONAN-Model' versions are incompatible.\n"
-    exit -1
+    exit 1
 else
     echo -e "${GREEN}==>${NC} Compatibility OK.\n"
 fi
@@ -277,7 +279,7 @@ if [ -s "${EXECS}/init_atmosphere_model" ] && [ -e "${EXECS}/atmosphere_model" ]
     echo
 else
     echo -e "${RED}==>${NC} !!! An error occurred during build. Check output"
-    exit -1
+    exit 1
 fi
 
 EOF
@@ -311,7 +313,7 @@ if [ -s "${EXECS}/convert_mpas" ] ; then
     echo
 else
     echo -e "${RED}==>${NC} !!! An error occurred during convert_mpas build. Check output"
-    exit -1
+    exit 1
 fi
     
 echo -e "\n$(basename "$0") completed successfully.\n"

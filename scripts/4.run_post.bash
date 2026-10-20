@@ -21,10 +21,10 @@ then
    echo ""
    echo "Instructions: execute the command below"
    echo ""
-   echo "${0} EXP RESOLUTION LABELI FCST"
+   echo "${0} EXP RES_MESH LABELI FCST"
    echo ""
    echo "EXP         :: Initial or lateral boundary condition dataset (GFS or ERA)"
-   echo "RESOLUTION  :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 1024002 for the ~24 km mesh)"
+   echo "RES_MESH    :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 655362 for the ~30 km mesh)"
    echo "LABELI      :: Forecast initialization date and time (YYYYMMDDHH), e.g., 2026080100"
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
@@ -90,7 +90,7 @@ else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} Post fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash'.\n"
    echo -e  "${RED}==>${NC} Exiting script. \n"
-   exit -1
+   exit 1
 fi
 #------------------------------------------------------------------------------------
 
@@ -158,21 +158,21 @@ elif [[ "$RES" == "65536002" ]]; then  #3Km
    ENDLAT=90.0
    ENDLON=360.0
 # regional mesh
-elif [[ "$RES" == "655362.REG.AMS_CAR" ]]; then #30 km (AMS + Caribe)
+elif [[ "$RES" == "30km_LAC" ]]; then #30 km (AMS + Caribe)
    NLAT=354     #106/0.3 +1
    NLON=301     #90/0.3 +1
    STARTLAT=-64.0
    ENDLAT=42
    STARTLON=254.0
    ENDLON=344.0
-elif [[ "$RES" == "5898242.REG.AMS_CAR" ]]; then #10 km (AMS + Caribe)
+elif [[ "$RES" == "10km_LAC" ]]; then #10 km (AMS + Caribe)
    NLAT=1061   #106/0.1 +1
    NLON=901   #90/0.1 +1
    STARTLAT=-64.0
    ENDLAT=42.0
    STARTLON=254.0
    ENDLON=344.0
-elif [[ "$RES" == "23592962.REG.AMS_CAR" ]]; then #5 km (AMS + Caribe)
+elif [[ "$RES" == "05km_LAC" ]]; then #5 km (AMS + Caribe)
    NLAT=2121    #106/0.05 +1
    NLON=1801    #90/0.05 +1
    STARTLAT=-64.0
@@ -186,7 +186,7 @@ else
    MESH_RES_RAD=$(ncdump -v nominalMinDc "${GRIDFILE}" 2>/dev/null | awk '/nominalMinDc =/ {print $3; exit}')
    MESH_RES_KM=$(awk -v res="${MESH_RES_RAD}" 'BEGIN {printf "%.0f", res * 6371.0}')
    # Domain margin ("gordura")
-   DOMAIN_MARGIN=3
+   DOMAIN_MARGIN=2
    GRID_SPACING=$(awk -v res="${MESH_RES_KM}" 'BEGIN {printf "%.1f", res / 100.0}')
    # Get minimum and maximum cell-center coordinates
    LAT_MIN_RAD=$(cdo -s infon -selname,latCell "${GRIDFILE}" 2>/dev/null | awk '/latCell/ {print $9; exit}')
@@ -224,7 +224,7 @@ do
   then
     echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
     echo -e  "${RED}==>${NC} [${0}] At least the file ${file} was not generated. \n"
-    exit -1
+    exit 1
   fi
 done
 

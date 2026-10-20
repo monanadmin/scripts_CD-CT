@@ -66,14 +66,14 @@ $ vi scripts/setenv.bash
 MODERUN=R      | R=Regional simulation and G=Global simulation.
 LBCINT=10800   | Option: nterval (seconds) for updating lateral boundary conditions (when regional mode).
 ```
-After this change, you must specify the regional grid in the `RESOLUTION` parameter during the subsequent steps (2, 3, and 4) described below.
+After this change, you must specify the regional grid/mesh in the `RES_MESH` parameter during the subsequent steps (2, 3, and 4) described below.
 
 Currently, the available regional options are:
 
 ```
-655362.REG.AMS_CAR    => 30 km for South America and the Caribbean
-5898242.REG.AMS_CAR   => 10 km for South America and the Caribbean
-23592962.REG.AMS_CAR  => 5 km for South America and the Caribbean
+30km_LAC  =>  30 km for Latin America and the Caribbean (excl. Mexico)
+10km_LAC  =>  10 km for Latin America and the Caribbean (excl. Mexico)
+05km_LAC  =>  05 km for Latin America and the Caribbean (excl. Mexico)
 ```
 For these meshes, the Scripts_CD-CT are configured to automatically set the appropriate CONFIG_DT (time step), as well as the LAT and LON values used by Convert_MPAS.
 
@@ -83,16 +83,16 @@ For these meshes, the Scripts_CD-CT are configured to automatically set the appr
 - If you wish to use your own regional mesh, copy the "x1.your_mesh_file.grid.nc" and "x1.your_mesh_file.graph.info" files to the `datain/fixed directory`.
 - The scripts will attempt to automatically determine the `CONFIG_DT` setting in "3.run_model.bash" and the target domain parameters required by convert_mpas in "4.run_post.bash". If the automatic configuration fails for your custom mesh, you must add an appropriate "if-block" to configure `CONFIG_DT` in "3.run_model.bash" (around line 114), as well as the target domain parameters (STARTLAT, ENDLAT, STARTLON, ENDLON, NLAT, NLON, etc.) used by convert_mpas in "4.run_post.bash" (around line 182).
 
-**Attention!** When using "your_mesh_file", do not use the same identifier (the "RESOLUTION" parameter) as an existing global mesh. If the identifier is already in use, you must rename your mesh files to match the new identifier and use the new identifier in the "RESOLUTION" parameter.
+**Attention!** When using "your_mesh_file", do not use the same identifier (the "RES_MESH" parameter) as an existing global mesh. If the identifier is already in use, you must rename your mesh files to match the new identifier and use the new identifier in the "RES_MESH" parameter.
 
-- In the `RESOLUTION` parameter, pass only "your_mesh_file", without the "x1." prefix and the ".grid.nc" or ".graph.info" extensions. But "your_mesh_file" (in datain/fixed) needs the format: "x1.your_mesh_file.grid.nc" and "x1.your_mesh_file.graph.info".
+- In the `RES_MESH` parameter, pass only "your_mesh_file", without the "x1." prefix and the ".grid.nc" or ".graph.info" extensions. But "your_mesh_file" (in datain/fixed) needs the format: "x1.your_mesh_file.grid.nc" and "x1.your_mesh_file.graph.info".
 
 For example, for "your_mesh_file":
 ```
 x1.5898242_BRASIL.grid.nc
 x1.5898242_BRASIL.graph.info
 ```
-The `RESOLUTION` parameter should be set to: `5898242_BRASIL`
+The `RES_MESH` parameter should be set to: `5898242_BRASIL`
 
 **ERA5 Simulation**
 
@@ -111,12 +111,12 @@ Where: `YYYY=year; MM=month; DD=day and HH=hour`
 Just run the second script as follows:
 
 ~~~
-2.pre_processing.bash EXP RESOLUTION LABELI FCST
+2.pre_processing.bash EXP RES_MESH LABELI FCST
 
 where:
 
 EXP         :: Initial or lateral boundary condition dataset (GFS or ERA)
-RESOLUTION  :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 1024002 for the ~24 km mesh)
+RES_MESH    :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 655362 for the ~30 km mesh)
 LABELI      :: Forecast initialization date and time (YYYYMMDDHH), e.g., 2026080100
 FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)
 
@@ -134,12 +134,12 @@ Example of a 24-hour forecast:
 Execute the 3rd step script:
 
 ~~~
-3.run_model.bash EXP RESOLUTION LABELI FCST
+3.run_model.bash EXP RES_MESH LABELI FCST
 
 where:
 
 EXP         :: Initial or lateral boundary condition dataset (GFS or ERA)
-RESOLUTION  :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 1024002 for the ~24 km mesh)
+RES_MESH    :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 655362 for the ~30 km mesh)
 LABELI      :: Forecast initialization date and time (YYYYMMDDHH), e.g., 2026080100
 FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)
 
@@ -155,12 +155,12 @@ Example of a 24-hour forecast:
 Execute the step 4 script:
 
 ~~~
-./4.run_post.bash EXP RESOLUTION LABELI FCST
+./4.run_post.bash EXP RES_MESH LABELI FCST
 
 where:
 
 EXP         :: Initial or lateral boundary condition dataset (GFS or ERA)
-RESOLUTION  :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 1024002 for the ~24 km mesh)
+RES_MESH    :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 655362 for the ~30 km mesh)
 LABELI      :: Forecast initialization date and time (YYYYMMDDHH), e.g., 2026080100
 FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)
 
@@ -185,11 +185,11 @@ $ vi 0.run_all.bash
 github_link="https://github.com/monanadmin/MONAN-Model.git"   # Switch to your fork when you need to make changes or develop the model.
 monan_branch=2.0.0-rc
 convertmpas_branch=1.2.0
-EXP=GFS                    # Options: GFS or ERA
-RES=655362                 # Options-Global: 40962=120km; 163842=60km; 655362=30Km; 1024002=24km; 2621442=15Km; 5898242=10Km
-                           # Options-Regional: 655362.REG.AMS_CAR=30km; 5898242.REG.AMS_CAR=10km; 23592962.REG.AMS_CAR=5km
-YYYYMMDDHHi=2026080100     # Check the available dates for the initial and boundary conditions (regional), especially for ERA5 data.
-FCST=24
+EXP=GFS                    # (EXP) Options: GFS or ERA
+RES=655362                 # (RES_MESH) Options-Global: 40962=120km; 163842=60km; 655362=30Km; 1024002=24km; 2621442=15Km; 5898242=10Km
+                           #            Options-Regional: 655362.REG.AMS_CAR=30km; 5898242.REG.AMS_CAR=10km; 23592962.REG.AMS_CAR=5km
+YYYYMMDDHHi=2026080100     # (LABELI) Check the available dates for the initial and boundary conditions (regional), especially for ERA5 data.
+FCST=24                    # (FCST)
 #----------------------------------------------------------------------
 
 # STEP 1: Installing and compiling the A-MONAN model and utility programs:
@@ -218,6 +218,7 @@ Example:
 
 **1.6.0**
 
+- Added backward compatibility with previous MONAN versions through namelist separation.
 - Added support for MONAN regional (limited-area) simulations.
 - Added support for initializing simulations from ERA5 data.
 

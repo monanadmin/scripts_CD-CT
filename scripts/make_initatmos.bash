@@ -6,10 +6,10 @@ then
    echo ""
    echo "Instructions: execute the command below"
    echo ""
-   echo "${0} EXP RESOLUTION LABELI FCST"
+   echo "${0} EXP RES_MESH LABELI FCST"
    echo ""
    echo "EXP         :: Initial or lateral boundary condition dataset (GFS or ERA)"
-   echo "RESOLUTION  :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 1024002 for the ~24 km mesh)"
+   echo "RES_MESH    :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 655362 for the ~30 km mesh)"
    echo "LABELI      :: Forecast initialization date and time (YYYYMMDDHH), e.g., 2026080100"
    echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
@@ -59,16 +59,31 @@ if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
 then
    if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info ]
    then
-      cd ${DATAIN}/fixed
-      echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
-      cd ${DATAIN}/fixed
-      wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
-      tar -xzvf x1.${RES}.tar.gz
+      if [[ $MODERUN == "G" ]]
+      then
+         echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
+         cd ${DATAIN}/fixed
+         if wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
+         then
+            tar -xzvf x1.${RES}.tar.gz
+            rm -fr x1.${RES}.tar.gz
+         else
+            echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+            echo -e  "${RED}==>${NC} Make Init Atmosphere phase fails: Global file 'x1.${RES}.tar.gz' not found on 'MPAS atmosphere meshes site'.\n"
+            echo -e  "${RED}==>${NC} Exiting script.\n"
+            exit 1
+         fi
+      else
+         echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+         echo -e  "${RED}==>${NC} Make Init Atmosphere phase fails: Regional file 'x1.${RES}.graph.info' not found in '${DATAIN}/fixed.'\n"
+         echo -e  "${RED}==>${NC} Exiting script.\n"
+         exit 1
+      fi
    fi
    echo -e "${GREEN}==>${NC} Creating x1.${RES}.graph.info.part.${cores} ... \n"
    cd ${DATAIN}/fixed
    gpmetis -minconn -contig -niter=200 x1.${RES}.graph.info ${cores}
-   rm -fr x1.${RES}.tar.gz
+   chmod 755 *
 fi
 
 #check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
@@ -84,7 +99,7 @@ do
   then
     echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
     echo -e  "${RED}==>${NC} [${0}] At least the file ${file} was not generated. \n"
-    exit -1
+    exit 1
   fi
 done
 
@@ -98,7 +113,7 @@ else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} Init_atmos fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash'.\n"
    echo -e  "${RED}==>${NC} Exiting script. \n"
-   exit -1
+   exit 1
 fi
 
 sed -e "s,#LABELI#,${start_date},g;s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g;s,#EXP#,${EXP},g;s,#BLEND_BDY_TERRAIN#,${BLEND_BDY_TERRAIN},g" \
@@ -200,7 +215,7 @@ then
   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	
   echo -e  "${RED}==>${NC} Init Atmosphere phase fails! Check logs at ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.* .\n"
   echo -e  "${RED}==>${NC} Exiting script. \n"
-  exit -1
+  exit 1
 fi
 
 chmod -R 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*

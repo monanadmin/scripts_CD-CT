@@ -9,6 +9,7 @@ relhum_isobaric relhum
 uzonal_isobaric uzonal
 umeridional_isobaric umeridional
 w_isobaric w
+omega_isobaric omega
 surface_pressure surface_pressure
 mslp mslp
 precipw precipw
@@ -28,10 +29,8 @@ lh lh
 cldfrac_tot_UPP cldfrac_tot_UPP
 ter ter
 landmask landmask
-omega_isobaric omega
 achfx achfx
 acqfx acqfx
 aclh aclh
 acgrdflx acgrdflx
 acnoahres acnoahres
-

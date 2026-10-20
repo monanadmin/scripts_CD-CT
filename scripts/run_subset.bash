@@ -139,7 +139,7 @@ else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} Subset phase fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash'.\n"
    echo -e  "${RED}==>${NC} Exiting script. \n"
-   exit -1
+   exit 1
 fi
 #------------------
 
@@ -223,7 +223,7 @@ do
    hh=${YYYYMMDDHHi:8:2}
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
    diag_name=MONAN_DIAG_${RORG}_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L${NLEV}.nc
-   outf=MONAN_DIAG_${RORG}_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}_${SUBSET}L${NLEV}.nc
+   outf=MONAN_DIAG_${RORG}_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}_S_${SUBSET}L${NLEV}.nc
    echo "Processing:  \${diag_name}  ->  CDO  -> \${outf}" >&2
    echo "time cdo -O -f nc4c -z zip_4 sellonlatbox,${cdolatbox} ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name} ${DATAOUT}/${YYYYMMDDHHi}/${SUBSETDIR}/\${outf}"
 done | parallel -j ${maxprodpernode} -v
@@ -331,8 +331,8 @@ case "${SCHEDULER_SYSTEM}" in
 esac
 
 # -----Start: grads template generation-----
-diag_name_templ=MONAN_DIAG_${RORG}_POS_${EXP}_${YYYYMMDDHHi}_%y4%m2%d2%h2.%n2.00.x${RES}_${SUBSET}L${NLEV}.nc
-diag_name_subset=MONAN_DIAG_${RORG}_POS_${EXP}_${YYYYMMDDHHi}_${YYYYMMDDHHi}.00.00.x${RES}_${SUBSET}L${NLEV}.nc
+diag_name_templ=MONAN_DIAG_${RORG}_POS_${EXP}_${YYYYMMDDHHi}_%y4%m2%d2%h2.%n2.00.x${RES}_S_${SUBSET}L${NLEV}.nc
+diag_name_subset=MONAN_DIAG_${RORG}_POS_${EXP}_${YYYYMMDDHHi}_${YYYYMMDDHHi}.00.00.x${RES}_S_${SUBSET}L${NLEV}.nc
 
 # Remove old qctlinfo.gs
 if [ -e "${DIRRUN}/qctlinfo.gs" ]; then
