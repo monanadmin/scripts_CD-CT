@@ -80,10 +80,10 @@ then
     BNDDIR="${DATAIN}/${EXP}/${YYYYMMDDHHi}"
 else
     echo -e "${RED}==>${NC} Boundary condition file not found! - ${EXP}"
-    echo -e "${RED}==>${NC} Check ${OPERDIRLGFS}."
-    echo -e "${RED}==>${NC} Check ${BNDDIR}."
-    echo -e "${RED}==>${NC} Check ${GCCCIS}/${EXP}."
-    echo -e "${RED}==>${NC} Check ${DATAIN}/${EXP}."
+    echo -e "${RED}==>${NC} Check ${OPERDIRLGFS}"
+    echo -e "${RED}==>${NC} Check ${BNDDIR}"
+    echo -e "${RED}==>${NC} Check ${GCCCIS}/${EXP}"
+    echo -e "${RED}==>${NC} Check ${DATAIN}/${EXP}"
     exit 1
 fi
 
