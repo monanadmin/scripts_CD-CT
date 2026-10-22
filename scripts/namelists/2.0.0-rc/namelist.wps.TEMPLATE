@@ -1,0 +1,20 @@
+&share
+ wrf_core = 'ARW',
+ max_dom = 1,
+ start_date = '#LABELI#',
+ end_date   = '#LABELF#',
+ interval_seconds = #LBCINT#,
+ io_form_geogrid = 2,
+ debug_level = 0,
+/
+
+&geogrid
+/
+
+&ungrib
+ out_format = 'WPS',
+ prefix = '#PREFIX#',
+/
+
+&metgrid
+/

@@ -21,18 +21,16 @@ then
    echo ""
    echo "Instructions: execute the command below"
    echo ""
-   echo "${0} ]EXP_NAME/OP] RESOLUTION LABELI FCST"
+   echo "${0} EXP RES_MESH LABELI FCST"
    echo ""
-   echo "EXP_NAME    :: Forcing: GFS"
-   echo "RESOLUTION  :: number of points in resolution model grid, e.g: 1024002  (24 km)"
-   echo "LABELI      :: Initial date YYYYMMDDHH, e.g.: 2024010100"
-   echo "FCST        :: Forecast hours, e.g.: 24 or 36, etc."
+   echo "EXP         :: Initial or lateral boundary condition dataset (GFS or ERA)"
+   echo "RES_MESH    :: Number of horizontal grid cells (global) or regional mesh identifier (e.g., 655362 for the ~30 km mesh)"
+   echo "LABELI      :: Forecast initialization date and time (YYYYMMDDHH), e.g., 2026080100"
+   echo "FCST        :: Forecast length in hours (e.g., 24, 36, 48, etc.)"
    echo ""
-   echo "24 hour forcast example:"
-   echo "${0} GFS 1024002 2024010100 24"
-   echo "${0} GFS   40962 2024010100 48"
+   echo "Example of a 24-hour forecast:"
+   echo "${0} GFS 655362 2026080100 24"
    echo ""
-
    exit
 fi
 
@@ -56,7 +54,6 @@ SOURCES=${DIRHOMES}/sources;           mkdir -p ${SOURCES}
 EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 #----------------------------------------------------------------------
 
-
 # Input variables:--------------------------------------
 EXP=${1};         #EXP=GFS
 RES=${2};         #RES=1024002
@@ -64,7 +61,6 @@ YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024042000
 FCST=${4};        #FCST=40
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-
 
 
 # Local variables--------------------------------------
@@ -83,63 +79,143 @@ t_stroutsec=$(echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
 t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
 #------------------------------------------------------------------------------------
 
+# Definindo G ou R no MONAN_DIAG
+if [[ $MODERUN == "R" ]]; then
+   RORG=R
+   echo -e "Post is running in Regional (limited-area) mode.\n"
+elif [[ $MODERUN == "G" ]]; then
+   RORG=G
+   echo -e "Post is running in Global mode.\n"
+else
+   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
+   echo -e  "${RED}==>${NC} Post fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash'.\n"
+   echo -e  "${RED}==>${NC} Exiting script. \n"
+   exit 1
+fi
+#------------------------------------------------------------------------------------
+
+
 # Format to HH:MM:SS t_strout (output_interval)
 IFS=":" read -r h m s <<< "${t_strout}"
 printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 
 # Calculating default parameters for different resolutions
-if [ $RES -eq 1024002 ]; then  #24Km
-   NLAT=721  #180/0.25
-   NLON=1441 #360/0.25
+# global mesh
+if [[ "$RES" == "40962" ]]; then  #120Km
+   NLAT=151 #180/1.2
+   NLON=301 #360/1.2
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
-elif [ $RES -eq 2621442 ]; then  #15Km
-   NLAT=1201 #180/0.15
-   NLON=2401 #360/0.15
-   STARTLAT=-90.0
-   STARTLON=0.0
-   ENDLAT=90.0
-   ENDLON=360.0
-elif [ $RES -eq 40962 ]; then  #120Km
-   NLAT=150 #180/1.2
-   NLON=300 #360/1.2
-   STARTLAT=-90.0
-   STARTLON=0.0
-   ENDLAT=90.0
-   ENDLON=360.0
-elif [ $RES -eq 163842 ]; then  #60Km
+elif [[ "$RES" == "163842" ]]; then  #60Km
    NLAT=301 #180/0.6
    NLON=601 #360/0.6
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
-elif [ $RES -eq 655362 ]; then  #30Km
+elif [[ "$RES" == "655362" ]]; then  #30Km
    NLAT=601 #180/0.3
    NLON=1201 #360/0.3
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
-elif [ $RES -eq 5898242 ]; then  #10Km
-   NLAT=1801 #180/0.10 (+1)
-   NLON=3601 #360/0.10 (+1)
+elif [[ "$RES" == "1024002" ]]; then  #24Km
+   NLAT=721  #180/0.25
+   NLON=1441 #360/0.25
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
-elif [ $RES -eq 65536002 ]; then  #3Km
+elif [[ "$RES" == "2621442" ]]; then  #15Km
+   NLAT=1201 #180/0.15
+   NLON=2401 #360/0.15
+   STARTLAT=-90.0
+   STARTLON=0.0
+   ENDLAT=90.0
+   ENDLON=360.0
+elif [[ "$RES" == "5898242" ]]; then  #10Km
+   NLAT=1801 #180/0.10
+   NLON=3601 #360/0.10
+   STARTLAT=-90.0
+   STARTLON=0.0
+   ENDLAT=90.0
+   ENDLON=360.0
+elif [[ "$RES" == "23592962" ]]; then  #5Km
+   NLAT=3601 #180/0.05
+   NLON=7201 #360/0.05
+   STARTLAT=-90.0
+   STARTLON=0.0
+   ENDLAT=90.0
+   ENDLON=360.0
+elif [[ "$RES" == "65536002" ]]; then  #3Km
    NLAT=6001 #180/0.03 
    NLON=12001 #360/0.03 
    STARTLAT=-90.0
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
+# regional mesh
+elif [[ "$RES" == "30km_LAC" ]]; then #30 km (AMS + Caribe)
+   NLAT=354     #106/0.3 +1
+   NLON=301     #90/0.3 +1
+   STARTLAT=-64.0
+   ENDLAT=42
+   STARTLON=254.0
+   ENDLON=344.0
+elif [[ "$RES" == "10km_LAC" ]]; then #10 km (AMS + Caribe)
+   NLAT=1061   #106/0.1 +1
+   NLON=901   #90/0.1 +1
+   STARTLAT=-64.0
+   ENDLAT=42.0
+   STARTLON=254.0
+   ENDLON=344.0
+elif [[ "$RES" == "05km_LAC" ]]; then #5 km (AMS + Caribe)
+   NLAT=2121    #106/0.05 +1
+   NLON=1801    #90/0.05 +1
+   STARTLAT=-64.0
+   ENDLAT=42.0
+   STARTLON=254.0
+   ENDLON=344.0
+else
+   # Define convert_mpas target domain automatically from the grid file
+   echo -e "Calculating convert_mpas target domain of personalized mesh...\n"
+   GRIDFILE="${DATAIN}/fixed/x1.${RES}.grid.nc"
+   MESH_RES_RAD=$(ncdump -v nominalMinDc "${GRIDFILE}" 2>/dev/null | awk '/nominalMinDc =/ {print $3; exit}')
+   MESH_RES_KM=$(awk -v res="${MESH_RES_RAD}" 'BEGIN {printf "%.0f", res * 6371.0}')
+   # Domain margin ("gordura")
+   DOMAIN_MARGIN=2
+   GRID_SPACING=$(awk -v res="${MESH_RES_KM}" 'BEGIN {printf "%.1f", res / 100.0}')
+   # Get minimum and maximum cell-center coordinates
+   LAT_MIN_RAD=$(cdo -s infon -selname,latCell "${GRIDFILE}" 2>/dev/null | awk '/latCell/ {print $9; exit}')
+   LAT_MAX_RAD=$(cdo -s infon -selname,latCell "${GRIDFILE}" 2>/dev/null | awk '/latCell/ {print $11; exit}')
+   LON_MIN_RAD=$(cdo -s infon -selname,lonCell "${GRIDFILE}" 2>/dev/null | awk '/lonCell/ {print $9; exit}')
+   LON_MAX_RAD=$(cdo -s infon -selname,lonCell "${GRIDFILE}" 2>/dev/null | awk '/lonCell/ {print $11; exit}')
+   # Convert radians to degrees
+   RAD2DEG=57.29577951308232
+   LAT_MIN=$(awk -v x="${LAT_MIN_RAD}" -v c="${RAD2DEG}" 'BEGIN {printf "%.1f", x*c}')
+   LAT_MAX=$(awk -v x="${LAT_MAX_RAD}" -v c="${RAD2DEG}" 'BEGIN {printf "%.1f", x*c}')
+   LON_MIN=$(awk -v x="${LON_MIN_RAD}" -v c="${RAD2DEG}" 'BEGIN {printf "%.1f", x*c}')
+   LON_MAX=$(awk -v x="${LON_MAX_RAD}" -v c="${RAD2DEG}" 'BEGIN {printf "%.1f", x*c}')
+   # Add domain margin ("gordura")
+   STARTLAT=$(awk -v x="${LAT_MIN}" -v m="${DOMAIN_MARGIN}" 'BEGIN {printf "%.1f", x-m}')
+   ENDLAT=$(awk -v x="${LAT_MAX}" -v m="${DOMAIN_MARGIN}" 'BEGIN {printf "%.1f", x+m}')
+   STARTLON=$(awk -v x="${LON_MIN}" -v m="${DOMAIN_MARGIN}" 'BEGIN {printf "%.1f", x-m}')
+   ENDLON=$(awk -v x="${LON_MAX}" -v m="${DOMAIN_MARGIN}" 'BEGIN {printf "%.1f", x+m}')
+   # Number of intervals in the regular lat-lon grid.
+   NLAT=$(awk -v start="${STARTLAT}" -v end="${ENDLAT}" -v d="${GRID_SPACING}" 'BEGIN {printf "%.0f", (end-start)/d}')
+   NLON=$(awk -v start="${STARTLON}" -v end="${ENDLON}" -v d="${GRID_SPACING}" 'BEGIN {printf "%.0f", (end-start)/d}')
+   echo -e "  Resolution     : ${MESH_RES_KM} km"
+   echo -e "  STARTLAT       : ${STARTLAT}"
+   echo -e "  ENDLAT         : ${ENDLAT}"
+   echo -e "  STARTLON       : ${STARTLON}"
+   echo -e "  ENDLON         : ${ENDLON}"
+   echo -e "  NLAT           : ${NLAT}"
+   echo -e "  NLON           : ${NLON}\n"
 fi
 #-------------------------------------------------------
-
 
 files_needed=("${SCRIPTS}/namelists/include_fields.diag${VARTABLE}" "${SCRIPTS}/namelists/convert_mpas.nml" "${SCRIPTS}/namelists/target_domain.TEMPLATE" "${EXECS}/convert_mpas" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc")
 for file in "${files_needed[@]}"
@@ -148,10 +224,9 @@ do
   then
     echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"	  
     echo -e  "${RED}==>${NC} [${0}] At least the file ${file} was not generated. \n"
-    exit -1
+    exit 1
   fi
 done
-
 
 # Captura quantos arquivos do modelo tiverem para serem pos-processados e
 # quando nos serao necessarios para executar ${maxpostpernode} convert_mpas por no:
@@ -218,7 +293,12 @@ cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh
 
 cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash
-echo "-- PBS_JOBID: \$PBS_JOBID"
+
+if [ ${SCHEDULER_SYSTEM} == "SLURM" ]; then
+   echo "-- SLURM_JOB_ID: \$SLURM_JOB_ID"
+elif [ ${SCHEDULER_SYSTEM} == "PBS" ]; then
+   echo "-- PBS_JOBID: \$PBS_JOBID"
+fi
 
 chmod 755 ${DIRRUN}/*
 
@@ -242,7 +322,7 @@ do
    chmod 755 *
    hh=${YYYYMMDDHHi:8:2}
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
-   diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L${N_MODEL_LEV}.nc
+   diag_name=MONAN_DIAG_${RORG}_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L${N_MODEL_LEV}.nc
    echo ""
    echo "executando convert mpas"
    chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Model/*
@@ -258,7 +338,7 @@ do
    i=\$(printf "%04d" \${ii})
    hh=${YYYYMMDDHHi:8:2}
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
-   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L${N_MODEL_LEV}.nc
+   diag_name_post=MONAN_DIAG_${RORG}_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L${N_MODEL_LEV}.nc
 
    cd ${DIRRUN}/dir.\${i}
    chmod 755 *
@@ -270,7 +350,6 @@ done
 wait
 
 EOSH
-   
   
    chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
    chmod 755 ${DIRRUN}/*
@@ -278,24 +357,23 @@ EOSH
    chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
    case "${SCHEDULER_SYSTEM}" in
       SLURM)
-         echo "Sbatch PostAtmos_node.${node}.sh"
+         echo -e "${GREEN}==>${NC} sbatch PostAtmos_node.${node}.sh"
          jobid[${node}]=$(sbatch --parsable ${DIRRUN}/PostAtmos_node.${node}.sh)
          echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
          echo ""
          ;;
-       PBS)
-         echo "Rodando em PBS"
-         echo -e  "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
+       PBS)         
+         echo -e "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
          cd ${DIRRUN}
-	 		jobid[${node}]=$(qsub ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
-          ;;
+ 	 jobid[${node}]=$(qsub ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
+         jobid[${node}]=${jobid[${node}]%%.*}
+         ;;
 #      GENERIC)
 #         echo "Nenhum gerenciador detectado"
 #         ${DIRRUN}/PostAtmos_node.${node}.sh
 #         ;;
    esac
   
-
    inicio=$((fim + 1))
    temp=$((fim + maxpostpernode))
    fim=$(( temp < nfiles ? temp : nfiles ))
@@ -340,7 +418,12 @@ cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh
 
 cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash
-echo "-- PBS_JOBID: \$PBS_JOBID"
+
+if [ ${SCHEDULER_SYSTEM} == "SLURM" ]; then
+   echo "-- SLURM_JOB_ID: \$SLURM_JOB_ID"
+elif [ ${SCHEDULER_SYSTEM} == "PBS" ]; then
+   echo "-- PBS_JOBID: \$PBS_JOBID"
+fi
 
 # Saving important files to the logs directory:
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
@@ -364,14 +447,17 @@ chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
 
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
-      echo "Sbatch PostAtmos_node.${node}.sh"
+      echo -e "${GREEN}==>${NC} sbatch PostAtmos_node.${node}.sh...\n"
+      cd ${DIRRUN}
       sbatch --wait --dependency=${dependency} ${DIRRUN}/PostAtmos_node.${node}.sh 
       ;;
     PBS)
-      echo "Rodando em PBS"
-      echo -e  "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
+      echo -e "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
       cd ${DIRRUN}
-      qsub -W depend=${dependency} -W block=true ${DIRRUN}/PostAtmos_node.${node}.sh
+      JOBID=$(qsub -W depend=${dependency} -W block=true ${DIRRUN}/PostAtmos_node.${node}.sh)
+      JOBID=${JOBID%%.*}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o.${JOBID}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e.${JOBID}
       ;;
 #   GENERIC)
 #      echo "Nenhum gerenciador detectado"
@@ -382,15 +468,16 @@ esac
 
 #CR: passar este scriptpara dentro do script PostAtmos_node.0.sh, submetido.
 cd ${SCRIPTS}
-chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
+chmod -R 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
 time ${SCRIPTS}/make_template.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 
-for ((n=0 ; n<total_nodes ; n++)) 
+for ((n=1 ; n<total_nodes ; n++)) 
 do
-   PBS_JOB_ID=$(sed -n '4p' ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o | awk '{print $3}' | sed "s/.pbs-ha//g")
-   mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o.${PBS_JOB_ID}
-   mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e.${PBS_JOB_ID}
-   chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o.${PBS_JOB_ID}
-   chmod a+r ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e.${PBS_JOB_ID}
+   if [ ${SCHEDULER_SYSTEM} = "SLURM" ]; then
+      : # Slurm já gera JOBID na submissão.
+   elif [ ${SCHEDULER_SYSTEM} = "PBS" ]; then
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o.${jobid[${n}]}
+      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e.${jobid[${n}]}
+fi
 done
-
+echo -e "\n$(basename "$0") completed successfully.\n"

@@ -9,7 +9,8 @@ module load cray-netcdf/4.9.0.15
 module load cray-parallel-netcdf/1.12.3.15
 module load xpmem/0.2.119-1.3_gef379be13330
 module load grads/2.2.1.oga.1
-module load cdo/2.4.2
+module load cdo2/2.5.4
+module load nco/5.3.9
 module load METIS/5.1.0
 module load cray-pals
 module list
@@ -27,7 +28,6 @@ export STATIC_nthreads=1
 export STATIC_jobname="Pre.static"
 export STATIC_walltime="02:00:00"
 
-
 # PRE-Degrib phase:
 export DEGRIB_QUEUE="pesqextra"
 export DEGRIB_ncores=1
@@ -38,25 +38,33 @@ export DEGRIB_nthreads=1
 export DEGRIB_jobname="Pre.degrib"
 export DEGRIB_walltime="02:00:00"
 
-
 # PRE-Init Atmosphere phase:
 export INITATMOS_QUEUE="pesqextra"
-export INITATMOS_ncores=512
+export INITATMOS_ncores=256
 export INITATMOS_nnodes=4
-export INITATMOS_ncpus=128
-export INITATMOS_ncpn=128
+export INITATMOS_ncpus=64
+export INITATMOS_ncpn=64
 export INITATMOS_nthreads=1
 export INITATMOS_jobname="Pre.InitAtmos"
 export INITATMOS_walltime="02:00:00"
 
+# PRE-LBCs phase:
+export LBCS_QUEUE="pesqextra"
+export LBCS_ncores=64
+export LBCS_nnodes=1
+export LBCS_ncpus=64
+export LBCS_ncpn=64
+export LBCS_nthreads=1
+export LBCS_jobname="Pre.LBCS"
+export LBCS_walltime="02:00:00"
 
 # Model phase:
 export MODEL_QUEUE="pesqextra"
-export MODEL_ncores=2048
 export MODEL_nnodes=8
 export MODEL_ncpus=256
-export MODEL_ncpn=256
 export MODEL_nthreads=1
+export MODEL_ncpn=$((MODEL_ncpus / MODEL_nthreads))
+export MODEL_ncores=$((MODEL_nnodes * MODEL_ncpn))
 export MODEL_jobname="Model.MONAN"
 export MODEL_walltime="8:00:00"
 #PBS -l select=8:ncpus=64:mpiprocs=64 ==   512mpi,  8nodes, 64cpn
@@ -72,6 +80,15 @@ export POST_nthreads=1
 export POST_jobname="Post.MONAN"
 export POST_walltime="8:00:00"
 
+# Subset phase:
+export SUBSET_QUEUE="pesqextra"
+export SUBSET_ncores=128
+export SUBSET_nnodes=1
+export SUBSET_ncpus=128
+export SUBSET_ncpn=128
+export SUBSET_nthreads=1
+export SUBSET_jobname="Subset.MONAN"
+export SUBSET_walltime="2:00:00"
 
 # Libraries paths:
 export NETCDF=${NETCDF_DIR}
@@ -80,14 +97,14 @@ export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
 
 export OPERDIR=/oper/dados/ioper/tempo
-export DIRDADOS=/p/projetos/monan_adm/monan/dados/MONAN_v2.0.x
+export OPERDIRLGFS=/p/projetos/ioper/data/external/gfs_0p25
+export DIRDADOS=/p/projetos/monan_adm/monan/dados/MONAN_unified
 export GCCCIS=/p/projetos/monan_adm/monan/CIs
 
 
 # PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL
 export PIO=
 export LD_LIBRARY_PATH=$NETCDF/lib:$PNETCDF/lib:$PIO/lib64:$LD_LIBRARY_PATH
-
 
 # --- Others Variables ---
 # HPE Slingshot/Libfabric:
