@@ -109,6 +109,7 @@ cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib_${EXP}.bash
 
+
 if [[ $MODERUN == "R" ]]; then
    echo -e "Degribbing GFS data for Regional (limited-area) mode – lateral boundary conditions.\n"
    dt=$((LBCINT / 3600))

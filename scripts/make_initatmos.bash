@@ -62,6 +62,7 @@ then
       if [[ $MODERUN == "G" ]]
       then
          echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
+         mkdir -p ${DATAIN}/fixed   
          cd ${DATAIN}/fixed
          if wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
          then
@@ -85,7 +86,6 @@ then
    gpmetis -minconn -contig -niter=200 x1.${RES}.graph.info ${cores}
    chmod 755 *
 fi
-
 #check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
 if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
     files_needed=("${SCRIPTS}/namelists/namelist.init_atmosphere.TEMPLATE" "${SCRIPTS}/namelists/streams.init_atmosphere.TEMPLATE" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" "${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}:${start_date:0:13}" "${EXECS}/init_atmosphere_model")

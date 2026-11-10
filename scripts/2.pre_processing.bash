@@ -91,7 +91,6 @@ if [ ! -f ${DIRHOMED}/execs/ungrib.exe ]; then
     rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs/ungrib.exe ${DIRHOMED}/execs/
 fi
 #----------------------------------------------------------------------------------
-
 # Building MP_THOMPSON DBL tables
 echo ""
 echo -e  "${GREEN}==>${NC} Building MP_THOMPSON DBL tables ...\n"
@@ -118,11 +117,7 @@ if [ ! -s ${DATAIN}/fixed/MP_THOMPSON_QRacrQG_DATA.DBL ]  || [ ! -s ${DATAIN}/fi
    # verify here if the tables were created 
    for file in "${files_needed[@]}"
    do
-     if [ -s "${file}" ] ; then
-       echo ""
-       echo -e "${GREEN}==>${NC} File ${file} generated sucessfully in ${EXECS} and moved to ${DATAIN}/fixed!"
-       echo
-     else
+     if [ ! -s "${file}" ] ; then
        echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"   
        echo -e  "${RED}==>${NC} [${0}] An error occurred during MP_THOMPSON build_tables. At least the file ${file} was not generated. \n"
        exit 1
@@ -187,7 +182,7 @@ else
    exit 1
 fi
 
-#----------------------------------------------------------------------------------
+
 
 # Degrib phase:---------------------------------------------------------------------
 if [[ ${EXP} == "GFS" ]]
@@ -206,6 +201,9 @@ else
 fi
 #----------------------------------------------------------------------------------
 
+
+
+
 # Init Atmosphere phase:------------------------------------------------------------
 if [[ ${EXP} == "GFS" || ${EXP} == "ERA" ]]; then
    echo -e  "\n${GREEN}==>${NC} Submitting Init Atmosphere for real case...\n"
@@ -217,6 +215,9 @@ else
    exit 1
 fi
 #----------------------------------------------------------------------------------
+
+
+
 
 # LBCs phase:------------------------------------------------------------
 if [[ $MODERUN == "R" ]]; then
