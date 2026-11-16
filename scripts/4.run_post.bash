@@ -74,7 +74,7 @@ NLEV=18
 #-------------------------------------------------------
 
 # Variables for flex outpout interval from streams.atmosphere------------------------
-t_strout=$(cat ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
+t_strout=$(cat ${SCRIPTS}/namelists/${MONANVERSION}/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
 t_stroutsec=$(echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
 t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
 #------------------------------------------------------------------------------------
@@ -202,10 +202,10 @@ else
 fi
 #-------------------------------------------------------
 
-files_needed=("${SCRIPTS}/namelists/include_fields.diag${VARTABLE}" 
-              "${SCRIPTS}/namelists/convert_mpas.nml" 
-              "${SCRIPTS}/namelists/target_domain.TEMPLATE" 
-              "${EXECS}/convert_mpas" 
+files_needed=("${SCRIPTS}/namelists/${MONANVERSION}/include_fields.diag${VARTABLE}" 
+              "${SCRIPTS}/namelists/${MONANVERSION}/convert_mpas.nml" 
+              "${SCRIPTS}/namelists/${MONANVERSION}/target_domain.TEMPLATE" 
+              "${EXECS}/${CONVERTVERSION}/convert_mpas" 
               "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc")
               
 for file in "${files_needed[@]}"
@@ -237,12 +237,12 @@ do
    i=$(printf "%04d" ${ii})
    mkdir -p ${DIRRUN}/dir.${i}
    cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}/dir.${i}
-   cp -f ${SCRIPTS}/namelists/include_fields.diag${VARTABLE}  ${DIRRUN}/dir.${i}/include_fields.diag${VARTABLE}
+   cp -f ${SCRIPTS}/namelists/${MONANVERSION}/include_fields.diag${VARTABLE}  ${DIRRUN}/dir.${i}/include_fields.diag${VARTABLE}
    cp -f ${DIRRUN}/dir.${i}/include_fields.diag${VARTABLE} ${DIRRUN}/dir.${i}/include_fields
    sed -e "s,#NISOLEV#,${NLEV},g;s,#NMODELLEV#,${N_MODEL_LEV},g" \
-      ${SCRIPTS}/namelists/convert_mpas.nml > ${DIRRUN}/dir.${i}/convert_mpas.nml
+      ${SCRIPTS}/namelists/${MONANVERSION}/convert_mpas.nml > ${DIRRUN}/dir.${i}/convert_mpas.nml
    sed -e "s,#NLAT#,${NLAT},g;s,#NLON#,${NLON},g;s,#STARTLAT#,${STARTLAT},g;s,#ENDLAT#,${ENDLAT},g;s,#STARTLON#,${STARTLON},g;s,#ENDLON#,${ENDLON},g;" \
-      ${SCRIPTS}/namelists/target_domain.TEMPLATE > ${DIRRUN}/dir.${i}/target_domain
+      ${SCRIPTS}/namelists/${MONANVERSION}/target_domain.TEMPLATE > ${DIRRUN}/dir.${i}/target_domain
 
 done
 
@@ -299,7 +299,7 @@ do
    i=\$(printf "%04d" \${ii})
    echo "Preparing post files \${i}"
    cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}/dir.\${i} &
-   cp -f ${EXECS}/convert_mpas ${DIRRUN}/dir.\${i} &
+   cp -f ${EXECS}/${CONVERTVERSION}/convert_mpas ${DIRRUN}/dir.\${i} &
 done
 
 wait
@@ -416,8 +416,8 @@ elif [ ${SCHEDULER_SYSTEM} == "PBS" ]; then
 fi
 
 # Saving important files to the logs directory:
-cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
-cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${EXECS}/${CONVERTVERSION}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
+cp -f ${EXECS}/${CONVERTVERSION}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DIRRUN}/dir.0001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DIRRUN}/dir.0001/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DIRRUN}/dir.0001/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs

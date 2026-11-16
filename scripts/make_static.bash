@@ -89,7 +89,12 @@ fi
 
 
 
-files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
+files_needed=("${EXECS}/${MONANVERSION}/init_atmosphere_model" 
+              "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" 
+              "${DATAIN}/fixed/x1.${RES}.grid.nc" 
+              "${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC" 
+              "${SCRIPTS}/namelists/${MONANVERSION}/streams.init_atmosphere.STATIC")
+              
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -103,16 +108,16 @@ done
 
 cp -f ${DATAIN}/fixed/*.TBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*.GFS ${DIRRUN}
-cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
+cp -f ${EXECS}/${MONANVERSION}/init_atmosphere_model ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
 
 sed -e "s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g" \
-   ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC \
+   ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC \
    > ${DIRRUN}/namelist.init_atmosphere
 
 sed -e "s,#RES#,${RES},g" \
-   ${SCRIPTS}/namelists/streams.init_atmosphere.STATIC \
+   ${SCRIPTS}/namelists/${MONANVERSION}/streams.init_atmosphere.STATIC \
    > ${DIRRUN}/streams.init_atmosphere
 
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
@@ -232,7 +237,7 @@ else
 fi
 
 #check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
-if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
+if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC; then
     if [ -s ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ]; then
        mv ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ${DATAIN}/fixed
        chmod 755 ${DATAIN}/fixed/*

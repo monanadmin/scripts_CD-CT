@@ -76,7 +76,7 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 #------------------------------------------------------------------------------------
 
 # Variables for flex outpout interval from streams.atmosphere------------------------
-t_strout=$(cat ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
+t_strout=$(cat ${SCRIPTS}/namelists/${MONANVERSION}/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
 t_stroutsec=$(echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
 t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
 #------------------------------------------------------------------------------------
@@ -192,11 +192,11 @@ then
 fi
 
 #check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
-if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
-    files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" 
-                  "${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE}" 
-                  "${SCRIPTS}/namelists/stream_list.atmosphere.surface" 
-                  "${EXECS}/atmosphere_model" 
+if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC; then
+    files_needed=("${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.output" 
+                  "${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.diagnostics${VARTABLE}" 
+                  "${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.surface" 
+                  "${EXECS}/${MONANVERSION}/atmosphere_model" 
                   "${DATAIN}/fixed/x1.${RES}.static.nc" 
                   "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" 
                   "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" 
@@ -204,10 +204,10 @@ if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/n
                   "${DATAIN}/fixed/Vtable.${EXP}" 
                   "${DATAIN}/fixed/ugwp_limb_tau.nc")
 else
-    files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" 
-                  "${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE}" 
-                  "${SCRIPTS}/namelists/stream_list.atmosphere.surface" 
-                  "${EXECS}/atmosphere_model" 
+    files_needed=("${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.output" 
+                  "${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.diagnostics${VARTABLE}" 
+                  "${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.surface" 
+                  "${EXECS}/${MONANVERSION}/atmosphere_model" 
                   "${DATAIN}/fixed/x1.${RES}.static.nc" 
                   "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" 
                   "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" 
@@ -225,7 +225,7 @@ do
   fi
 done
 
-cp -f ${EXECS}/atmosphere_model ${DIRRUN}
+cp -f ${EXECS}/${MONANVERSION}/atmosphere_model ${DIRRUN}
 cp -f ${DATAIN}/fixed/*TBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*DBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*DATA ${DIRRUN}
@@ -235,9 +235,9 @@ cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}
 cp -f ${DATAIN}/fixed/ugwp_limb_tau.nc ${DIRRUN}
 #check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
-if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
+if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC; then
     cp -f ${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc ${DIRRUN}
-    cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.diag_ugwp${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diag_ugwp
+    cp -f ${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.diag_ugwp${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diag_ugwp
 else
     : #config_native_gwd_gsl_static is false
 fi
@@ -249,14 +249,14 @@ if [[ ${EXP} == "GFS" ||  ${EXP} == "ERA" ]]
 then
    sed -e "s,#LABELI#,${start_date},g;s,#FCSTS#,${DD_HHMMSS_forecast},g;s,#RES#,${RES},g;
 s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_CONV_INTERVAL#,${CONFIG_CONV_INTERVAL},g;s,#APPLY_LBCS#,${APPLY_LBCS},g" \
-   ${SCRIPTS}/namelists/namelist.atmosphere.TEMPLATE > ${DIRRUN}/namelist.atmosphere
+   ${SCRIPTS}/namelists/${MONANVERSION}/namelist.atmosphere.TEMPLATE > ${DIRRUN}/namelist.atmosphere
    
    sed -e "s,#RES#,${RES},g;s,#RORG#,${MODERUN},g;s,#LBCINT#,${LBCINT},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
-   ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE > ${DIRRUN}/streams.atmosphere
+   ${SCRIPTS}/namelists/${MONANVERSION}/streams.atmosphere.TEMPLATE > ${DIRRUN}/streams.atmosphere
 fi
-cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.output ${DIRRUN}
-cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diagnostics
-cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.surface ${DIRRUN}
+cp -f ${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.output ${DIRRUN}
+cp -f ${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.diagnostics${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diagnostics
+cp -f ${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.surface ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 
 chmod 755 ${DIRRUN}
@@ -311,14 +311,14 @@ echo "MONAN time taken by run in seconds is " \$wallsecs
 #
 # move dataout, clean up and remove files/links
 #
-mv MONAN_DIAG_* ${DATAOUT}/${YYYYMMDDHHi}/Model
-cp -f ${EXECS}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model
-cp -f ${EXECS}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
+cp -f MONAN_DIAG_* ${DATAOUT}/${YYYYMMDDHHi}/Model
+cp -f ${EXECS}/${MONANVERSION}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model
+cp -f ${EXECS}/${MONANVERSION}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
 cp -f ${DIRHOMES}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/SCRIPTSCDCT-VERSION.txt
 cp -f ${MONANDIR}/README.md ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
-mv log.atmosphere.* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
-mv namelist.atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
-mv stream* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
+cp -f     log.atmosphere.* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
+cp -f namelist.atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
+cp -f stream* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 EOF0
 chmod a+x ${DIRRUN}/model.bash
 

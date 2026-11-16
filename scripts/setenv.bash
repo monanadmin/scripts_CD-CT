@@ -69,7 +69,8 @@ export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=${DIR_SCRIPTS}
-export MONANDIR=/lustre/projetos/monan_adm/carlos.souza/issues/mpassit-regional/scripts_CD-CT/sources/MONAN-Model_2.0.0-rc
+export MONANDIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/scripts_CD-CT/sources/MONAN-Model_2.0.0-rc
+export CONVERT_MPAS_DIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/scripts_CD-CT/sources/convert_mpas_1.2.0
 
 # Workaround for 'module purge' failing with 'set -e' when Conda aliases are undefined.
 alias start_conda=: stop_conda=:
@@ -82,6 +83,14 @@ alias start_conda=: stop_conda=:
 
 # Others variables:
 
+if [ -f ${MONANDIR}/VERSION.txt ]
+then
+   export MONANVERSION=$(cat ${MONANDIR}/VERSION.txt)
+fi
+if [ -f ${CONVERT_MPAS_DIR}/VERSION.txt ]
+then
+   export CONVERTVERSION=CONV.$(head -n 1 ${CONVERT_MPAS_DIR}/VERSION.txt)
+fi
 
 # Colors:
 #

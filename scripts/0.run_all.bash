@@ -50,4 +50,3 @@ FCST=24                    # (FCST).
 
 # STEP 4: Executing the Post of Model run:
 time ${SCRIPTS}/4.run_post.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
-#exit
