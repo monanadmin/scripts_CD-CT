@@ -19,7 +19,7 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 
 # Input variables:-----------------------------------------------------
 github_link="https://github.com/monanadmin/MONAN-Model.git"   # Switch to your fork when you need to make changes or develop the model.
-monan_branch=2.0.0-rc
+monan_branch=1.4.5
 convertmpas_branch=1.2.0
 EXP=GFS                    # (EXP) Options: GFS or ERA.
 RES=655362                 # (RES_MESH) Options-Global:    40962 = 120km; 

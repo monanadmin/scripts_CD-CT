@@ -89,7 +89,12 @@ then
    chmod 755 *
 fi
 
-files_needed=("${SCRIPTS}/namelists/namelist.init_atmosphere.LBCS" "${SCRIPTS}/namelists/streams.init_atmosphere.LBCS" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${EXECS}/init_atmosphere_model")
+files_needed=("${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.LBCS" 
+              "${SCRIPTS}/namelists/${MONANVERSION}/streams.init_atmosphere.LBCS" 
+              "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" 
+              "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" 
+              "${EXECS}/${MONANVERSION}/init_atmosphere_model")
+              
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -101,15 +106,15 @@ do
 done
 
 sed -e "s,#LABELI#,${start_date},g;s,#LABELF#,${final_date},g;s,#GEODAT#,${GEODATA},g;s,#LBCINT#,${LBCINT},g;s,#RES#,${RES},g;s,#EXP#,${EXP},g" \
-	 ${SCRIPTS}/namelists/namelist.init_atmosphere.LBCS > ${DIRRUN}/namelist.init_atmosphere
+	 ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.LBCS > ${DIRRUN}/namelist.init_atmosphere
 
 sed -e "s,#RES#,${RES},g;s,#LBCINT#,${LBCINT},g" \
-    ${SCRIPTS}/namelists/streams.init_atmosphere.LBCS > ${DIRRUN}/streams.init_atmosphere
+    ${SCRIPTS}/namelists/${MONANVERSION}/streams.init_atmosphere.LBCS > ${DIRRUN}/streams.init_atmosphere
 
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:* ${DIRRUN}
-cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
+cp -f ${EXECS}/${MONANVERSION}/init_atmosphere_model ${DIRRUN}
 
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 rm -f ${DIRRUN}/lbcs.bash 
@@ -153,11 +158,11 @@ fi
 
 date
 
-mv ${DIRRUN}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log.init_atmosphere.0000.${RES}.lbcs.nc.${YYYYMMDDHHi}.out
-mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.init_atmosphere.lbcs
-mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/streams.init_atmosphere.lbcs
-mv ${DIRRUN}/x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
-mv ${DIRRUN}/lbc*.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
+cp -f ${DIRRUN}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log.init_atmosphere.0000.${RES}.lbcs.nc.${YYYYMMDDHHi}.out
+cp -f ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.init_atmosphere.lbcs
+cp -f ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/streams.init_atmosphere.lbcs
+cp -f ${DIRRUN}/x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
+cp -f ${DIRRUN}/lbc*.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
 
 EOF0
 
@@ -183,7 +188,7 @@ case "${SCHEDULER_SYSTEM}" in
 #      ${DIRRUN}/lbcs.bash
 #      ;;
 esac
-mv ${DIRRUN}/lbcs.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+cp -f ${DIRRUN}/lbcs.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
 if [ -z "$(ls ${DATAOUT}/${YYYYMMDDHHi}/Pre/lbc* 2>/dev/null)" ]
 then
