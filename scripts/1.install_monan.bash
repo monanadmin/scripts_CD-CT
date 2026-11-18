@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 umask 022
 #-----------------------------------------------------------------------------#
 # !SCRIPT: install_monan
@@ -82,8 +82,8 @@ echo "---- Installing the Model ----"
 echo ""
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  
-DIRHOMED=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
+DIRHOMES=${DIR_SCRIPTS}/${myDIR};  mkdir -p ${DIRHOMES}  
+DIRHOMED=${DIR_DADOS}/${myDIR};    mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;            mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;              mkdir -p ${DATAIN}
 DATAOUT=${DIRHOMED}/dataout;            mkdir -p ${DATAOUT}
@@ -110,28 +110,22 @@ CONVERT_MPAS_DIR=${SOURCES}/convert_mpas_${tag_or_branch_name_CONVERT_MPAS}
 DATE_TIME_NOW=$(date +"%Y%m%d%H%M%S")
 CDCTVERSION=$(head -n 1 ${DIRHOMES}/VERSION.txt | xargs)
 
-# Check MONAN version first local and next github file:
-if [ -f $MONANDIR/VERSION.txt ]; then
-    MONANVERSION=$(head -n 1 $MONANDIR/VERSION.txt)
-elif ! MONANVERSION=$(get_github_file "${github_link_MONAN}" "${tag_or_branch_name_MONAN}" "VERSION.txt"); then
-    echo -e "\n${RED}==>${NC} FAIL! Unable to retrieve MONAN version file from GitHub, check:"
-    echo -e "- Repository:${NC} ${github_link_MONAN}"
-    echo -e "- Branch/Tag:${NC} ${tag_or_branch_name_MONAN}\n"
-    exit 1
-fi
 
 #$(sed -i "s;DIR_SCRIPTS=.*$;DIR_SCRIPTS=$(dirname $(dirname $(pwd)));" setenv.bash)
 #$(sed -i "s;DIR_DADOS=.*$;DIR_DADOS=$(dirname $(dirname $(pwd)));" setenv.bash)
-$(sed -i "s;MONANDIR=.*$;MONANDIR=$MONANDIR;" setenv.bash)
+$(sed -i "s;MONANDIR=.*$;MONANDIR=${MONANDIR};" setenv.bash)
+$(sed -i "s;CONVERT_MPAS_DIR=.*$;CONVERT_MPAS_DIR=${CONVERT_MPAS_DIR};" setenv.bash)
 chmod 755 ${SCRIPTS}/setenv.bash
 . ${SCRIPTS}/setenv.bash
+
+
 
 #--------------- Check compatible Scritps_CD-CT x MONAN-Model--------------------
 echo ""
 echo "*********************************************************************************"
 echo "* ATTENTION:                                                                    *"
 echo "*********************************************************************************"
-echo "*                    scripts_CD-CT / MONAN-Model Compatibility                  *"
+echo "*                    ${myDIR} / MONAN-Model Compatibility                  *"
 echo "*********************************************************************************"
 echo "*                                                                               *"
 echo "*    scripts_CD-CT Version        Compatible MONAN-Model Version                *"
@@ -155,37 +149,6 @@ else
     echo -e "${GREEN}==>${NC} Compatibility OK.\n"
 fi
 
-# --- Copy namelists compatible version-----------------------------------------------------------
-echo -e "${GREEN}==>${NC} Copying 'namelists' for the corresponding 'MONAN-Model' x 'Scripts_CD-CT' versions...\n"
-if [ ! -f ${SCRIPTS}/namelists/NMLVERSION.txt ]; then
-    #---first time -> copy all
-    cp -r ${SCRIPTS}/namelists/${MONANVERSION}/* ${SCRIPTS}/namelists/
-    echo -e "${MONANVERSION}" > ${SCRIPTS}/namelists/NMLVERSION.txt
-    echo -e "Copied all namelist files for the first time.\n"
-else
-    NMLVERSION=$(head -n 1 ${SCRIPTS}/namelists/NMLVERSION.txt | xargs)
-    if [ ${MONANVERSION} == ${NMLVERSION} ]; then
-        #---other times with same version -> preserve user files
-        cp -u ${SCRIPTS}/namelists/${MONANVERSION}/* ${SCRIPTS}/namelists/
-        echo -e "${MONANVERSION}" > ${SCRIPTS}/namelists/NMLVERSION.txt
-        echo -e "User-modified files preserved; only new/updated namelist files copied.\n"
-    else
-	#--- MONAN-Model version changed -> force full copy and preserve user-modified files in the backup folder
-        if diff -rq "${SCRIPTS}/namelists/${NMLVERSION}" "${SCRIPTS}/namelists/" 2>/dev/null | grep -q "differ"; then
-            mkdir -p ${SCRIPTS}/namelists/${NMLVERSION}.user.bkp.${DATE_TIME_NOW}
-            for f in ${SCRIPTS}/namelists/${NMLVERSION}/*; do
-                fname=$(basename "$f")
-                [ -f "${SCRIPTS}/namelists/${fname}" ] && cp "${SCRIPTS}/namelists/${fname}" "${SCRIPTS}/namelists/${NMLVERSION}.user.bkp.${DATE_TIME_NOW}/"
-            done
-            echo -e "Created 'user backup folder' with modified namelist files."
-        else
-            echo -e "No user modifications. Backup not required."
-        fi
-        cp -r ${SCRIPTS}/namelists/${MONANVERSION}/* ${SCRIPTS}/namelists/
-        echo -e "${MONANVERSION}" > ${SCRIPTS}/namelists/NMLVERSION.txt
-	echo -e "MONAN-Model version changed; copied all namelist files and preserved user-modified files, if any, in the 'user' backup folder.\n"
-    fi
-fi	
 
 checkout_system ${MONANDIR} ${github_link_MONAN} ${tag_or_branch_name_MONAN}
 checkout_system ${CONVERT_MPAS_DIR} ${github_link_CONVERT_MPAS} ${tag_or_branch_name_CONVERT_MPAS}
@@ -237,7 +200,7 @@ cat << EOF > make-all.sh
 
 cd ${SCRIPTS}
 . ${SCRIPTS}/setenv.bash
-cd $MONANDIR
+cd ${MONANDIR}
 
 rm -rf $MONANDIR/default_inputs/ $MONANDIR/src/core_atmosphere/physics/physics_wrf/files
 rm -f  $MONANDIR/stream_list.* $MONANDIR/streams.* $MONANDIR/namelist.* 
@@ -256,12 +219,13 @@ MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.atmosphere"
 make clean CORE=atmosphere
 make -j 8 ${MAKE_TARG} CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
 
+MONANVERSION=$(cat ${MONANDIR}/VERSION.txt)
+mkdir -p \${EXECS}/\${MONANVERSION}
 
-#CR: TODO: put verify here if executable was created ok
-mv ${MONANDIR}/atmosphere_model ${EXECS}
-mv ${MONANDIR}/build_tables ${EXECS}
-cp ${MONANDIR}/VERSION.txt ${EXECS}/MONAN-VERSION.txt
-cp ${MONANDIR}/GF_ConvPar_nml ${SCRIPTS}
+mv ${MONANDIR}/atmosphere_model ${EXECS}/\${MONANVERSION}
+mv ${MONANDIR}/build_tables ${EXECS}/\${MONANVERSION}
+cp ${MONANDIR}/VERSION.txt ${EXECS}/\${MONANVERSION}/MONAN-VERSION.txt
+cp ${MONANDIR}/GF_ConvPar_nml ${EXECS}/\${MONANVERSION}
 make clean CORE=atmosphere
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.init_atmosphere"
@@ -269,13 +233,13 @@ MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.init_atmosphere"
 make clean CORE=init_atmosphere
 make -j 8 ${MAKE_TARG2} CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
 
-mv ${MONANDIR}/init_atmosphere_model ${EXECS}
+mv ${MONANDIR}/init_atmosphere_model ${EXECS}/\${MONANVERSION}
 make clean CORE=init_atmosphere
 
 
-if [ -s "${EXECS}/init_atmosphere_model" ] && [ -e "${EXECS}/atmosphere_model" ]; then
+if [ -s "${EXECS}/\${MONANVERSION}/init_atmosphere_model" ] && [ -e "${EXECS}/\${MONANVERSION}/atmosphere_model" ]; then
     echo ""
-    echo -e "${GREEN}==>${NC} Files init_atmosphere_model and atmosphere_model generated Successfully in ${EXECS} !"
+    echo -e "${GREEN}==>${NC} Files init_atmosphere_model and atmosphere_model generated Successfully in ${EXECS}/\${MONANVERSION} !"
     echo
 else
     echo -e "${RED}==>${NC} !!! An error occurred during build. Check output"
@@ -304,10 +268,13 @@ make clean
 make  2>&1 | tee make.convert.output
 
 #CR: TODO: put verify here if executable was created ok
-mv ${CONVERT_MPAS_DIR}/convert_mpas ${EXECS}/
-cp ${CONVERT_MPAS_DIR}/VERSION.txt ${EXECS}/CONVMPAS-VERSION.txt
+CONVERTVERSION=CONV.$(head -n 1 ${CONVERT_MPAS_DIR}/VERSION.txt)
+mkdir -p ${EXECS}/${CONVERTVERSION}
 
-if [ -s "${EXECS}/convert_mpas" ] ; then
+mv ${CONVERT_MPAS_DIR}/convert_mpas ${EXECS}/${CONVERTVERSION}
+cp ${CONVERT_MPAS_DIR}/VERSION.txt ${EXECS}/${CONVERTVERSION}/CONVMPAS-VERSION.txt
+
+if [ -s "${EXECS}/${CONVERTVERSION}/convert_mpas" ] ; then
     echo ""
     echo -e "${GREEN}==>${NC} File convert_mpas generated Sucessfully in ${CONVERT_MPAS_DIR} and copied to ${EXECS} !"
     echo

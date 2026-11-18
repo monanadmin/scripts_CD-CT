@@ -29,8 +29,8 @@ echo "---- Make Init Atmosphere ----"
 echo ""
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
-DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
+DIRHOMES=${DIR_SCRIPTS}/${myDIR};  mkdir -p ${DIRHOMES}  
+DIRHOMED=${DIR_DADOS}/${myDIR};    mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
 DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
@@ -62,6 +62,7 @@ then
       if [[ $MODERUN == "G" ]]
       then
          echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
+         mkdir -p ${DATAIN}/fixed   
          cd ${DATAIN}/fixed
          if wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
          then
@@ -85,12 +86,22 @@ then
    gpmetis -minconn -contig -niter=200 x1.${RES}.graph.info ${cores}
    chmod 755 *
 fi
-
 #check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
-if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
-    files_needed=("${SCRIPTS}/namelists/namelist.init_atmosphere.TEMPLATE" "${SCRIPTS}/namelists/streams.init_atmosphere.TEMPLATE" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" "${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}:${start_date:0:13}" "${EXECS}/init_atmosphere_model")
+if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC; then
+    files_needed=("${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.TEMPLATE" 
+                  "${SCRIPTS}/namelists/${MONANVERSION}/streams.init_atmosphere.TEMPLATE" 
+                  "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" 
+                  "${DATAIN}/fixed/x1.${RES}.static.nc" 
+                  "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" 
+                  "${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}:${start_date:0:13}" 
+                  "${EXECS}/${MONANVERSION}/init_atmosphere_model")
 else
-    files_needed=("${SCRIPTS}/namelists/namelist.init_atmosphere.TEMPLATE" "${SCRIPTS}/namelists/streams.init_atmosphere.TEMPLATE" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}:${start_date:0:13}" "${EXECS}/init_atmosphere_model")
+    files_needed=("${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.TEMPLATE" 
+                  "${SCRIPTS}/namelists/${MONANVERSION}/streams.init_atmosphere.TEMPLATE" 
+                  "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" 
+                  "${DATAIN}/fixed/x1.${RES}.static.nc" 
+                  "${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}:${start_date:0:13}" 
+                  "${EXECS}/${MONANVERSION}/init_atmosphere_model")
 fi
 
 for file in "${files_needed[@]}"
@@ -117,16 +128,16 @@ else
 fi
 
 sed -e "s,#LABELI#,${start_date},g;s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g;s,#EXP#,${EXP},g;s,#BLEND_BDY_TERRAIN#,${BLEND_BDY_TERRAIN},g" \
-    ${SCRIPTS}/namelists/namelist.init_atmosphere.TEMPLATE > ${DIRRUN}/namelist.init_atmosphere
+    ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.TEMPLATE > ${DIRRUN}/namelist.init_atmosphere
 
 sed -e "s,#RES#,${RES},g" \
-    ${SCRIPTS}/namelists/streams.init_atmosphere.TEMPLATE > ${DIRRUN}/streams.init_atmosphere
+    ${SCRIPTS}/namelists/${MONANVERSION}/streams.init_atmosphere.TEMPLATE > ${DIRRUN}/streams.init_atmosphere
 
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/QNWFA_QNIFA_SIGMA_MONTHLY.dat ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:${start_date:0:13} ${DIRRUN}
-cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
+cp -f ${EXECS}/${MONANVERSION}/init_atmosphere_model ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 
 chmod 755 ${DIRRUN}/*

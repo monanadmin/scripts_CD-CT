@@ -50,8 +50,8 @@ echo ""
 
 
 # Standard directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}    
-DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
+DIRHOMES=${DIR_SCRIPTS}/${myDIR};  mkdir -p ${DIRHOMES}  
+DIRHOMED=${DIR_DADOS}/${myDIR};    mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
 DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
@@ -91,26 +91,29 @@ if [ ! -f ${DIRHOMED}/execs/ungrib.exe ]; then
     rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs/ungrib.exe ${DIRHOMED}/execs/
 fi
 #----------------------------------------------------------------------------------
-
 # Building MP_THOMPSON DBL tables
 echo ""
 echo -e  "${GREEN}==>${NC} Building MP_THOMPSON DBL tables ...\n"
 
-files_needed=("${DATAIN}/fixed/MP_THOMPSON_QRacrQG_DATA.DBL" "${DATAIN}/fixed/MP_THOMPSON_QRacrQS_DATA.DBL" "${DATAIN}/fixed/MP_THOMPSON_freezeH2O_DATA.DBL" "${DATAIN}/fixed/MP_THOMPSON_QIautQS_DATA.DBL")
+files_needed=("${DATAIN}/fixed/MP_THOMPSON_QRacrQG_DATA.DBL" 
+              "${DATAIN}/fixed/MP_THOMPSON_QRacrQS_DATA.DBL" 
+              "${DATAIN}/fixed/MP_THOMPSON_freezeH2O_DATA.DBL" 
+              "${DATAIN}/fixed/MP_THOMPSON_QIautQS_DATA.DBL")
 
 if [ ! -s ${DATAIN}/fixed/MP_THOMPSON_QRacrQG_DATA.DBL ]  || [ ! -s ${DATAIN}/fixed/MP_THOMPSON_QRacrQS_DATA.DBL ] || [ ! -s ${DATAIN}/fixed/MP_THOMPSON_freezeH2O_DATA.DBL ] || [ ! -s ${DATAIN}/fixed/MP_THOMPSON_QIautQS_DATA.DBL ]; then
    echo -e  "${GREEN}==>${NC} This calculation can take around 2 minutes on a supercomputer...\n"
 
-   rm -f ${EXECS}/MP_THOMPSON_*_DATA.DBL
    rm -f ${DATAIN}/fixed/MP_THOMPSON_*_DATA.DBL
 
-   cd ${EXECS}
-   ${EXECS}/build_tables
-
-   mv ${EXECS}/MP_THOMPSON_QRacrQG_DATA.DBL    ${DATAIN}/fixed
-   mv ${EXECS}/MP_THOMPSON_QRacrQS_DATA.DBL    ${DATAIN}/fixed
-   mv ${EXECS}/MP_THOMPSON_freezeH2O_DATA.DBL  ${DATAIN}/fixed
-   mv ${EXECS}/MP_THOMPSON_QIautQS_DATA.DBL    ${DATAIN}/fixed
+   cd ${DIRRUN}
+   cp -f ${EXECS}/${MONANVERSION}/build_tables ${DIRRUN}
+   
+   ${DIRRUN}/build_tables 
+   
+   cp -f MP_THOMPSON_QRacrQG_DATA.DBL    ${DATAIN}/fixed
+   cp -f MP_THOMPSON_QRacrQS_DATA.DBL    ${DATAIN}/fixed
+   cp -f MP_THOMPSON_freezeH2O_DATA.DBL  ${DATAIN}/fixed
+   cp -f MP_THOMPSON_QIautQS_DATA.DBL    ${DATAIN}/fixed
 
    chmod 755 ${DATAIN}/fixed/MP_THOMPSON_*_DATA.DBL
    chgrp $USER ${DATAIN}/fixed/MP_THOMPSON_*_DATA.DBL
@@ -118,11 +121,7 @@ if [ ! -s ${DATAIN}/fixed/MP_THOMPSON_QRacrQG_DATA.DBL ]  || [ ! -s ${DATAIN}/fi
    # verify here if the tables were created 
    for file in "${files_needed[@]}"
    do
-     if [ -s "${file}" ] ; then
-       echo ""
-       echo -e "${GREEN}==>${NC} File ${file} generated sucessfully in ${EXECS} and moved to ${DATAIN}/fixed!"
-       echo
-     else
+     if [ ! -s "${file}" ] ; then
        echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"   
        echo -e  "${RED}==>${NC} [${0}] An error occurred during MP_THOMPSON build_tables. At least the file ${file} was not generated. \n"
        exit 1
@@ -131,6 +130,7 @@ if [ ! -s ${DATAIN}/fixed/MP_THOMPSON_QRacrQG_DATA.DBL ]  || [ ! -s ${DATAIN}/fi
 else
    echo -e "${GREEN}==>${NC} MP_THOMPSON DBL tables already exist in ${DATAIN}/fixed!"
 fi
+rm -fr ${DIRRUN}
 
 
 # Copying NoahmpTable.TBL from source to datain folder
@@ -187,7 +187,6 @@ else
    exit 1
 fi
 
-#----------------------------------------------------------------------------------
 
 # Degrib phase:---------------------------------------------------------------------
 if [[ ${EXP} == "GFS" ]]
@@ -206,6 +205,9 @@ else
 fi
 #----------------------------------------------------------------------------------
 
+
+
+
 # Init Atmosphere phase:------------------------------------------------------------
 if [[ ${EXP} == "GFS" || ${EXP} == "ERA" ]]; then
    echo -e  "\n${GREEN}==>${NC} Submitting Init Atmosphere for real case...\n"
@@ -217,6 +219,10 @@ else
    exit 1
 fi
 #----------------------------------------------------------------------------------
+
+
+
+
 
 # LBCs phase:------------------------------------------------------------
 if [[ $MODERUN == "R" ]]; then

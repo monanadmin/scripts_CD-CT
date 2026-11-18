@@ -45,8 +45,8 @@ echo ""
 
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
-DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
+DIRHOMES=${DIR_SCRIPTS}/${myDIR};  mkdir -p ${DIRHOMES}  
+DIRHOMED=${DIR_DADOS}/${myDIR};    mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
 DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
@@ -76,7 +76,7 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 #------------------------------------------------------------------------------------
 
 # Variables for flex outpout interval from streams.atmosphere------------------------
-t_strout=$(cat ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
+t_strout=$(cat ${SCRIPTS}/namelists/${MONANVERSION}/streams.atmosphere.TEMPLATE | sed -n '/<stream name="diagnostics"/,/<\/stream>/s/.*output_interval="\([^"]*\)".*/\1/p')
 t_stroutsec=$(echo ${t_strout} | awk -F: '{print ($1 * 3600) + ($2 * 60) + $3}')
 t_strouthor=$(echo "scale=4; (${t_stroutsec}/60)/60" | bc)
 #------------------------------------------------------------------------------------
@@ -88,28 +88,28 @@ printf -v t_strout "%02d:%02d:%02d" "$h" "$m" "$s"
 
 # Calculating default parameters for different resolutions
 # global mesh
-if [[ "$RES" == "40962" ]]; then      #120Km
+if [[ "${RES}" == "40962" ]]; then      #120Km
    CONFIG_DT=600.0
-elif [[ "$RES" == "163842" ]]; then   #60Km
+elif [[ "${RES}" == "163842" ]]; then   #60Km
    CONFIG_DT=300.0
-elif [[ "$RES" == "655362" ]]; then   #30Km
+elif [[ "${RES}" == "655362" ]]; then   #30Km
    CONFIG_DT=180.0
-elif [[ "$RES" == "1024002" ]]; then  #24Km
+elif [[ "${RES}" == "1024002" ]]; then  #24Km
    CONFIG_DT=150.0
-elif [[ "$RES" == "2621442" ]]; then  #15Km
+elif [[ "${RES}" == "2621442" ]]; then  #15Km
    CONFIG_DT=90.0
-elif [[ "$RES" == "5898242" ]]; then  #10Km
+elif [[ "${RES}" == "5898242" ]]; then  #10Km
    CONFIG_DT=60.0
-elif [[ "$RES" == "23592962" ]]; then  #5km
+elif [[ "${RES}" == "23592962" ]]; then  #5km
    CONFIG_DT=30.0
-elif [[ "$RES" == "65536002" ]]; then  #3Km
+elif [[ "${RES}" == "65536002" ]]; then  #3Km
    CONFIG_DT=18.0
 # regional mesh
-elif [[ "$RES" == "30km_LAC" ]]; then #30 km (AMS + Caribe)
+elif [[ "${RES}" == "30km_LAC" ]]; then #30 km (AMS + Caribe)
    CONFIG_DT=180.0
-elif [[ "$RES" == "10km_LAC" ]]; then #10 km (AMS + Caribe)
+elif [[ "${RES}" == "10km_LAC" ]]; then #10 km (AMS + Caribe)
    CONFIG_DT=60.0
-elif [[ "$RES" == "05km_LAC" ]]; then #5 km (AMS + Caribe)
+elif [[ "${RES}" == "05km_LAC" ]]; then #5 km (AMS + Caribe)
    CONFIG_DT=30.0
 else
     # Calculating CONFIG_DT for personalized mesh.
@@ -117,7 +117,7 @@ else
     MESH_RES_RAD=$(ncdump -v nominalMinDc ${DATAIN}/fixed/x1.${RES}.grid.nc | grep "nominalMinDc =" | awk '{print $3}')
     MESH_RES_KM=$(awk -v res="${MESH_RES_RAD}" 'BEGIN {printf "%.0f", res * 6371.0}')
     CONFIG_DT_CALC=$((MESH_RES_KM * 6))
-   # Check for divisibility by the convection interval
+    # Check for divisibility by the convection interval
     if (( CONFIG_CONV_INTERVAL_SEC % CONFIG_DT_CALC == 0 )); then
         CONFIG_DT=${CONFIG_DT_CALC}
     else
@@ -139,14 +139,12 @@ fi
 #-------------------------------------------------------
 
 # Setting configuration to apply or not lateral boundary conditions and output filename
-if [[ $MODERUN == "R" ]]; then
+if [[ ${MODERUN} == "R" ]]; then
    APPLY_LBCS=true
    echo -e "Model is running in Regional (limited-area) mode.\n"
-   RORG=R
-elif [[ $MODERUN == "G" ]]; then
+elif [[ ${MODERUN} == "G" ]]; then
    APPLY_LBCS=false
    echo -e "Model is running in Global mode.\n"
-   RORG=G
 else
    echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
    echo -e  "${RED}==>${NC} Atmosphere phase fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash' so that MONAN knows whether to read or not lateral boundary conditions.\n"
@@ -166,7 +164,7 @@ if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
 then
    if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info ]
    then
-      if [[ $MODERUN == "G" ]]
+      if [[ ${MODERUN} == "G" ]]
       then
          echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
          cd ${DATAIN}/fixed
@@ -194,10 +192,27 @@ then
 fi
 
 #check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
-if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
-    files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" "${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE}" "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${DATAIN}/fixed/ugwp_limb_tau.nc")
+if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC; then
+    files_needed=("${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.output" 
+                  "${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.diagnostics${VARTABLE}" 
+                  "${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.surface" 
+                  "${EXECS}/${MONANVERSION}/atmosphere_model" 
+                  "${DATAIN}/fixed/x1.${RES}.static.nc" 
+                  "${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc" 
+                  "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" 
+                  "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" 
+                  "${DATAIN}/fixed/Vtable.${EXP}" 
+                  "${DATAIN}/fixed/ugwp_limb_tau.nc")
 else
-    files_needed=("${SCRIPTS}/namelists/stream_list.atmosphere.output" "${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE}" "${SCRIPTS}/namelists/stream_list.atmosphere.surface" "${EXECS}/atmosphere_model" "${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${DATAIN}/fixed/ugwp_limb_tau.nc")
+    files_needed=("${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.output" 
+                  "${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.diagnostics${VARTABLE}" 
+                  "${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.surface" 
+                  "${EXECS}/${MONANVERSION}/atmosphere_model" 
+                  "${DATAIN}/fixed/x1.${RES}.static.nc" 
+                  "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" 
+                  "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc" 
+                  "${DATAIN}/fixed/Vtable.${EXP}" 
+                  "${DATAIN}/fixed/ugwp_limb_tau.nc")
 fi
 
 for file in "${files_needed[@]}"
@@ -210,7 +225,7 @@ do
   fi
 done
 
-cp -f ${EXECS}/atmosphere_model ${DIRRUN}
+cp -f ${EXECS}/${MONANVERSION}/atmosphere_model ${DIRRUN}
 cp -f ${DATAIN}/fixed/*TBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*DBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*DATA ${DIRRUN}
@@ -220,28 +235,28 @@ cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}
 cp -f ${DATAIN}/fixed/ugwp_limb_tau.nc ${DIRRUN}
 #check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
-if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
+if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC; then
     cp -f ${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc ${DIRRUN}
-    cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.diag_ugwp${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diag_ugwp
+    cp -f ${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.diag_ugwp${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diag_ugwp
 else
     : #config_native_gwd_gsl_static is false
 fi
 
-if [[ $MODERUN == "R" ]]; then
+if [[ ${MODERUN} == "R" ]]; then
    cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/lbc*.nc ${DIRRUN}
 fi
 if [[ ${EXP} == "GFS" ||  ${EXP} == "ERA" ]]
 then
    sed -e "s,#LABELI#,${start_date},g;s,#FCSTS#,${DD_HHMMSS_forecast},g;s,#RES#,${RES},g;
 s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_CONV_INTERVAL#,${CONFIG_CONV_INTERVAL},g;s,#APPLY_LBCS#,${APPLY_LBCS},g" \
-   ${SCRIPTS}/namelists/namelist.atmosphere.TEMPLATE > ${DIRRUN}/namelist.atmosphere
+   ${SCRIPTS}/namelists/${MONANVERSION}/namelist.atmosphere.TEMPLATE > ${DIRRUN}/namelist.atmosphere
    
-   sed -e "s,#RES#,${RES},g;s,#RORG#,${RORG},g;s,#LBCINT#,${LBCINT},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
-   ${SCRIPTS}/namelists/streams.atmosphere.TEMPLATE > ${DIRRUN}/streams.atmosphere
+   sed -e "s,#RES#,${RES},g;s,#RORG#,${MODERUN},g;s,#LBCINT#,${LBCINT},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
+   ${SCRIPTS}/namelists/${MONANVERSION}/streams.atmosphere.TEMPLATE > ${DIRRUN}/streams.atmosphere
 fi
-cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.output ${DIRRUN}
-cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diagnostics
-cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.surface ${DIRRUN}
+cp -f ${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.output ${DIRRUN}
+cp -f ${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.diagnostics${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diagnostics
+cp -f ${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.surface ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 
 chmod 755 ${DIRRUN}
@@ -296,14 +311,14 @@ echo "MONAN time taken by run in seconds is " \$wallsecs
 #
 # move dataout, clean up and remove files/links
 #
-mv MONAN_DIAG_* ${DATAOUT}/${YYYYMMDDHHi}/Model
-cp -f ${EXECS}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model
-cp -f ${EXECS}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
+cp -f MONAN_DIAG_* ${DATAOUT}/${YYYYMMDDHHi}/Model
+cp -f ${EXECS}/${MONANVERSION}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model
+cp -f ${EXECS}/${MONANVERSION}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
 cp -f ${DIRHOMES}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/SCRIPTSCDCT-VERSION.txt
 cp -f ${MONANDIR}/README.md ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
-mv log.atmosphere.* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
-mv namelist.atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
-mv stream* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
+cp -f     log.atmosphere.* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
+cp -f namelist.atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
+cp -f stream* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 EOF0
 chmod a+x ${DIRRUN}/model.bash
 
@@ -334,13 +349,13 @@ mv ${DIRRUN}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 
 #-----Loop que verifica se os arquivos foram gerados corretamente (>0)-----
 output_interval=${t_strouthor}
-nfiles=$(echo "$FCST/$output_interval + 1" | bc)
+nfiles=$(echo "$FCST/${output_interval} + 1" | bc)
 for ii in $(seq 1 ${nfiles})
 do
    i=$(printf "%04d" ${ii})
    hh=${YYYYMMDDHHi:8:2}
    currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 $(echo "(${i}-1)*${t_strout:0:2}" | bc) hours $(echo "(${i}-1)*${t_strout:3:2}" | bc) minutes $(echo "(${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
-   file=MONAN_DIAG_${RORG}_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L${NLEV}.nc
+   file=MONAN_DIAG_${MODERUN}_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L${NLEV}.nc
 
    if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Model/${file} ]
    then

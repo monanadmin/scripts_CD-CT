@@ -30,8 +30,8 @@ echo "---- Make Static ----"
 echo ""
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
-DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
+DIRHOMES=${DIR_SCRIPTS}/${myDIR};  mkdir -p ${DIRHOMES}  
+DIRHOMED=${DIR_DADOS}/${myDIR};    mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
 DATAOUT=${DIRHOMED}/dataout;           mkdir -p ${DATAOUT}
@@ -59,7 +59,7 @@ if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
 then
    if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info ]
    then
-      if [[ $MODERUN == "G" ]]
+      if [[ ${MODERUN} == "G" ]]
       then
          echo -e "${GREEN}==>${NC} Downloading Global meshes tgz files ... \n"
          mkdir -p ${DATAIN}/fixed   
@@ -68,15 +68,15 @@ then
          then
             tar -xzvf x1.${RES}.tar.gz
             rm -fr x1.${RES}.tar.gz
-	 else
+	      else
             echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
-            echo -e  "${RED}==>${NC} Make Static phase fails: Global file 'x1.${RES}.tar.gz' not found on 'MPAS atmosphere meshes site'.\n"
+            echo -e  "${RED}==>${NC} Make Static fails: Global file 'x1.${RES}.tar.gz' not found on 'MPAS atmosphere meshes site'.\n"
             echo -e  "${RED}==>${NC} Exiting script.\n"
             exit 1
-	 fi
+	      fi
       else
          echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
-         echo -e  "${RED}==>${NC} Make Static phase fails: Regional file 'x1.${RES}.graph.info' not found in '${DATAIN}/fixed'.\n"
+         echo -e  "${RED}==>${NC} Make Static fails: Regional file 'x1.${RES}.graph.info' not found in '${DATAIN}/fixed'.\n"
          echo -e  "${RED}==>${NC} Exiting script.\n"
          exit 1
       fi
@@ -87,7 +87,14 @@ then
    chmod 755 *
 fi
 
-files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
+
+
+files_needed=("${EXECS}/${MONANVERSION}/init_atmosphere_model" 
+              "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" 
+              "${DATAIN}/fixed/x1.${RES}.grid.nc" 
+              "${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC" 
+              "${SCRIPTS}/namelists/${MONANVERSION}/streams.init_atmosphere.STATIC")
+              
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -101,16 +108,16 @@ done
 
 cp -f ${DATAIN}/fixed/*.TBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*.GFS ${DIRRUN}
-cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
+cp -f ${EXECS}/${MONANVERSION}/init_atmosphere_model ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
 
 sed -e "s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g" \
-   ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC \
+   ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC \
    > ${DIRRUN}/namelist.init_atmosphere
 
 sed -e "s,#RES#,${RES},g" \
-   ${SCRIPTS}/namelists/streams.init_atmosphere.STATIC \
+   ${SCRIPTS}/namelists/${MONANVERSION}/streams.init_atmosphere.STATIC \
    > ${DIRRUN}/streams.init_atmosphere
 
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
@@ -132,6 +139,14 @@ then
    ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/static.bash 
 else
    echo "#!/bin/bash " > ${DIRRUN}/static.bash 
+fi
+
+# keeping only the logs/ directory. Only for PBS for now.
+# so each run keeps its own log instead of overwriting the previous one.
+if [ ${SCHEDULER_SYSTEM} == "PBS" ]
+then
+   sed -i "s|^\(#PBS -o .*/logs/\).*|\1|" ${DIRRUN}/static.bash 
+   sed -i "s|^\(#PBS -e .*/logs/\).*|\1|" ${DIRRUN}/static.bash 
 fi
 
 chmod 755 ${DIRRUN}/*
@@ -197,8 +212,8 @@ case "${SCHEDULER_SYSTEM}" in
       cd ${DIRRUN}
       JOBID=$(qsub -W block=true ${DIRRUN}/static.bash)
       JOBID=${JOBID%%.*}
-      mv ${DATAOUT}/logs/static.bash.o ${DATAOUT}/logs/static.bash.o.${JOBID}
-      mv ${DATAOUT}/logs/static.bash.e ${DATAOUT}/logs/static.bash.e.${JOBID}
+      mv ${DATAOUT}/logs/${JOBID}.pbs-ha.OU ${DATAOUT}/logs/static.bash.o.${JOBID}
+      mv ${DATAOUT}/logs/${JOBID}.pbs-ha.ER ${DATAOUT}/logs/static.bash.e.${JOBID}
       ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
@@ -220,8 +235,9 @@ else
    echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.static.nc was not created. \n"
    exit 1
 fi
+
 #check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
-if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC; then
+if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC; then
     if [ -s ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ]; then
        mv ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ${DATAIN}/fixed
        chmod 755 ${DATAIN}/fixed/*
@@ -235,3 +251,4 @@ fi
 
 chmod -R 755 ${DATAOUT}/logs/*
 rm -fr ${DIRRUN}
+exit
