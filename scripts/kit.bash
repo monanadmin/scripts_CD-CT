@@ -11,4 +11,5 @@ nedit \
 ./link_grib.csh \
 ./run_past2now.bash \
 ./stools/*.bash* \
+./run_subset.bash \
 ./kit.bash &

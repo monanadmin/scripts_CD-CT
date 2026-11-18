@@ -69,16 +69,15 @@ export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=${DIR_SCRIPTS}
-export MONANDIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/scripts_CD-CT/sources/MONAN-Model_2.0.0-rc
-export CONVERT_MPAS_DIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/scripts_CD-CT/sources/convert_mpas_1.2.0
+export MONANDIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/MONAN-A/sources/MONAN-Model_2.0.0-rc
+export CONVERT_MPAS_DIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/MONAN-A/sources/convert_mpas_1.2.0
 export myDIR=$(basename $(dirname $(pwd)))
-echo "myDIR=$myDIR"
 
 # Workaround for 'module purge' failing with 'set -e' when Conda aliases are undefined.
 alias start_conda=: stop_conda=:
 
 # Load your system setenv:
-. ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEYC}.bash
+. ${DIR_SCRIPTS}/${myDIR}/scripts/stools/setenv_${SYSTEM_KEYC}.bash
 
 #-----------------------------------------------------------------------
 # We discourage changing the variables below:
