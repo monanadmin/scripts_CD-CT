@@ -1,0 +1,17 @@
+&config
+ grid_file_input_grid = "#INITFILE#"
+ diag_file_input_grid = "#MODELFILE#"
+ hist_file_input_grid = ""
+ output_file          = "./monan-mpassit-output.nc"
+ block_decomp_file    = "#GRAPHINFOFILE#"
+ interp_diag          = .true.
+ interp_hist          = .false.
+ wrf_mod_vars         = .false.
+ output_grads         = .true.
+ esmf_log             = .true.
+ target_grid_type     = 'lat-lon'
+ is_regional          = #REGANSWER#
+ nx                   = #NLON#
+ ny                   = #NLAT#
+ stand_lon            = 0.0
+/
