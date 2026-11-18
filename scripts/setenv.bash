@@ -71,7 +71,7 @@ export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=${DIR_SCRIPTS}
 export MONANDIR=/p/projetos/monan_adm/carlos.souza/issues/179-GTA-MPASSIT-into-CDCT/scripts_CD-CT/sources/MONAN-Model_2.0.0-rc
 export CONVERT_MPAS_DIR=/p/projetos/monan_adm/carlos.souza/issues/179-GTA-MPASSIT-into-CDCT/scripts_CD-CT/sources/convert_mpas_1.2.0
-export MPASSIT_DIR=/p/projetos/monan_adm/carlos.souza/issues/179-GTA-MPASSIT-into-CDCT/scripts_CD-CT/sources/MPASSIT_develop
+export MPASSIT_DIR=/p/projetos/monan_adm/carlos.souza/issues/179-GTA-MPASSIT-into-CDCT/scripts_CD-CT/sources/MPASSIT_1.0.0
 export myDIR=$(basename $(dirname $(pwd)))
 
 # Workaround for 'module purge' failing with 'set -e' when Conda aliases are undefined.
