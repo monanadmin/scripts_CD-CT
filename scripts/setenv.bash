@@ -69,8 +69,9 @@ export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=${DIR_SCRIPTS}
-export MONANDIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/MONAN-A/sources/MONAN-Model_2.0.0-rc
-export CONVERT_MPAS_DIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/MONAN-A/sources/convert_mpas_1.2.0
+export MONANDIR=/p/projetos/monan_adm/carlos.souza/issues/179-GTA-MPASSIT-into-CDCT/scripts_CD-CT/sources/MONAN-Model_2.0.0-rc
+export CONVERT_MPAS_DIR=/p/projetos/monan_adm/carlos.souza/issues/179-GTA-MPASSIT-into-CDCT/scripts_CD-CT/sources/convert_mpas_1.2.0
+export MPASSIT_DIR=/p/projetos/monan_adm/carlos.souza/issues/179-GTA-MPASSIT-into-CDCT/scripts_CD-CT/sources/MPASSIT_develop
 export myDIR=$(basename $(dirname $(pwd)))
 
 # Workaround for 'module purge' failing with 'set -e' when Conda aliases are undefined.
@@ -82,8 +83,9 @@ alias start_conda=: stop_conda=:
 #-----------------------------------------------------------------------
 # We discourage changing the variables below:
 
-# Others variables:
 
+
+# Others variables:
 if [ -f ${MONANDIR}/VERSION.txt ]
 then
    export MONANVERSION=$(cat ${MONANDIR}/VERSION.txt)
@@ -91,6 +93,10 @@ fi
 if [ -f ${CONVERT_MPAS_DIR}/VERSION.txt ]
 then
    export CONVERTVERSION=CONV.$(head -n 1 ${CONVERT_MPAS_DIR}/VERSION.txt)
+fi
+if [ -f ${MPASSIT_DIR}/VERSION.txt ]
+then
+   export MPASSITVERSION=MPASSIT.$(head -n 1 ${MPASSIT_DIR}/VERSION.txt)
 fi
 
 # Colors:
@@ -119,4 +125,34 @@ how_many_nodes () {
    echo ""
 }
 #----------------------------------------------------------------------------------------------
+
+
+
+
+core_distribution() {
+   # Gera a distribuicao de cores por execucao
+   # $1 = total de cores do no
+   # $2 = numero de cores por execucao
+   
+   local total_cores=$1
+   local cores_per_exec=$2
+
+   if (( total_cores % cores_per_exec != 0 )); then
+      echo "ERRO: total_cores (${total_cores}) nao eh divisivel por cores_per_exec (${cores_per_exec})" >&2
+      return 1
+   fi
+
+   local nexec=$(( total_cores / cores_per_exec ))
+
+   for (( slot=0; slot<nexec; slot++ )); do
+      start=$(( slot * cores_per_exec ))
+      end=$(( start + cores_per_exec - 1 ))
+      echo "${start} ${end}"
+   done
+}
+
+
+
+#----------------------------------------------------------------------------------------------
+
 

@@ -80,6 +80,18 @@ export POST_nthreads=1
 export POST_jobname="Post.MONAN"
 export POST_walltime="8:00:00"
 
+# MPASSIT Post phase:
+export MPASSIT_QUEUE="pesqextra"
+export MPASSIT_ncores=256
+export MPASSIT_nnodes=1
+export MPASSIT_ncpus=256
+export MPASSIT_ncpn=256
+export MPASSIT_nthreads=1
+export MPASSIT_ncpexec=128  # <------ qtde cores por mpassit NAO ALTERAR!
+export MPASSIT_jobname="Post.MPASSIT"
+export MPASSIT_walltime="8:00:00"
+
+
 # Subset phase:
 export SUBSET_QUEUE="pesqextra"
 export SUBSET_ncores=128
