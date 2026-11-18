@@ -82,8 +82,8 @@ echo "---- Installing the Model ----"
 echo ""
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  
-DIRHOMED=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
+DIRHOMES=${DIR_SCRIPTS}/${myDIR};  mkdir -p ${DIRHOMES}  
+DIRHOMED=${DIR_DADOS}/${myDIR};    mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;            mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;              mkdir -p ${DATAIN}
 DATAOUT=${DIRHOMED}/dataout;            mkdir -p ${DATAOUT}
