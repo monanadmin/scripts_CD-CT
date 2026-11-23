@@ -133,12 +133,12 @@ sed -e "s,#LABELI#,${start_date},g;s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g;s,#E
 sed -e "s,#RES#,${RES},g" \
     ${SCRIPTS}/namelists/${MONANVERSION}/streams.init_atmosphere.TEMPLATE > ${DIRRUN}/streams.init_atmosphere
 
-cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
-cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
-cp -f ${DATAIN}/fixed/QNWFA_QNIFA_SIGMA_MONTHLY.dat ${DIRRUN}
+cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}       ${DIRRUN}
+cp -f ${DATAIN}/fixed/x1.${RES}.static.nc                      ${DIRRUN}
+cp -f ${DATAIN}/fixed/QNWFA_QNIFA_SIGMA_MONTHLY.dat            ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:${start_date:0:13} ${DIRRUN}
-cp -f ${EXECS}/${MONANVERSION}/init_atmosphere_model ${DIRRUN}
-cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
+cp -f ${EXECS}/${MONANVERSION}/init_atmosphere_model           ${DIRRUN}
+cp -f ${SCRIPTS}/setenv.bash                                   ${DIRRUN}
 
 chmod 755 ${DIRRUN}/*
 chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
@@ -190,10 +190,10 @@ end_secs=\`date +"%s"\`
 let wallsecs=\$end_secs-\$beg_secs
 echo "INITATMOS time taken by run in seconds is " \$wallsecs
 
-mv ${DIRRUN}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log.init_atmosphere.0000.x1.${RES}.init.nc.${YYYYMMDDHHi}.out
-mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
-mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
-mv ${DIRRUN}/x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
+cp -f ${DIRRUN}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log.init_atmosphere.0000.x1.${RES}.init.nc.${YYYYMMDDHHi}.out
+cp -f ${DIRRUN}/namelist.init_atmosphere     ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+cp -f ${DIRRUN}/streams.init_atmosphere      ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+cp -f ${DIRRUN}/x1.${RES}.init.nc            ${DATAOUT}/${YYYYMMDDHHi}/Pre
 
 EOF0
 
@@ -210,8 +210,8 @@ case "${SCHEDULER_SYSTEM}" in
       cd ${DIRRUN}
       JOBID=$(qsub -W block=true ${DIRRUN}/initatmos.bash)
       JOBID=${JOBID%%.*}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o.${JOBID}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e.${JOBID}
+      cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o.${JOBID}
+      cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e.${JOBID}
       ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
@@ -219,7 +219,7 @@ case "${SCHEDULER_SYSTEM}" in
 #      ${DIRRUN}/initatmos.bash
 #      ;;
 esac
-mv ${DIRRUN}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+cp -f ${DIRRUN}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
 if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ]
 then

@@ -60,7 +60,7 @@ mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 if [ "$HOSTNAME" = "egeon" ]; then
     mkdir -p ${HOME}/local/lib64
     cp -f /usr/lib64/libjasper.so* ${HOME}/local/lib64
-    cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
+    cp -f /usr/lib64/libjpeg.so*   ${HOME}/local/lib64
 fi
 
 BNDDIR=${GCCCIS}/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
@@ -102,12 +102,12 @@ do
 done
 
 # Copia arquivos necessarios para diretorio DIRRUN
-cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
-cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}/Vtable
-cp -f ${EXECS}/ungrib.exe ${DIRRUN}
+cp -f ${DATAIN}/fixed/x1.${RES}.static.nc        ${DIRRUN}
+cp -f ${DATAIN}/fixed/Vtable.${EXP}              ${DIRRUN}/Vtable
+cp -f ${EXECS}/ungrib.exe                        ${DIRRUN}
 cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
-cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
-cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
+cp -f ${SCRIPTS}/setenv.bash                     ${DIRRUN}
+cp -f ${SCRIPTS}/link_grib.csh                   ${DIRRUN}
 rm -f ${DIRRUN}/degrib_${EXP}.bash
 
 if [[ $MODERUN == "R" ]]; then
@@ -192,9 +192,9 @@ fi
 #
 # clean up and remove links
 #
-   mv ungrib.log ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/ungrib.${start_date}.log
-   mv namelist.wps ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.${start_date}.wps
-   mv ${EXP}* ${DATAOUT}/${YYYYMMDDHHi}/Pre
+   cp -f ungrib.log   ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/ungrib.${start_date}.log
+   cp -f namelist.wps ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.${start_date}.wps
+   cp -f ${EXP}*      ${DATAOUT}/${YYYYMMDDHHi}/Pre
    rm -fr ${DATAIN}/${YYYYMMDDHHi}
 
 echo "End of degrib Job"
@@ -274,9 +274,9 @@ fi
 #
 # clean up and remove links
 #
-   mv ungrib.log ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/ungrib.${start_date}.log
-   mv namelist.wps ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.${start_date}.wps
-   mv ${EXP}\:${start_date:0:13} ${DATAOUT}/${YYYYMMDDHHi}/Pre
+   cp -f ungrib.log                 ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/ungrib.${start_date}.log
+   cp -f namelist.wps               ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.${start_date}.wps
+   cp -f ${EXP}\:${start_date:0:13} ${DATAOUT}/${YYYYMMDDHHi}/Pre
    rm -fr ${DATAIN}/${YYYYMMDDHHi}
 
 echo "End of degrib Job"
@@ -303,15 +303,15 @@ case "${SCHEDULER_SYSTEM}" in
       cd ${DIRRUN}
       JOBID=$(qsub -W block=true ${DIRRUN}/degrib_${EXP}.bash)
       JOBID=${JOBID%%.*}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.o.${JOBID}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.e.${JOBID}
+      cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.o.${JOBID}
+      cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib_${EXP}.e.${JOBID}
       ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
 #      ${DIRRUN}/degrib_${EXP}.bash
 #      ;;
 esac
-mv ${DIRRUN}/degrib_${EXP}.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+cp -f ${DIRRUN}/degrib_${EXP}.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
 files_ungrib=("${EXP}:${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}")
 for file in "${files_ungrib[@]}"

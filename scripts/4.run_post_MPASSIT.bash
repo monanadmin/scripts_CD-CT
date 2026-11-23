@@ -252,6 +252,7 @@ fi
 
 
 # Getting info part file:
+#CR: Later this code should become a function in setenv.bash:
 
 fixedDir=${DATAIN}/fixed
 altFixedDir=${MODELOUTPUTDIR}/../../../datain/fixed
@@ -383,10 +384,10 @@ for ii in $(seq 1 ${nfiles})
 do
    i=$(printf "%04d" ${ii})
    mkdir -p ${DIRRUN}/dir.${i}
-   cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}/dir.${i}
+   cp -f ${SCRIPTS}/setenv.bash                                     ${DIRRUN}/dir.${i}
    cp -f ${SCRIPTS}/namelists/${MONANVERSION}/varlist_2d${VARTABLE} ${DIRRUN}/dir.${i}/varlist_2d
    cp -f ${SCRIPTS}/namelists/${MONANVERSION}/varlist_3d${VARTABLE} ${DIRRUN}/dir.${i}/varlist_3d
-   cp -f ${EXECS}/${MPASSITVERSION}/mpassit ${DIRRUN}/dir.${i} 
+   cp -f ${EXECS}/${MPASSITVERSION}/mpassit                         ${DIRRUN}/dir.${i} 
    hh=${YYYYMMDDHHi:8:2}
    currentdate=$(date -d "${YYYYMMDDHHi:0:8} ${hh}:00:00 $(echo "(${i}-1)*${t_strout:0:2}" | bc) hours $(echo "(${i}-1)*${t_strout:3:2}" | bc) minutes $(echo "(${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
    diag_name=MONAN_DIAG_${MODERUN}_MOD_${EXP}_${YYYYMMDDHHi}_${currentdate}.x${RES}L${N_MODEL_LEV}.nc
@@ -655,14 +656,16 @@ sed -i "/tdef/c\tdef ${nfiles} linear \${timectl} ${t_stroutmin}mn" ${DIRRUN}/qc
 sed -i "/dset/c\dset ^${diag_name_templ}" ${DIRRUN}/qctlinfo.ctl
 
 chmod 755 ${DIRRUN}/*
-mv ${DIRRUN}/qctlinfo.ctl ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}.template.ctl
+cp -f ${DIRRUN}/qctlinfo.ctl ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}.template.ctl
 
 # Saving important files to the logs directory:
-cp -f ${EXECS}/${MPASSITVERSION}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
-cp -f ${EXECS}/${MPASSITVERSION}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/dir.0001/namelist.input ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/varlist_2d ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/varlist_3d ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${EXECS}/${MPASSITVERSION}/MPASSIT-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
+cp -f ${EXECS}/${MPASSITVERSION}/MPASSIT-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${EXECS}/${MONANVERSION}/MONAN-VERSION.txt     ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/
+cp -f ${DIRRUN}/dir.0001/namelist.input              ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/varlist_2d                  ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/varlist_3d                  ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/setenv.bash                 ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
 cd ${DIRRUN}/..
 

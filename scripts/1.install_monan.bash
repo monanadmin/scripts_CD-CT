@@ -94,19 +94,19 @@ EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
 
 # Input variables:-----------------------------------------------------
 github_link_MONAN=${1};   #github_link=https://github.com/monanadmin/MONAN-Model.git
-tag_or_branch_name_MONAN=${2}
-tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="2.0.0-rc"}
-echo "MONAN branch name in use: ${tag_or_branch_name_MONAN}"
+monan_branch=${2}
+monan_branch=${monan_branch:="2.0.0-rc"}
+echo "MONAN branch name in use: ${monan_branch}"
 
-tag_or_branch_name_CONVERT_MPAS=${3}
-tag_or_branch_name_CONVERT_MPAS=${tag_or_branch_name_CONVERT_MPAS:="1.2.0"}
-echo "convert_mpas branch name in use: ${tag_or_branch_name_CONVERT_MPAS}"
+convertmpas_branch=${3}
+convertmpas_branch=${convertmpas_branch:="1.2.0"}
+echo "convert_mpas branch name in use: ${convertmpas_branch}"
 #----------------------------------------------------------------------
 
 
 # Local variables:-----------------------------------------------------
-MONANDIR=${SOURCES}/MONAN-Model_${tag_or_branch_name_MONAN}
-CONVERT_MPAS_DIR=${SOURCES}/convert_mpas_${tag_or_branch_name_CONVERT_MPAS}
+MONANDIR=${SOURCES}/MONAN-Model_\${monan_branch}
+CONVERT_MPAS_DIR=${SOURCES}/convert_mpas_\${convertmpas_branch}
 DATE_TIME_NOW=$(date +"%Y%m%d%H%M%S")
 CDCTVERSION=$(head -n 1 ${DIRHOMES}/VERSION.txt | xargs)
 
@@ -138,7 +138,7 @@ echo "*    1.6.0                        1.4.3-rc, 1.4.4, 1.4.5, 2.0.0-rc and dev
 echo "*                                                                               *"
 echo "*********************************************************************************"
 echo ""
-echo -e "Your MONAN-Model Version = ${MONANVERSION} -> using the tag/branch: ${tag_or_branch_name_MONAN}"
+echo -e "Your MONAN-Model Version = ${MONANVERSION} -> using the tag/branch: ${monan_branch}"
 echo -e "Your Scripts_CD-CT Version = ${CDCTVERSION} -> using the tag/branch: $(git describe --tags --exact-match 2>/dev/null || git branch --show-current)"
 echo ""
 echo -e "${GREEN}==>${NC} Check compatibility: Scripts_CD-CT x MONAN-Model...\n"
@@ -150,8 +150,8 @@ else
 fi
 
 
-checkout_system ${MONANDIR} ${github_link_MONAN} ${tag_or_branch_name_MONAN}
-checkout_system ${CONVERT_MPAS_DIR} ${github_link_CONVERT_MPAS} ${tag_or_branch_name_CONVERT_MPAS}
+checkout_system ${MONANDIR} ${github_link_MONAN} ${monan_branch}
+checkout_system ${CONVERT_MPAS_DIR} ${github_link_CONVERT_MPAS} ${convertmpas_branch}
 
 rm -rf $MONANDIR/default_inputs/ $MONANDIR/src/core_atmosphere/physics/physics_wrf/files
 rm -f  $MONANDIR/stream_list.* $MONANDIR/streams.* $MONANDIR/namelist.* 
@@ -222,10 +222,10 @@ make -j 8 ${MAKE_TARG} CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=sing
 MONANVERSION=$(cat ${MONANDIR}/VERSION.txt)
 mkdir -p \${EXECS}/\${MONANVERSION}
 
-mv ${MONANDIR}/atmosphere_model ${EXECS}/\${MONANVERSION}
-mv ${MONANDIR}/build_tables ${EXECS}/\${MONANVERSION}
-cp ${MONANDIR}/VERSION.txt ${EXECS}/\${MONANVERSION}/MONAN-VERSION.txt
-cp ${MONANDIR}/GF_ConvPar_nml ${EXECS}/\${MONANVERSION}
+cp -f ${MONANDIR}/atmosphere_model ${EXECS}/\${MONANVERSION}
+cp -f ${MONANDIR}/build_tables     ${EXECS}/\${MONANVERSION}
+cp -f ${MONANDIR}/VERSION.txt      ${EXECS}/\${MONANVERSION}/MONAN-VERSION.txt
+cp -f ${MONANDIR}/GF_ConvPar_nml   ${EXECS}/\${MONANVERSION}
 make clean CORE=atmosphere
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.init_atmosphere"
@@ -233,7 +233,7 @@ MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.init_atmosphere"
 make clean CORE=init_atmosphere
 make -j 8 ${MAKE_TARG2} CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
 
-mv ${MONANDIR}/init_atmosphere_model ${EXECS}/\${MONANVERSION}
+cp -f ${MONANDIR}/init_atmosphere_model ${EXECS}/\${MONANVERSION}
 make clean CORE=init_atmosphere
 
 
@@ -271,8 +271,8 @@ make  2>&1 | tee make.convert.output
 CONVERTVERSION=CONV.$(head -n 1 ${CONVERT_MPAS_DIR}/VERSION.txt)
 mkdir -p ${EXECS}/${CONVERTVERSION}
 
-mv ${CONVERT_MPAS_DIR}/convert_mpas ${EXECS}/${CONVERTVERSION}
-cp ${CONVERT_MPAS_DIR}/VERSION.txt ${EXECS}/${CONVERTVERSION}/CONVMPAS-VERSION.txt
+cp -f ${CONVERT_MPAS_DIR}/convert_mpas ${EXECS}/${CONVERTVERSION}
+cp -f ${CONVERT_MPAS_DIR}/VERSION.txt  ${EXECS}/${CONVERTVERSION}/CONVMPAS-VERSION.txt
 
 if [ -s "${EXECS}/${CONVERTVERSION}/convert_mpas" ] ; then
     echo ""
