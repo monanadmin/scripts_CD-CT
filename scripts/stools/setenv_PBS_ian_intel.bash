@@ -82,7 +82,7 @@ export POST_jobname="Post.MONAN"
 export POST_walltime="8:00:00"
 
 # MPASSIT Post phase:
-export MPASSIT_QUEUE="pesqextra"
+export MPASSIT_QUEUE="aux"
 export MPASSIT_ncores=256
 export MPASSIT_nnodes=1
 export MPASSIT_ncpus=256

@@ -20,11 +20,11 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 # Input variables:-----------------------------------------------------
 github_link_MONAN="https://github.com/monanadmin/MONAN-Model.git"   # Switch to your fork when you need to make changes or develop the model.
 github_link_MPASSIT="https://github.com/monanadmin/MONAN-MPASSIT.git"
-monan_branch=2.0.0-rc   #1.4.5
-convertmpas_branch=1.2.0
-mpassit_branch=1.0.0
+export monan_branch=1.4.5
+export convertmpas_branch=1.2.0
+export mpassit_branch=1.0.0
 EXP=GFS                    # (EXP) Options: GFS or ERA.
-RES=655362                 # (RES_MESH) Options-Global:    40962 = 120km; 
+RES=30km_LAC                 # (RES_MESH) Options-Global:    40962 = 120km; 
                            #                              163842 =  60km;
 			   #                              655362 =  30Km;
 			   #                             1024002 =  24km;
@@ -39,8 +39,8 @@ FCST=24                    # (FCST).
 #----------------------------------------------------------------------
 
 # STEP 1: Installing and compiling the A-MONAN model and utility programs:
-#time ${SCRIPTS}/1.install_monan.bash ${github_link_MONAN} ${monan_branch} ${convertmpas_branch}
-time ${SCRIPTS}/1.install_MPASSIT.bash ${github_link_MPASSIT} ${mpassit_branch} ${mpassit_branch}
+#time ${SCRIPTS}/1.install_monan.bash   ${github_link_MONAN}   ${monan_branch}   ${convertmpas_branch}
+#time ${SCRIPTS}/1.install_MPASSIT.bash ${github_link_MPASSIT} ${mpassit_branch} ${mpassit_branch}
 #exit
 
 # STEP 2: Executing the pre-processing fase. Preparing all CI/CC files needed:

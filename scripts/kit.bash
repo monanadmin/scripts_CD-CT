@@ -9,8 +9,8 @@ nedit \
 ./3.run_model.bash \
 ./4.run_post*.bash \
 ./setenv.bash \
+./run_subset.bash \
 ./link_grib.csh \
 ./run_past2now.bash \
 ./stools/*.bash* \
-./run_subset.bash \
 ./kit.bash &

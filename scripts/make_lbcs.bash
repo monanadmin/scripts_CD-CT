@@ -112,11 +112,11 @@ sed -e "s,#RES#,${RES},g;s,#LBCINT#,${LBCINT},g" \
     ${SCRIPTS}/namelists/${MONANVERSION}/streams.init_atmosphere.LBCS > ${DIRRUN}/streams.init_atmosphere
 
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
-cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}
-cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:* ${DIRRUN}
-cp -f ${EXECS}/${MONANVERSION}/init_atmosphere_model ${DIRRUN}
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc    ${DIRRUN}
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:*            ${DIRRUN}
+cp -f ${EXECS}/${MONANVERSION}/init_atmosphere_model     ${DIRRUN}
+cp -f ${SCRIPTS}/setenv.bash                             ${DIRRUN}
 
-cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 rm -f ${DIRRUN}/lbcs.bash 
 
 if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
@@ -159,10 +159,10 @@ fi
 date
 
 cp -f ${DIRRUN}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log.init_atmosphere.0000.${RES}.lbcs.nc.${YYYYMMDDHHi}.out
-cp -f ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.init_atmosphere.lbcs
-cp -f ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/streams.init_atmosphere.lbcs
-cp -f ${DIRRUN}/x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
-cp -f ${DIRRUN}/lbc*.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
+cp -f ${DIRRUN}/namelist.init_atmosphere     ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/namelist.init_atmosphere.lbcs
+cp -f ${DIRRUN}/streams.init_atmosphere      ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/streams.init_atmosphere.lbcs
+cp -f ${DIRRUN}/x1.${RES}.init.nc            ${DATAOUT}/${YYYYMMDDHHi}/Pre
+cp -f ${DIRRUN}/lbc*.nc                      ${DATAOUT}/${YYYYMMDDHHi}/Pre
 
 EOF0
 
@@ -179,8 +179,8 @@ case "${SCHEDULER_SYSTEM}" in
       cd ${DIRRUN}
       JOBID=$(qsub -W block=true ${DIRRUN}/lbcs.bash)
       JOBID=${JOBID%%.*}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.o.${JOBID}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.e.${JOBID}
+      cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.o.${JOBID}
+      cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/lbcs.e.${JOBID}
       ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"

@@ -106,11 +106,11 @@ do
 done
 
 
-cp -f ${DATAIN}/fixed/*.TBL ${DIRRUN}
-cp -f ${DATAIN}/fixed/*.GFS ${DIRRUN}
-cp -f ${EXECS}/${MONANVERSION}/init_atmosphere_model ${DIRRUN}
+cp -f ${DATAIN}/fixed/*.TBL                              ${DIRRUN}
+cp -f ${DATAIN}/fixed/*.GFS                              ${DIRRUN}
+cp -f ${EXECS}/${MONANVERSION}/init_atmosphere_model     ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
-cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
+cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc                  ${DIRRUN}
 
 sed -e "s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g" \
    ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC \
@@ -212,8 +212,8 @@ case "${SCHEDULER_SYSTEM}" in
       cd ${DIRRUN}
       JOBID=$(qsub -W block=true ${DIRRUN}/static.bash)
       JOBID=${JOBID%%.*}
-      mv ${DATAOUT}/logs/${JOBID}.pbs-ha.OU ${DATAOUT}/logs/static.bash.o.${JOBID}
-      mv ${DATAOUT}/logs/${JOBID}.pbs-ha.ER ${DATAOUT}/logs/static.bash.e.${JOBID}
+      cp -f ${DATAOUT}/logs/${JOBID}.pbs-ha.OU ${DATAOUT}/logs/static.bash.o.${JOBID}
+      cp -f ${DATAOUT}/logs/${JOBID}.pbs-ha.ER ${DATAOUT}/logs/static.bash.e.${JOBID}
       ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
@@ -222,14 +222,14 @@ case "${SCHEDULER_SYSTEM}" in
 #      ;;
 esac
 
-mv ${DIRRUN}/static.bash ${DATAOUT}/logs/
-mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/logs/
-mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/logs/
-mv log.init_atmosphere.* ${DATAOUT}/logs/
+cp -f ${DIRRUN}/static.bash              ${DATAOUT}/logs/
+cp -f ${DIRRUN}/streams.init_atmosphere  ${DATAOUT}/logs/
+cp -f ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/logs/
+cp -f log.init_atmosphere.*              ${DATAOUT}/logs/
 
 if [ -s ${DIRRUN}/x1.${RES}.static.nc ]
 then
-   mv ${DIRRUN}/x1.${RES}.static.nc ${DATAIN}/fixed
+   cp -f ${DIRRUN}/x1.${RES}.static.nc ${DATAIN}/fixed
    chmod 755 ${DATAIN}/fixed/*
 else
    echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.static.nc was not created. \n"
@@ -239,7 +239,7 @@ fi
 #check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
 if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC; then
     if [ -s ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ]; then
-       mv ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ${DATAIN}/fixed
+       cp -f ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc ${DATAIN}/fixed
        chmod 755 ${DATAIN}/fixed/*
     else
        echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.ugwp_oro_data.nc was not created. \n"

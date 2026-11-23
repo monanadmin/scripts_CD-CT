@@ -236,9 +236,10 @@ for ii in $(seq 1 ${nfiles})
 do
    i=$(printf "%04d" ${ii})
    mkdir -p ${DIRRUN}/dir.${i}
-   cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}/dir.${i}
+   cp -f ${SCRIPTS}/setenv.bash                                               ${DIRRUN}/dir.${i}
    cp -f ${SCRIPTS}/namelists/${MONANVERSION}/include_fields.diag${VARTABLE}  ${DIRRUN}/dir.${i}/include_fields.diag${VARTABLE}
-   cp -f ${DIRRUN}/dir.${i}/include_fields.diag${VARTABLE} ${DIRRUN}/dir.${i}/include_fields
+   cp -f ${DIRRUN}/dir.${i}/include_fields.diag${VARTABLE}                    ${DIRRUN}/dir.${i}/include_fields
+   
    sed -e "s,#NISOLEV#,${NLEV},g;s,#NMODELLEV#,${N_MODEL_LEV},g" \
       ${SCRIPTS}/namelists/${MONANVERSION}/convert_mpas.nml > ${DIRRUN}/dir.${i}/convert_mpas.nml
    sed -e "s,#NLAT#,${NLAT},g;s,#NLON#,${NLON},g;s,#STARTLAT#,${STARTLAT},g;s,#ENDLAT#,${ENDLAT},g;s,#STARTLON#,${STARTLON},g;s,#ENDLON#,${ENDLON},g;" \
@@ -299,7 +300,7 @@ do
    i=\$(printf "%04d" \${ii})
    echo "Preparing post files \${i}"
    cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}/dir.\${i} &
-   cp -f ${EXECS}/${CONVERTVERSION}/convert_mpas ${DIRRUN}/dir.\${i} &
+   cp -f ${EXECS}/${CONVERTVERSION}/convert_mpas         ${DIRRUN}/dir.\${i} &
 done
 
 wait
@@ -416,14 +417,14 @@ elif [ ${SCHEDULER_SYSTEM} == "PBS" ]; then
 fi
 
 # Saving important files to the logs directory:
-cp -f ${EXECS}/${CONVERTVERSION}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
-cp -f ${EXECS}/${CONVERTVERSION}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/dir.0001/target_domain ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/dir.0001/convert_mpas.nml ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/dir.0001/include_fields ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/dir.0001/convert_mpas.output ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DIRRUN}/PostAtmos_node.*.sh ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${EXECS}/${CONVERTVERSION}/CONVMPAS-VERSION.txt   ${DATAOUT}/${YYYYMMDDHHi}/Post
+cp -f ${EXECS}/${CONVERTVERSION}/CONVMPAS-VERSION.txt   ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/target_domain                  ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/convert_mpas.nml               ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/include_fields                 ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/dir.0001/convert_mpas.output            ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DIRRUN}/PostAtmos_node.*.sh                     ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/*            ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
 
@@ -446,8 +447,8 @@ case "${SCHEDULER_SYSTEM}" in
       cd ${DIRRUN}
       JOBID=$(qsub -W depend=${dependency} -W block=true ${DIRRUN}/PostAtmos_node.${node}.sh)
       JOBID=${JOBID%%.*}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o.${JOBID}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e.${JOBID}
+      cp -f ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o.${JOBID}
+      cp -f ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e.${JOBID}
       ;;
 #   GENERIC)
 #      echo "Nenhum gerenciador detectado"
@@ -466,8 +467,8 @@ do
    if [ ${SCHEDULER_SYSTEM} = "SLURM" ]; then
       : # Slurm já gera JOBID na submissão.
    elif [ ${SCHEDULER_SYSTEM} = "PBS" ]; then
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o.${jobid[${n}]}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e.${jobid[${n}]}
+      cp -f ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".o.${jobid[${n}]}
+      cp -f ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node."${n}".e.${jobid[${n}]}
 fi
 done
 echo -e "\n$(basename "$0") completed successfully.\n"

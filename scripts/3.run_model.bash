@@ -40,7 +40,7 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
 echo ""
-echo "---- Run Model ----"
+echo "---- Run Model ${monan_branch} ----"
 echo ""
 
 
@@ -225,15 +225,16 @@ do
   fi
 done
 
-cp -f ${EXECS}/${MONANVERSION}/atmosphere_model ${DIRRUN}
-cp -f ${DATAIN}/fixed/*TBL ${DIRRUN}
-cp -f ${DATAIN}/fixed/*DBL ${DIRRUN}
-cp -f ${DATAIN}/fixed/*DATA ${DIRRUN}
-cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
+cp -f ${EXECS}/${MONANVERSION}/atmosphere_model          ${DIRRUN}
+cp -f ${DATAIN}/fixed/*TBL                               ${DIRRUN}
+cp -f ${DATAIN}/fixed/*DBL                               ${DIRRUN}
+cp -f ${DATAIN}/fixed/*DATA                              ${DIRRUN}
+cp -f ${DATAIN}/fixed/x1.${RES}.static.nc                ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
-cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ${DIRRUN}
-cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}
-cp -f ${DATAIN}/fixed/ugwp_limb_tau.nc ${DIRRUN}
+cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc    ${DIRRUN}
+cp -f ${DATAIN}/fixed/Vtable.${EXP}                      ${DIRRUN}
+cp -f ${DATAIN}/fixed/ugwp_limb_tau.nc                   ${DIRRUN}
+
 #check config_native_gwd_gsl_static is true you need ugwp_oro_data.nc file
 if grep -qE "^\s*config_native_gwd_gsl_static\s*=\s*true\s*(!.*)?$" ${SCRIPTS}/namelists/${MONANVERSION}/namelist.init_atmosphere.STATIC; then
     cp -f ${DATAIN}/fixed/x1.${RES}.ugwp_oro_data.nc ${DIRRUN}
@@ -254,9 +255,9 @@ s,#CONFIG_DT#,${CONFIG_DT},g;s,#CONFIG_LEN_DISP#,${CONFIG_LEN_DISP},g;s,#CONFIG_
    sed -e "s,#RES#,${RES},g;s,#RORG#,${MODERUN},g;s,#LBCINT#,${LBCINT},g;s,#CIORIG#,${EXP},g;s,#LABELI#,${YYYYMMDDHHi},g;s,#NLEV#,${NLEV},g" \
    ${SCRIPTS}/namelists/${MONANVERSION}/streams.atmosphere.TEMPLATE > ${DIRRUN}/streams.atmosphere
 fi
-cp -f ${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.output ${DIRRUN}
+cp -f ${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.output                 ${DIRRUN}
 cp -f ${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.diagnostics${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diagnostics
-cp -f ${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.surface ${DIRRUN}
+cp -f ${SCRIPTS}/namelists/${MONANVERSION}/stream_list.atmosphere.surface                ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 
 chmod 755 ${DIRRUN}
@@ -311,14 +312,14 @@ echo "MONAN time taken by run in seconds is " \$wallsecs
 #
 # move dataout, clean up and remove files/links
 #
-cp -f MONAN_DIAG_* ${DATAOUT}/${YYYYMMDDHHi}/Model
+cp -f MONAN_DIAG_*                               ${DATAOUT}/${YYYYMMDDHHi}/Model
 cp -f ${EXECS}/${MONANVERSION}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model
 cp -f ${EXECS}/${MONANVERSION}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
-cp -f ${DIRHOMES}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/SCRIPTSCDCT-VERSION.txt
-cp -f ${MONANDIR}/README.md ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
-cp -f     log.atmosphere.* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
-cp -f namelist.atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
-cp -f stream* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
+cp -f ${DIRHOMES}/VERSION.txt                    ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/SCRIPTSCDCT-VERSION.txt
+cp -f ${MONANDIR}/README.md                      ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
+cp -f     log.atmosphere.*                       ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
+cp -f namelist.atmosphere                        ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
+cp -f stream*                                    ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 EOF0
 chmod a+x ${DIRRUN}/model.bash
 
@@ -336,8 +337,8 @@ case "${SCHEDULER_SYSTEM}" in
       cd ${DIRRUN}
       JOBID=$(qsub -W block=true ${DIRRUN}/model.bash)
       JOBID=${JOBID%%.*}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o.${JOBID}
-      mv ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e.${JOBID}
+      cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o.${JOBID}
+      cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e.${JOBID}
       ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
@@ -345,7 +346,7 @@ case "${SCHEDULER_SYSTEM}" in
 #      ${DIRRUN}/model.bash
 #      ;;
 esac
-mv ${DIRRUN}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
+cp -f ${DIRRUN}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 
 #-----Loop que verifica se os arquivos foram gerados corretamente (>0)-----
 output_interval=${t_strouthor}

@@ -97,20 +97,9 @@ fi
 output_interval=${t_strouthor}
 nfiles=$(echo "$FCST/$output_interval + 1" | bc)
 
-# Definindo G ou R no MONAN_DIAG
-if [[ $MODERUN == "R" ]]; then
-   RORG=R
-elif [[ $MODERUN == "G" ]]; then
-   RORG=G
-else
-   echo -e  "\n${RED}==>${NC} ***** ATTENTION *****\n"
-   echo -e  "${RED}==>${NC} Make post template phase fails! Please select MODERUN=R (Regional) or MODERUN=G (Global) in 'setenv.bash'.\n"
-   echo -e  "${RED}==>${NC} Exiting script. \n"
-   exit 1
-fi
 
-diag_name_post=MONAN_DIAG_${RORG}_POS_${EXP}_${YYYYMMDDHHi}_${YYYYMMDDHHi}.00.00.x${RES}L${N_MODEL_LEV}.nc
-diag_name_templ=MONAN_DIAG_${RORG}_POS_${EXP}_${YYYYMMDDHHi}_%y4%m2%d2%h2.%n2.00.x${RES}L${N_MODEL_LEV}.nc
+diag_name_post=MONAN_DIAG_${MODERUN}_POS_${EXP}_${YYYYMMDDHHi}_${YYYYMMDDHHi}.00.00.x${RES}L${N_MODEL_LEV}.nc
+diag_name_templ=MONAN_DIAG_${MODERUN}_POS_${EXP}_${YYYYMMDDHHi}_%y4%m2%d2%h2.%n2.00.x${RES}L${N_MODEL_LEV}.nc
 
 
 rm -fr ${DIRRUN}/qctlinfo.gs
@@ -144,5 +133,5 @@ sed -i "/tdef/c\tdef ${nfiles} linear ${timectl} ${t_stroutmin}mn" ${DIRRUN}/qct
 sed -i "/dset/c\dset ^${diag_name_templ}" ${DIRRUN}/qctlinfo.ctl
 
 chmod 755 ${DIRRUN}/*
-mv ${DIRRUN}/qctlinfo.ctl ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}.template.ctl
+cp -f ${DIRRUN}/qctlinfo.ctl ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}.template.ctl
 rm -fr ${DIRRUN}

@@ -80,13 +80,13 @@ EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
 
 # Input variables:-----------------------------------------------------
 github_link_MPASSIT=${1}
-tag_or_branch_name_MPASSIT=${2}
-tag_or_branch_name_MPASSIT=${tag_or_branch_name_MPASSIT:="1.4.3-rc"}
-echo "MPASSIT branch name in use: ${tag_or_branch_name_MPASSIT}"
+mpassit_branch=${2}
+mpassit_branch=${mpassit_branch:="1.4.3-rc"}
+echo "MPASSIT branch name in use: ${mpassit_branch}"
 #----------------------------------------------------------------------
 
 # Local variables:-----------------------------------------------------
-MPASSIT_DIR=${SOURCES}/MPASSIT_${tag_or_branch_name_MPASSIT}
+MPASSIT_DIR=${SOURCES}/MPASSIT_\${mpassit_branch}
 #----------------------------------------------------------------------
 
 $(sed -i "s;MPASSIT_DIR=.*$;MPASSIT_DIR=$MPASSIT_DIR;" setenv.bash)
@@ -137,7 +137,7 @@ nc-config --has-parallel4
 
 #----------------------------------------------------------------------
 
-checkout_system ${MPASSIT_DIR} ${github_link_MPASSIT} ${tag_or_branch_name_MPASSIT}
+checkout_system ${MPASSIT_DIR} ${github_link_MPASSIT} ${mpassit_branch}
 
 MPASSITVERSION=MPASSIT.$(head -n 1 ${MPASSIT_DIR}/VERSION.txt)
 cd ${MPASSIT_DIR}
