@@ -2,7 +2,7 @@
 umask 022
 
 # Choose the simulation mode:
-export MODERUN=G     # R=Regional simulation and G=Global simulation.
+export MODERUN=R     # R=Regional simulation and G=Global simulation.
 export LBCINT=10800  # Interval (seconds) for updating lateral boundary conditions (when regional mode).
 
 export monan_branch=${monan_branch:=2.0.0-rc}
@@ -73,9 +73,9 @@ export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=${DIR_SCRIPTS}
-export MONANDIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/scripts_CD-CT/sources/MONAN-Model_${monan_branch}
-export CONVERT_MPAS_DIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/scripts_CD-CT/sources/convert_mpas_${convertmpas_branch}
-export MPASSIT_DIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/scripts_CD-CT/sources/MPASSIT_${mpassit_branch}
+export MONANDIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/NOVO/scripts_CD-CT/sources/MONAN-Model_${monan_branch}
+export CONVERT_MPAS_DIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/NOVO/scripts_CD-CT/sources/convert_mpas_${convertmpas_branch}
+export MPASSIT_DIR=/lustre/projetos/monan_adm/carlos.souza/issues/1015-GCC-scripts-correctin/NOVO/scripts_CD-CT/sources/MPASSIT_${mpassit_branch}
 export myDIR=$(basename $(dirname $(pwd)))
 
 # Workaround for 'module purge' failing with 'set -e' when Conda aliases are undefined.
