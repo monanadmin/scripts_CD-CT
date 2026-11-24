@@ -24,7 +24,7 @@ export monan_branch=1.4.5
 export convertmpas_branch=1.2.0
 export mpassit_branch=1.0.0
 EXP=GFS                    # (EXP) Options: GFS or ERA.
-RES=30km_LAC                 # (RES_MESH) Options-Global:    40962 = 120km; 
+RES=655362                 # (RES_MESH) Options-Global:    40962 = 120km; 
                            #                              163842 =  60km;
 			   #                              655362 =  30Km;
 			   #                             1024002 =  24km;
@@ -44,12 +44,12 @@ FCST=24                    # (FCST).
 #exit
 
 # STEP 2: Executing the pre-processing fase. Preparing all CI/CC files needed:
-time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+#time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
 #exit
 
 # STEP 3: Executing the Model run:
 time ${SCRIPTS}/3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
-#exit
+exit
 
 # STEP 4: Executing the Post of Model run:
 #time ${SCRIPTS}/4.run_post_ConvertMPAS.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
